@@ -1,0 +1,4 @@
+{
+  "extends": "@scholis/config/tsconfig.package.json",
+  "include": ["src/**/*"]
+}

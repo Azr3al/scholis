@@ -1,0 +1,19 @@
+{
+  "name": "@scholis/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.package.json": "./tsconfig.package.json",
+    "./eslint": "./eslint.base.js",
+    "./vitest": "./vitest.base.js"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-import-x": "^4.6.1",
+    "typescript-eslint": "^8.19.0",
+    "vitest": "^2.1.8"
+  }
+}

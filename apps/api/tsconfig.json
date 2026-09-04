@@ -1,0 +1,12 @@
+{
+  "extends": "@scholis/config/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["src", "server", "data", "http", "lib", "scripts", "test"],
+  "exclude": ["node_modules", "dist"]
+}

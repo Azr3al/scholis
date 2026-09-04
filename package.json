@@ -1,0 +1,37 @@
+{
+  "name": "scholis",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "arch": "depcruise --config .dependency-cruiser.cjs packages apps",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+<<<<<<< HEAD
+    "verify": "pnpm typecheck && pnpm lint && pnpm arch && pnpm test"
+=======
+    "verify": "pnpm typecheck && pnpm lint && pnpm arch && pnpm test",
+    "test:e2e": "pnpm --filter @scholis/web test:e2e"
+>>>>>>> master
+  },
+  "devDependencies": {
+    "@scholis/config": "workspace:*",
+    "dependency-cruiser": "^16.9.0",
+<<<<<<< HEAD
+=======
+    "dotenv-cli": "^11.0.0",
+>>>>>>> master
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}

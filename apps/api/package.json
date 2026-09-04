@@ -1,0 +1,39 @@
+{
+  "name": "@scholis/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- tsx watch src/index.ts",
+    "start": "dotenv -e ../../.env -- tsx src/index.ts",
+    "typecheck": "tsc",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "provision": "dotenv -e ../../.env -- tsx scripts/provision-org.ts",
+    "build": "node build.mjs",
+    "start:prod": "node dist/index.mjs",
+    "migrate": "node dist/migrate.mjs"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "@hono/zod-validator": "^0.9.0",
+    "@scholis/contracts": "workspace:^",
+    "@scholis/db": "workspace:*",
+    "@scholis/engine": "workspace:*",
+    "@scholis/schema": "workspace:*",
+    "@scholis/scoring": "workspace:*",
+    "better-auth": "^1.6.26",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.13.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@scholis/config": "workspace:*",
+    "@types/node": "^22.10.5",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.17.0",
+    "tsx": "^4.23.11",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

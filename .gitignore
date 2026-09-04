@@ -1,0 +1,78 @@
+<<<<<<< HEAD
+node_modules/
+dist/
+.next/
+out/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+playwright-report/
+test-results/
+=======
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+dist/
+.turbo/
+
+# Test & coverage
+coverage/
+playwright-report/
+test-results/
+apps/web/e2e/.auth/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment (keep .env.example for onboarding)
+.env
+.env.*
+.env.example
+
+# Logs & debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE (project rules live in .cursor/rules — commit those; ignore local editor state)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Deploy / hosting
+.vercel
+
+# Misc local tooling
+.superpowers/
+.worktrees/
+
+.agents/
+.cursor/
+test-plans/
+
+DESIGN.md
+IMPLEMENTATION.md
+README.md.storage/
+>>>>>>> master
