@@ -1,0 +1,163 @@
+slice_id: fe-helpers
+repo: schedjuice-reimagined-fe
+path: src/helpers
+skipped: false
+deleted:
+  - path: src/helpers/calculateTotalWeeks.ts
+    symbol: calculateTotalWeeks
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Empty file; zero static imports across src
+  - path: src/helpers/copy-column.ts
+    symbol: copyColumn
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Zero static imports; clipboard column helper never wired
+  - path: src/helpers/query_params.ts
+    symbol: createQueryString
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Zero static imports of module or symbol
+  - path: src/helpers/sort.ts
+    symbol: sortFactory
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Zero static imports of module or symbol
+  - path: src/helpers/assignment.ts
+    symbol: getAssignmentStatus
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Sole export unused; incomplete status branches left unfinished
+  - path: src/helpers/api.ts
+    symbol: getAccountFromCookie
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Zero static imports; client cookie parse unused
+  - path: src/helpers/timeslot.ts
+    symbol: toUtcFromTenant
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed superseded commented implementation; live toUtcFromTenant retained; formatTime helper kept (still used)
+  - path: src/helpers/image-editor/handle.ts
+    symbol: Handle.onDrag
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed commented middle/corner handle drag branches (indexes 0,1,2,6) with no ticket pointer
+  - path: src/helpers/meeting-attendance-gate.ts
+    symbol: tenantShowsVideoAttendance
+    reason: dead-export
+    confidence: obvious
+    notes: Deprecated alias of tenantShowsMeetingAttendance; zero refs
+  - path: src/helpers/meeting-attendance-gate.ts
+    symbol: tenantShowsTeamsAttendance
+    reason: dead-export
+    confidence: obvious
+    notes: Deprecated alias of tenantShowsMeetingAttendance; zero refs
+  - path: src/helpers/money.ts
+    symbol: formatUsdDecimalString
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static refs; formatMoney/formatDecimalString remain in use
+  - path: src/helpers/authorization.ts
+    symbol: canViewOwnStaffPayments
+    reason: dead-export
+    confidence: obvious
+    notes: Only used by other deleted dead exports; canViewAllStaffPayments remains
+  - path: src/helpers/authorization.ts
+    symbol: canViewStaffPayments
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites outside definition
+  - path: src/helpers/authorization.ts
+    symbol: showOwnStaffPaymentsNav
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; nav never wired
+  - path: src/helpers/colors.ts
+    symbol: hslToRgb
+    reason: dead-export
+    confidence: obvious
+    notes: Unused export; removed with private hueToRgb helper; rgbToHslString path kept
+  - path: src/helpers/colors.ts
+    symbol: getRandomColor
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static refs
+  - path: src/helpers/table.tsx
+    symbol: getCommonPinningStyles
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static refs; getSortableHeader remains used
+  - path: src/helpers/authorization-media.test.ts
+    symbol: hasAdminCredentials
+    reason: commented-out-block
+    confidence: obvious
+    notes: Empty describe scaffold caused Vitest empty-suite failure; removed unused import
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/helpers/date.ts
+    symbol: showCourseDuration|secondsToHHmmss|detectDateFormat|normalizeDateUsingFormat|calculateDifference|combineDateAndTime|getSundaysAndSabbathDaysOfMonth
+    reason: public-util-grab-bag-unused
+    confidence: ambiguous
+    notes: Large shared date util with several exports that have no static callers; may be intentional public surface — do not delete without confirm
+  - path: src/helpers/file.tsx
+    symbol: downloadCsv|exportReportToCSV|extractFilesFromQuiz|getMd5Checksum|parseFileAsChunks
+    reason: public-util-grab-bag-unused
+    confidence: ambiguous
+    notes: File helpers module still imported for other symbols; unused exports look like leftover CSV/quiz helpers
+  - path: src/helpers/dvr.ts
+    symbol: normalizeDvrFields
+    reason: test-only-export
+    confidence: ambiguous
+    notes: Only referenced from dvr.test.ts; production DVR helpers remain actively used — leave alone
+  - path: src/helpers/payment-receipt.ts
+    symbol: buildPaymentReceiptPayload|buildGroupPaymentReceiptPayload|resolveLogoForPdf
+    reason: test-only-export
+    confidence: ambiguous
+    notes: Several receipt builders appear test-only while module is used in production PDF paths
+  - path: src/helpers/tiptapExternalLinkConfirm.ts
+    symbol: confirmThenOpenExternalLink
+    reason: possible-dead-export
+    confidence: ambiguous
+    notes: Zero static refs found; could be intended for editor plugins — confirm before delete
+  - path: src/helpers/subject-create-config.ts
+    symbol: findSubjectIdByName|isDuplicateSubjectNameError
+    reason: possible-dead-export
+    confidence: ambiguous
+    notes: Module may still export other used symbols; these two lack static callers
+  - path: src/helpers/course-insights.ts
+    symbol: fetchOverlapReschedulePreview
+    reason: possible-dead-export
+    confidence: ambiguous
+    notes: Zero static refs; may be planned reschedule UI hookup
+  - path: src/helpers/form.ts
+    symbol: findFirstNativeInvalidControl|focusFormFieldTarget
+    reason: possible-dead-export
+    confidence: ambiguous
+    notes: Sibling form scroll/highlight helpers are used; these two lack callers
+files_touched:
+  - src/helpers/calculateTotalWeeks.ts
+  - src/helpers/copy-column.ts
+  - src/helpers/query_params.ts
+  - src/helpers/sort.ts
+  - src/helpers/assignment.ts
+  - src/helpers/api.ts
+  - src/helpers/timeslot.ts
+  - src/helpers/image-editor/handle.ts
+  - src/helpers/meeting-attendance-gate.ts
+  - src/helpers/money.ts
+  - src/helpers/authorization.ts
+  - src/helpers/colors.ts
+  - src/helpers/table.tsx
+  - src/helpers/authorization-media.test.ts
+  - docs/superpowers/specs/hygiene-reports/fe-helpers.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/helpers
+  passed: true
+  notes: >-
+    65 files / 407 tests passed.
+    Note: `pnpm test:unit -- src/helpers` still collects the full unit suite under this
+    Vitest config; use path arg without the `--` separator for helpers-only.
+    Full-suite run shows unrelated pre-existing failures outside src/helpers
+    (empty suites elsewhere + finance schema message drift).

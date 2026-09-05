@@ -1,0 +1,45 @@
+slice_id: fe-components-course-identity
+repo: schedjuice-reimagined-fe
+path: src/components/course-identity
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/course-identity/subject-chips.tsx
+    symbol: SubjectChips
+    reason: export-only-used-in-slice
+    confidence: ambiguous
+    notes: >-
+      Exported component only imported by CourseIdentityBlock in this directory;
+      zero external src/ imports. Prefer ambiguous for public component surface /
+      Next.js reachability — do not un-export/delete without confirm.
+  - path: src/components/course-identity/course-identity-types.ts
+    symbol: CourseIdentityVariant
+    reason: public-type-export-unused
+    confidence: ambiguous
+    notes: >-
+      Exported union type has zero importers under src/ (not even used in-slice;
+      CourseIdentityBlock inlines "hub" | "record" on Props). Prefer ambiguous
+      for public type surface — do not delete without confirm.
+  - path: src/components/course-identity/course-identity-types.ts
+    symbol: RecordIdentityExtras
+    reason: public-type-export-unused
+    confidence: ambiguous
+    notes: >-
+      Exported type only imported by CourseIdentityBlock in this directory; zero
+      external type importers. Prefer ambiguous for public props contract —
+      do not un-export/delete without confirm.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-components-course-identity.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/course-identity
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/course-identity (vitest: "No test files
+    found"). Skipped per hygiene playbook. No FE source edits (scan-only).
+    Live chain: academic-hub/course-card (hub) + record/academic/record-course-row
+    + course/record/{course-section-rail,course-record-identity-strip} (record)
+    → CourseIdentityBlock → SubjectChips; CourseIdentityCourse type imported by
+    course record strip/rail.

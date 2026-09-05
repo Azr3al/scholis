@@ -1,0 +1,1473 @@
+@import "tailwindcss";
+
+@plugin 'tailwindcss-animate';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) {
+      @slot;
+    }
+  }
+}
+
+/* Suppress color transitions while applyTheme() flips tokens (FOUC guard). */
+html[data-sj-theme-switching] *,
+html[data-sj-theme-switching] *::before,
+html[data-sj-theme-switching] *::after {
+  transition: none !important;
+}
+
+@theme {
+  --breakpoint-xl: 1400px;
+  --z-index-base: 0;
+  --z-index-sticky: 10;
+  --z-index-navigation: 20;
+  --z-index-dropdown: 50;
+  --z-index-banner: 100;
+  --z-index-modal-backdrop: 200;
+  --z-index-modal-content: 210;
+  --z-index-modal-dropdown: 220;
+  --z-index-toast: 300;
+  --z-index-emergency: 400;
+  --color-course-card: var(--course-card);
+  --color-course-card-foreground: var(--course-card-foreground);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-newspaper: #f9f7f1;
+
+  --animate-fade-in: fadeIn 0.6s ease-in-out both calc(var(--delay, 0) * 120ms);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-collapsible-down: collapsible-down 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-collapsible-up: collapsible-up 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-refresh-spin: refresh-spin 0.3s cubic-bezier(0.4, 0, 0.2, 1) 3;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --color-status-blue: var(--status-blue);
+
+  --color-warning-yellow: var(--warning-yellow);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--accordion-panel-height, auto);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--accordion-panel-height, auto);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes collapsible-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--collapsible-panel-height, auto);
+    }
+  }
+  @keyframes collapsible-up {
+    from {
+      height: var(--collapsible-panel-height, auto);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0%;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 100%;
+      transform: none;
+    }
+  }
+
+  @keyframes refresh-spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit bo rder
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+/*
+    https://github.com/tailwindlabs/tailwindcss/discussions/2394
+    https://github.com/tailwindlabs/tailwindcss/pull/5732
+*/
+@utility no-scrollbar {
+  /* Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility sj-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border-strong) 85%, transparent)
+    transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--border-strong) 85%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+  }
+}
+
+@layer base {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.14 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.14 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.14 0 0);
+    --primary: oklch(0.2 0 0);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.2 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.56 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.2 0 0);
+    --destructive: oklch(0.58 0.24 28.48);
+    /* Neutral white on destructive meets WCAG AA (~4.7:1) for normal text */
+    --destructive-foreground: oklch(0.99 0 0);
+    --border: oklch(0.92 0 0);
+    --input: oklch(0.92 0 0);
+    --ring: oklch(0.71 0 0);
+    --chart-1: oklch(0.65 0.22 36.85);
+    --chart-2: oklch(0.6 0.11 184.15);
+    --chart-3: oklch(0.4 0.07 227.18);
+    --chart-4: oklch(0.83 0.17 81.03);
+    --chart-5: oklch(0.77 0.17 65.36);
+    --sidebar: oklch(0.99 0 0);
+    --sidebar-foreground: oklch(0.14 0 0);
+    --sidebar-primary: oklch(0.2 0 0);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.2 0 0);
+    --sidebar-border: oklch(0.92 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+
+    --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui,
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", "Noto Color Emoji";
+    --font-serif: "Geist", "Geist Fallback", ui-serif, Georgia, Cambria,
+      "Times New Roman", Times, serif;
+    --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace,
+      SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+      monospace;
+
+    --radius: 0.625rem;
+
+    --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
+    --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 2px 4px -1px oklch(0 0 0 / 0.1);
+    --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 4px 6px -1px oklch(0 0 0 / 0.1);
+    --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 8px 10px -1px oklch(0 0 0 / 0.1);
+    --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+
+    /* Status chrome — AA on cream (aligned with palette.ts; not neon legacy) */
+    --success: #1a6e62;
+    --status-blue: #1e6a9a;
+    --warning-yellow: #c98a2b;
+
+    --gradient: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+    --course-card: 218 98% 12%;
+    --course-card-foreground: 217 27% 91%;
+  }
+
+  .dark {
+    --background: oklch(0.14 0 0);
+    --foreground: oklch(0.99 0 0);
+    --card: oklch(0.2 0 0);
+    --card-foreground: oklch(0.99 0 0);
+    --popover: oklch(0.2 0 0);
+    --popover-foreground: oklch(0.99 0 0);
+    --primary: oklch(0.66 0.09 159.28);
+    --primary-foreground: oklch(0.2 0 0);
+    --secondary: oklch(0.27 0 0);
+    --secondary-foreground: oklch(0.99 0 0);
+    --muted: oklch(0.27 0 0);
+    --muted-foreground: oklch(0.71 0 0);
+    --accent: oklch(0.27 0 0);
+    --accent-foreground: oklch(0.99 0 0);
+    /* Darker fill so light foreground meets WCAG AA (~4.7:1) on destructive */
+    --destructive: oklch(0.575 0.19 22.23);
+    --destructive-foreground: oklch(0.99 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.56 0 0);
+    --chart-1: oklch(0.49 0.24 264.4);
+    --chart-2: oklch(0.7 0.16 160.43);
+    --chart-3: oklch(0.77 0.17 65.36);
+    --chart-4: oklch(0.62 0.26 305.32);
+    --chart-5: oklch(0.64 0.25 16.51);
+    --sidebar: oklch(0.2 0 0);
+    --sidebar-foreground: oklch(0.99 0 0);
+    --sidebar-primary: oklch(0.66 0.09 159.28);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.27 0 0);
+    --sidebar-accent-foreground: oklch(0.99 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.56 0 0);
+
+    --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
+    --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 2px 4px -1px oklch(0 0 0 / 0.1);
+    --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 4px 6px -1px oklch(0 0 0 / 0.1);
+    --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1),
+      0 8px 10px -1px oklch(0 0 0 / 0.1);
+    --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+
+    --radius: 0.5rem;
+
+    --success: #4ecdc4;
+    --status-blue: #6bb3d9;
+    --warning-yellow: #e0a94e;
+
+    --gradient: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+  }
+
+  /*
+   * sRGB fallbacks for browsers/webviews without oklch() support (older Safari/Chrome,
+   * Android WebView, in-app browsers). Without these, popover/dialog surfaces render
+   * transparent and dropdowns appear missing.
+   */
+  @supports not (color: oklch(0 0 0)) {
+    :root {
+      --background: #ffffff;
+      --foreground: #090909;
+      --card: #ffffff;
+      --card-foreground: #090909;
+      --popover: #ffffff;
+      --popover-foreground: #090909;
+      --primary: #161616;
+      --primary-foreground: #fcfcfc;
+      --secondary: #f5f5f5;
+      --secondary-foreground: #161616;
+      --muted: #f5f5f5;
+      --muted-foreground: #747474;
+      --accent: #f5f5f5;
+      --accent-foreground: #161616;
+      --destructive: #e60006;
+      --destructive-foreground: #fcfcfc;
+      --border: #e4e4e4;
+      --input: #e4e4e4;
+      --ring: #a1a1a1;
+      --chart-1: #f74800;
+      --chart-2: #009588;
+      --chart-3: #114f65;
+      --chart-4: #ffb90b;
+      --chart-5: #fc9a0d;
+      --sidebar: #fcfcfc;
+      --sidebar-foreground: #090909;
+      --sidebar-primary: #161616;
+      --sidebar-primary-foreground: #fcfcfc;
+      --sidebar-accent: #f5f5f5;
+      --sidebar-accent-foreground: #161616;
+      --sidebar-border: #e4e4e4;
+      --sidebar-ring: #a1a1a1;
+      --success: #1a6e62;
+      --status-blue: #1e6a9a;
+      --warning-yellow: #c98a2b;
+      --shadow-2xs: 0 1px 3px 0px rgba(0, 0, 0, 0.05);
+      --shadow-xs: 0 1px 3px 0px rgba(0, 0, 0, 0.05);
+      --shadow-sm: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 8px 10px -1px rgba(0, 0, 0, 0.1);
+      --shadow-2xl: 0 1px 3px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .dark {
+      --background: #090909;
+      --foreground: #fcfcfc;
+      --card: #161616;
+      --card-foreground: #fcfcfc;
+      --popover: #161616;
+      --popover-foreground: #fcfcfc;
+      --primary: #5ea37e;
+      --primary-foreground: #161616;
+      --secondary: #262626;
+      --secondary-foreground: #fcfcfc;
+      --muted: #262626;
+      --muted-foreground: #a1a1a1;
+      --accent: #262626;
+      --accent-foreground: #fcfcfc;
+      --destructive: #d13842;
+      --destructive-foreground: #fcfcfc;
+      --border: rgba(255, 255, 255, 0.1);
+      --input: rgba(255, 255, 255, 0.15);
+      --ring: #747474;
+      --chart-1: #1649e5;
+      --chart-2: #00bc7c;
+      --chart-3: #fc9a0d;
+      --chart-4: #ad45ff;
+      --chart-5: #ff1454;
+      --sidebar: #161616;
+      --sidebar-foreground: #fcfcfc;
+      --sidebar-primary: #5ea37e;
+      --sidebar-primary-foreground: #fcfcfc;
+      --sidebar-accent: #262626;
+      --sidebar-accent-foreground: #fcfcfc;
+      --sidebar-border: rgba(255, 255, 255, 0.1);
+      --sidebar-ring: #747474;
+      --success: #4ecdc4;
+      --status-blue: #6bb3d9;
+      --warning-yellow: #e0a94e;
+      --shadow-2xs: 0 1px 3px 0px rgba(0, 0, 0, 0.05);
+      --shadow-xs: 0 1px 3px 0px rgba(0, 0, 0, 0.05);
+      --shadow-sm: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 1px 3px 0px rgba(0, 0, 0, 0.1),
+        0 8px 10px -1px rgba(0, 0, 0, 0.1);
+      --shadow-2xl: 0 1px 3px 0px rgba(0, 0, 0, 0.25);
+    }
+  }
+}
+
+@layer base {
+  * {
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1 {
+    @apply text-[40px];
+  }
+}
+
+@layer utilities {
+  .rdp-vhidden {
+    @apply hidden;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/*
+  ---break---
+*/
+
+@layer base {
+  * {
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+#editor-content .ProseMirror {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
+  font-size: 1rem;
+  padding: 0;
+  min-height: 0;
+  height: auto; /* let it grow only with content */
+}
+
+#editor-content-form .ProseMirror {
+  padding: 0.75rem;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
+  font-size: 1.3rem;
+  min-height: 130px;
+  height: auto; /* let it grow only with content */
+}
+.ProseMirror {
+  border: none;
+}
+
+/*
+ * Keep prompt text + inline math on one line when it fits; scroll horizontally if not.
+ * Otherwise the last tokens (e.g. "→") stay on the previous line and the math block wraps alone.
+ */
+.quiz-v3-tiptap .ProseMirror
+  :is(p, li, td, th):has(span[data-type="inline-math"]) {
+  white-space: nowrap;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+/* KaTeX \sqrt: inner .hide-tail uses width:100%; min-content keeps the wrapper from growing to the editor width. */
+.quiz-v3-tiptap span.tiptap-mathematics-render {
+  display: inline-block;
+  width: min-content;
+  max-width: none;
+  vertical-align: baseline;
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+.quiz-v3-tiptap div.tiptap-mathematics-render {
+  display: block;
+  width: min-content;
+  max-width: 100%;
+}
+
+.quiz-v3-tiptap div.tiptap-mathematics-render .block-math-inner {
+  display: inline-block;
+  width: min-content;
+  max-width: 100%;
+}
+
+/*
+ * KaTeX \sqrt: .hide-tail is width:100% of its parent (katex.css). If .mord.sqrt can grow to the
+ * paragraph width (max-width:100% on the sqrt group), the surd stretches to the full prompt.
+ * Keep the sqrt box intrinsic: min-content + layout containment so % widths resolve inside it.
+ */
+.quiz-v3-tiptap .tiptap-mathematics-render .katex {
+  display: inline-block;
+  width: min-content;
+  max-width: none;
+  /* KaTeX default is 1.21em; inline frac/sqrt stacks use script sizes and read tiny next to text-md. */
+  font-size: 1.65em;
+}
+
+.quiz-v3-tiptap .tiptap-mathematics-render .katex .mord.sqrt {
+  display: inline-block;
+  width: min-content;
+  max-width: none;
+}
+
+/* Optional safety: avoid stretchy delimiter SVGs filling a wide ancestor */
+.quiz-v3-tiptap .tiptap-mathematics-render .katex .hide-tail {
+  width: auto !important;
+}
+
+.quiz-v3-tiptap .tiptap-mathematics-render .katex .stretchy {
+  width: auto !important;
+}
+
+.quiz-v3-rich-html .katex {
+  font-size: 1.65em;
+}
+
+.quiz-v3-rich-html :is(p, li, td, th):has([data-type="inline-math"]) {
+  white-space: nowrap;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.quiz-v3-rich-html [data-type="inline-math"] {
+  white-space: nowrap;
+}
+
+/* Quiz v3 TipTap: table borders (scoped; avoids CSS module / preflight conflicts in editor) */
+.quiz-v3-tiptap .ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  background-color: var(--background);
+}
+
+/* !important: Tailwind preflight / layered utilities win without it (see debug: cellBorderWidth stayed 0px) */
+.quiz-v3-tiptap .ProseMirror td,
+.quiz-v3-tiptap .ProseMirror th {
+  border: 1.5px solid var(--border) !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-color: var(--border) !important;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 3px 5px;
+  position: relative;
+  vertical-align: top;
+}
+
+.quiz-v3-tiptap .ProseMirror th {
+  background-color: var(--muted) !important;
+  font-weight: 600;
+  text-align: left;
+}
+
+.quiz-v3-tiptap .ProseMirror .selectedCell:after {
+  background: rgba(200, 200, 255, 0.4);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.quiz-v3-tiptap .ProseMirror .column-resize-handle {
+  background-color: #adf;
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+  z-index: 5;
+  cursor: col-resize;
+  pointer-events: auto;
+}
+
+/* Gap cursor: caret between blocks (e.g. after a trailing table) — requires @tiptap/extensions/gap-cursor */
+.quiz-v3-tiptap .ProseMirror-gapcursor {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+}
+
+.quiz-v3-tiptap .ProseMirror-gapcursor:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -2px;
+  width: 20px;
+  border-top: 1px solid var(--foreground);
+  animation: quiz-v3-gapcursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes quiz-v3-gapcursor-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.quiz-v3-tiptap .ProseMirror-focused .ProseMirror-gapcursor {
+  display: block;
+}
+
+/* TipTap Placeholder extension (quiz option editors) */
+.quiz-v3-tiptap .ProseMirror p.is-empty::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Quiz v3 rendered HTML (take view, etc.) */
+.quiz-v3-rich-html table {
+  border-collapse: collapse;
+  table-layout: auto;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.quiz-v3-rich-html td,
+.quiz-v3-rich-html th {
+  border: 1.5px solid var(--border) !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-color: var(--border) !important;
+  box-sizing: border-box;
+  padding: 0.25rem 0.35rem;
+  vertical-align: top;
+}
+
+.quiz-v3-rich-html th {
+  background-color: var(--muted) !important;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* === Schedjuice v2 design world (DESIGN.md). Additive; scoped to .sj-root. === */
+/* Literal light values in @theme so utilities resolve; palette.ts is the source of truth. */
+@theme {
+  --color-surface: #faf7f2;
+  --color-surface-elevated: #fdfbf8;
+  --color-surface-sunken: #f5f0e8;
+  --color-surface-inverse: #102c24;
+  --color-surface-hover: #f5f0e8;
+  --color-surface-active: #e8e2d9;
+  --color-surface-skeleton: #f5f0e8;
+  --color-text-primary: #102c24;
+  --color-text-secondary: #2e4e49;
+  --color-text-muted: #6f5e40;
+  --color-text-on-inverse: #faf7f2;
+  --color-brand: #60a17e;
+  --color-brand-foreground: #102c24;
+  --color-border-strong: #d3be9a;
+  --color-border-subtle: color-mix(in srgb, #102c24 6%, transparent);
+  --color-danger: #b7432f;
+  --color-warning: #c98a2b;
+  --color-warning-foreground: #7a5218;
+  --color-success: #1a6e62;
+  --color-success-foreground: #ffffff;
+  --color-zebra-row: color-mix(in srgb, #f5f0e8 50%, transparent);
+  --color-overlay-scrim: color-mix(in srgb, #102c24 38%, transparent);
+  --color-tab-highlight: color-mix(in srgb, #60a17e 30%, transparent);
+  --font-hand: "Schedjuice Hand", cursive;
+  /* consumable font-size utilities: text-hand, text-mono-sm, text-mono-base */
+  --text-hand: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+  --text-mono-sm: 0.875rem;
+  --text-mono-base: 1rem;
+}
+
+.sj-root {
+  /* raw palette — DESIGN.md §5 */
+  --pixel-white: #faf7f2;
+  --terminal: #102c24;
+  --circuit-board: #2e4e49;
+  --data-green: #60a17e;
+  --data-green-strong: #2f6e58;
+  --danger: #b7432f;
+  --success: #1a6e62;
+  --success-foreground: #ffffff;
+  --warning: #c98a2b;
+  --warning-foreground: #7a5218;
+  /* Legacy aliases — same AA-safe values as :root (palette.ts) */
+  --status-blue: #1e6a9a;
+  --warning-yellow: var(--warning);
+  /* warm ramp — palette.ts WARM */
+  --warm-50: #f8f5f0;  --warm-100: #f5f0e8;  --warm-200: #e8e2d9;
+  --warm-300: #d3be9a; --warm-400: #b59e76;  --warm-500: #8f7a55;
+  --warm-600: #6f5e40; --warm-700: #523f2a;  --warm-800: #36281a;
+  --warm-900: #1f160d;
+
+  /* semantic — NEW names */
+  --surface: var(--pixel-white);
+  --surface-elevated: #fdfbf8;
+  --surface-sunken: var(--warm-100);
+  --surface-inverse: var(--terminal);
+  --surface-hover: var(--warm-100);
+  --surface-active: var(--warm-200);
+  --surface-skeleton: var(--warm-100);
+  --text-primary: var(--terminal);
+  --text-secondary: var(--circuit-board);
+  --text-muted: var(--warm-600);
+  --text-on-inverse: var(--pixel-white);
+  --brand: var(--data-green);
+  --brand-foreground: var(--terminal);
+  --border-strong: var(--warm-300);
+  --border-subtle: color-mix(in srgb, var(--terminal) 6%, transparent);
+  --zebra-row: color-mix(in srgb, var(--warm-100) 50%, transparent);
+  --overlay-scrim: color-mix(in srgb, var(--terminal) 38%, transparent);
+  --shadow-color: 16 44 36;
+  --shadow-elevated:
+    0 1px 2px 0 rgb(var(--shadow-color) / 0.06),
+    0 4px 14px -2px rgb(var(--shadow-color) / 0.1),
+    0 16px 40px -12px rgb(var(--shadow-color) / 0.08);
+  --shadow-sunken-inset:
+    inset -1px 0 0 rgb(var(--shadow-color) / 0.05),
+    inset 0 2px 6px rgb(var(--shadow-color) / 0.06);
+  --tab-highlight: color-mix(in srgb, var(--brand) 30%, transparent);
+  --tab-highlight-blend-mode: multiply;
+
+  /* semantic — OVERRIDES of colliding shadcn names (scoped here only) */
+  --accent: var(--data-green-strong);
+  --accent-foreground: #ffffff;
+  /* Primary actions/buttons: not reset by .sj-content-reset (which clobbers --accent
+     back to shadcn muted grey for legacy hover surfaces). Resolves via --data-green-strong
+     so content-reset cannot shadow it. */
+  --action: var(--data-green-strong);
+  --action-foreground: #ffffff;
+  --border: var(--warm-200);
+  --border-chrome: var(--border);
+  --ring: color-mix(in srgb, var(--accent) 58%, var(--terminal) 12%);
+  --muted: var(--surface-hover);
+  --muted-foreground: var(--text-muted);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  /* find-page — cream notch in light, ink in dark */
+  --find-page-ink: var(--surface-elevated);
+  --find-page-ink-text: var(--text-primary);
+  --find-page-ink-border: color-mix(in srgb, var(--text-primary) 18%, transparent);
+  /* --success overridden to teal-leaning positive (hue-separated from accent) */
+  --success: #1a6e62;
+
+  /* base chrome — safe to also apply to portaled .sj-root carriers (NO forced background:
+     the backdrop/scrim and other portaled elements also carry .sj-root). */
+  color-scheme: light;
+  color: var(--text-primary);
+}
+
+/* Tailwind color utilities + shadcn collision tokens scoped to the design world.
+   Stops html.dark (next-themes) from washing text to near-white on cream surfaces. */
+@layer theme {
+  .sj-root {
+    --color-surface: var(--surface);
+    --color-surface-elevated: var(--surface-elevated);
+    --color-surface-sunken: var(--surface-sunken);
+    --color-surface-inverse: var(--surface-inverse);
+    --color-surface-hover: var(--surface-hover);
+    --color-surface-active: var(--surface-active);
+    --color-surface-skeleton: var(--surface-skeleton);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+    --color-text-on-inverse: var(--text-on-inverse);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-action: var(--action);
+    --color-action-foreground: var(--action-foreground);
+    --color-border: var(--border);
+    --color-border-chrome: var(--border-chrome);
+    --color-border-strong: var(--border-strong);
+    --color-border-subtle: var(--border-subtle);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-status-blue: var(--status-blue);
+    --color-warning-yellow: var(--warning-yellow);
+    --color-zebra-row: var(--zebra-row);
+    --color-overlay-scrim: var(--overlay-scrim);
+    --color-tab-highlight: var(--tab-highlight);
+    --color-foreground: var(--text-primary);
+    --color-background: var(--surface);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--text-muted);
+    --color-card: var(--surface);
+    --color-card-foreground: var(--text-primary);
+    --color-popover: var(--surface-elevated);
+    --color-popover-foreground: var(--text-primary);
+    --foreground: var(--text-primary);
+    --background: var(--surface);
+    --muted-foreground: var(--text-muted);
+  }
+}
+
+/* Dark = warm dark grey-brown surfaces, lifted greens (DESIGN.md §16).
+   Explicit dark and system+OS-dark must stay identical. */
+html[data-theme="dark"] .sj-root {
+  /* Gentle warm-brown ramp: sunken < surface < elevated rise by only a few
+     levels so the recessed rail and floating panel read subtly (mirrors the
+     tight light-mode relationship), not as hard high-contrast blocks. */
+  --surface-sunken: #1e1914;
+  --surface: #222019;
+  --surface-elevated: #252018;
+  --surface-inverse: var(--pixel-white);
+  --surface-hover: #2a241c;
+  --surface-active: #2f2820;
+  --surface-skeleton: var(--surface-hover);
+  --text-primary: #f0e9d9;
+  --text-secondary: #c8bba0;
+  --text-muted: #9a8e76;
+  --text-on-inverse: var(--terminal);
+  --brand: #7fb89a;
+  --brand-foreground: var(--terminal);
+  --accent: #66b393;
+  --accent-foreground: #102c24;
+  --action: #66b393;
+  --action-foreground: #102c24;
+  --border: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  --border-subtle: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  --border-strong: #4c443a;
+  --border-chrome: transparent;
+  --muted: var(--surface-hover);
+  --muted-foreground: var(--text-muted);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --ring: color-mix(in srgb, var(--accent) 60%, #ffffff 8%);
+  --success: #4ecdc4;
+  --success-foreground: #102c24;
+  --danger: #e07a64;
+  --warning: #e0a94e;
+  --warning-foreground: #e8c078;
+  --status-blue: #6bb3d9;
+  --warning-yellow: var(--warning);
+  --zebra-row: color-mix(in srgb, #ffffff 4%, transparent);
+  --overlay-scrim: color-mix(in srgb, #000000 60%, transparent);
+  --shadow-color: 0 0 0;
+  --shadow-elevated:
+    0 1px 2px 0 rgb(0 0 0 / 0.24),
+    0 6px 18px -4px rgb(0 0 0 / 0.32),
+    0 20px 48px -16px rgb(0 0 0 / 0.28);
+  --shadow-sunken-inset:
+    inset -1px 0 0 rgb(255 255 255 / 0.04),
+    inset 0 2px 8px rgb(0 0 0 / 0.22);
+  --tab-highlight: color-mix(in srgb, var(--brand) 34%, transparent);
+  --tab-highlight-blend-mode: screen;
+  --find-page-ink: var(--terminal);
+  --find-page-ink-text: #ece6d6;
+  --find-page-ink-border: color-mix(in srgb, var(--find-page-ink-text) 18%, transparent);
+  color-scheme: dark;
+}
+
+/* Keep identical to html[data-theme="dark"] above. Do NOT comma-merge with @media nesting — that drops explicit dark. */
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .sj-root {
+    /* Keep identical to the explicit-dark ramp above. */
+    --surface-sunken: #1e1914;
+    --surface: #222019;
+    --surface-elevated: #252018;
+    --surface-inverse: var(--pixel-white);
+    --surface-hover: #2a241c;
+    --surface-active: #2f2820;
+    --surface-skeleton: var(--surface-hover);
+    --text-primary: #f0e9d9;
+    --text-secondary: #c8bba0;
+    --text-muted: #9a8e76;
+    --text-on-inverse: var(--terminal);
+    --brand: #7fb89a;
+    --brand-foreground: var(--terminal);
+    --accent: #66b393;
+    --accent-foreground: #102c24;
+    --action: #66b393;
+    --action-foreground: #102c24;
+    --border: color-mix(in srgb, var(--text-primary) 10%, transparent);
+    --border-subtle: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    --border-strong: #4c443a;
+    --border-chrome: transparent;
+    --muted: var(--surface-hover);
+    --muted-foreground: var(--text-muted);
+    --card: var(--surface);
+    --card-foreground: var(--text-primary);
+    --ring: color-mix(in srgb, var(--accent) 60%, #ffffff 8%);
+    --success: #4ecdc4;
+    --success-foreground: #102c24;
+    --danger: #e07a64;
+    --warning: #e0a94e;
+    --warning-foreground: #e8c078;
+    --status-blue: #6bb3d9;
+    --warning-yellow: var(--warning);
+    --zebra-row: color-mix(in srgb, #ffffff 4%, transparent);
+    --overlay-scrim: color-mix(in srgb, #000000 60%, transparent);
+    --shadow-color: 0 0 0;
+    --shadow-elevated:
+      0 1px 2px 0 rgb(0 0 0 / 0.24),
+      0 6px 18px -4px rgb(0 0 0 / 0.32),
+      0 20px 48px -16px rgb(0 0 0 / 0.28);
+    --shadow-sunken-inset:
+      inset -1px 0 0 rgb(255 255 255 / 0.04),
+      inset 0 2px 8px rgb(0 0 0 / 0.22);
+    --tab-highlight: color-mix(in srgb, var(--brand) 34%, transparent);
+    --tab-highlight-blend-mode: screen;
+    --find-page-ink: var(--terminal);
+    --find-page-ink-text: #ece6d6;
+    --find-page-ink-border: color-mix(in srgb, var(--find-page-ink-text) 18%, transparent);
+    color-scheme: dark;
+  }
+}
+
+@layer theme {
+  html[data-theme="dark"] .sj-root {
+    --color-surface: var(--surface);
+    --color-surface-elevated: var(--surface-elevated);
+    --color-surface-sunken: var(--surface-sunken);
+    --color-surface-inverse: var(--surface-inverse);
+    --color-surface-hover: var(--surface-hover);
+    --color-surface-active: var(--surface-active);
+    --color-surface-skeleton: var(--surface-skeleton);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+    --color-text-on-inverse: var(--text-on-inverse);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-border: var(--border);
+    --color-border-chrome: var(--border-chrome);
+    --color-border-strong: var(--border-strong);
+    --color-border-subtle: var(--border-subtle);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-status-blue: var(--status-blue);
+    --color-warning-yellow: var(--warning-yellow);
+    --color-zebra-row: var(--zebra-row);
+    --color-overlay-scrim: var(--overlay-scrim);
+    --color-tab-highlight: var(--tab-highlight);
+    --color-foreground: var(--text-primary);
+    --color-background: var(--surface);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--text-muted);
+    --color-card: var(--surface);
+    --color-card-foreground: var(--text-primary);
+    --color-popover: var(--surface-elevated);
+    --color-popover-foreground: var(--text-primary);
+    --foreground: var(--text-primary);
+    --background: var(--surface);
+    --muted-foreground: var(--text-muted);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html[data-theme="system"] .sj-root {
+      --color-surface: var(--surface);
+      --color-surface-elevated: var(--surface-elevated);
+      --color-surface-sunken: var(--surface-sunken);
+      --color-surface-inverse: var(--surface-inverse);
+      --color-surface-hover: var(--surface-hover);
+      --color-surface-active: var(--surface-active);
+      --color-surface-skeleton: var(--surface-skeleton);
+      --color-text-primary: var(--text-primary);
+      --color-text-secondary: var(--text-secondary);
+      --color-text-muted: var(--text-muted);
+      --color-text-on-inverse: var(--text-on-inverse);
+      --color-brand: var(--brand);
+      --color-brand-foreground: var(--brand-foreground);
+      --color-accent: var(--accent);
+      --color-accent-foreground: var(--accent-foreground);
+      --color-border: var(--border);
+      --color-border-chrome: var(--border-chrome);
+      --color-border-strong: var(--border-strong);
+      --color-border-subtle: var(--border-subtle);
+      --color-danger: var(--danger);
+      --color-warning: var(--warning);
+      --color-warning-foreground: var(--warning-foreground);
+      --color-success: var(--success);
+      --color-success-foreground: var(--success-foreground);
+      --color-status-blue: var(--status-blue);
+      --color-warning-yellow: var(--warning-yellow);
+      --color-zebra-row: var(--zebra-row);
+      --color-overlay-scrim: var(--overlay-scrim);
+      --color-tab-highlight: var(--tab-highlight);
+      --color-foreground: var(--text-primary);
+      --color-background: var(--surface);
+      --color-muted: var(--muted);
+      --color-muted-foreground: var(--text-muted);
+      --color-card: var(--surface);
+      --color-card-foreground: var(--text-primary);
+      --color-popover: var(--surface-elevated);
+      --color-popover-foreground: var(--text-primary);
+      --foreground: var(--text-primary);
+      --background: var(--surface);
+      --muted-foreground: var(--text-muted);
+    }
+  }
+}
+
+.sj-root {
+  /* type scale — DESIGN.md §6.5 (size / line-height) */
+  --text-xs: 0.75rem;    --leading-xs: 1.5;
+  --text-sm: 0.875rem;   --leading-sm: 1.55;
+  --text-base: 1rem;     --leading-base: 1.6;
+  --text-lg: 1.125rem;   --leading-lg: 1.55;
+  --text-xl: 1.25rem;    --leading-xl: 1.45;
+  --text-2xl: 1.5rem;    --leading-2xl: 1.35;
+  --text-3xl: 2rem;      --leading-3xl: 1.25;
+  --text-4xl: 2.75rem;   --leading-4xl: 1.15;
+  /* --text-hand and --text-mono-sm/base are registered in @theme (Task 4) as utilities */
+
+  /* motion — DESIGN.md §12 (paper-and-pencil physics) */
+  --ease-paper: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ease-quiet: cubic-bezier(0.33, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 220ms;
+  --duration-slow: 360ms;
+
+  /* base body type (Burmese needs the vertical room) */
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+}
+
+/* Keep autofilled fields on-theme (browsers force a light yellow/white wash otherwise). */
+.sj-root input:-webkit-autofill,
+.sj-root input:-webkit-autofill:hover,
+.sj-root input:-webkit-autofill:focus,
+.sj-root textarea:-webkit-autofill,
+.sj-root textarea:-webkit-autofill:hover,
+.sj-root textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  box-shadow: 0 0 0 1000px var(--surface-sunken) inset;
+  transition: background-color 99999s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-root {
+    --ease-paper: var(--ease-out-soft);
+    --duration-fast: 1ms;
+    --duration-normal: 1ms;
+    --duration-slow: 1ms;
+  }
+}
+
+@keyframes sj-attendance-row-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sj-root .sj-attendance-row-stagger > td {
+  opacity: 0;
+  animation: sj-attendance-row-fade var(--duration-normal) var(--ease-paper) both;
+  animation-delay: var(--stagger-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-root .sj-attendance-row-stagger > td {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* === Schedjuice bilingual font stack (DESIGN.md §6). === */
+/* MYANMAR_RANGE = U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F */
+
+/* Schedjuice Sans = Noto Sans (Latin) + Noto Sans Myanmar */
+@font-face { font-family: "Schedjuice Sans"; font-weight: 400; font-display: swap;
+  src: url("/fonts/noto-sans-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2074, U+20AC, U+2212, U+2215; }
+@font-face { font-family: "Schedjuice Sans"; font-weight: 600; font-display: swap;
+  src: url("/fonts/noto-sans-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC; }
+@font-face { font-family: "Schedjuice Sans"; font-weight: 700; font-display: swap;
+  src: url("/fonts/noto-sans-latin-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC; }
+@font-face { font-family: "Schedjuice Sans"; font-weight: 400; font-display: swap;
+  src: url("/fonts/noto-sans-myanmar-400.woff2") format("woff2");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F; }
+@font-face { font-family: "Schedjuice Sans"; font-weight: 600; font-display: swap;
+  src: url("/fonts/noto-sans-myanmar-600.woff2") format("woff2");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F; }
+
+/* Schedjuice Serif = Fraunces (Latin) + Noto Sans Myanmar fallback */
+@font-face { font-family: "Schedjuice Serif"; font-weight: 500; font-display: swap;
+  src: url("/fonts/fraunces-latin-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC; }
+@font-face { font-family: "Schedjuice Serif"; font-weight: 600; font-display: swap;
+  src: url("/fonts/fraunces-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC; }
+@font-face { font-family: "Schedjuice Serif"; font-weight: 600; font-display: swap;
+  src: url("/fonts/noto-sans-myanmar-600.woff2") format("woff2");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F; }
+
+/* Schedjuice Hand = Architects Daughter (Latin) + Sai K2 Handwriting (Myanmar) */
+@font-face { font-family: "Schedjuice Hand"; font-weight: 400; font-display: swap;
+  src: url("/fonts/architects-daughter-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC; }
+@font-face { font-family: "Schedjuice Hand"; font-weight: 400; font-display: swap;
+  src: url("/fonts/saik2-handwriting-regular.ttf") format("truetype");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F; }
+/* Schedjuice Mono = IBM Plex Mono (Latin only) */
+@font-face { font-family: "Schedjuice Mono"; font-weight: 400; font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+@font-face { font-family: "Schedjuice Mono"; font-weight: 500; font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+
+/* ID card template text — licensed Adobe Caslon Pro (drop woff2 into public/fonts/). */
+@font-face {
+  font-family: "Adobe Caslon Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("Adobe Caslon Pro"),
+    local("AdobeCaslonPro-Regular"),
+    url("/fonts/adobe-caslon-pro-regular.woff2") format("woff2");
+}
+
+/* Template editor canvas — Latin-only (no Myanmar unicode-range). */
+@font-face {
+  font-family: "Noto Sans";
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-sans-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/noto-sans-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-sans-latin-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/poppins-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/poppins-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/poppins-latin-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Montserrat";
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/montserrat-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto";
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/roboto-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/playfair-display-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Lora";
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/lora-latin-400.woff2") format("woff2");
+}
+
+.sj-root {
+  /* colliding font tokens — overridden in-scope only (old app keeps Geist) */
+  --font-sans: "Schedjuice Sans", system-ui, sans-serif;
+  --font-serif: "Schedjuice Serif", Georgia, serif;
+  --font-mono: "Schedjuice Mono", ui-monospace, monospace;
+  --font-hand: "Schedjuice Hand", cursive; /* new token */
+  font-family: var(--font-sans);
+}
+
+/* === Legacy shadcn token aliases (R1 migration bridge) ===========================
+   Maps retired class names to DESIGN.md semantics inside .sj-root only.
+   Source map: src/lib/sj/legacy-token-aliases.ts — do not drift manually. */
+@layer utilities {
+  .sj-root .text-foreground { color: var(--text-primary); }
+  .sj-root .text-muted-foreground { color: var(--text-muted); }
+  .sj-root .text-card-foreground { color: var(--text-primary); }
+  .sj-root .text-popover-foreground { color: var(--text-primary); }
+  .sj-root .text-primary-foreground { color: var(--action-foreground); }
+  .sj-root .text-secondary-foreground { color: var(--text-secondary); }
+  .sj-root .text-destructive { color: var(--danger); }
+  .sj-root .bg-background { background-color: var(--surface); }
+  .sj-root .bg-card { background-color: var(--surface-elevated); }
+  .sj-root .bg-popover { background-color: var(--surface-elevated); }
+  .sj-root .bg-primary { background-color: var(--action); }
+  .sj-root .bg-secondary { background-color: var(--surface-hover); }
+  .sj-root .bg-muted { background-color: var(--surface-sunken); }
+  .sj-root .bg-destructive { background-color: var(--danger); }
+}
+
+@layer utilities {
+  .z-base { z-index: var(--z-index-base); }
+  .z-sticky { z-index: var(--z-index-sticky); }
+  .z-navigation { z-index: var(--z-index-navigation); }
+  .z-dropdown { z-index: var(--z-index-dropdown); }
+  .z-banner { z-index: var(--z-index-banner); }
+  .z-modal-backdrop { z-index: var(--z-index-modal-backdrop); }
+  .z-modal-content { z-index: var(--z-index-modal-content); }
+  .z-modal-dropdown { z-index: var(--z-index-modal-dropdown); }
+  .z-toast { z-index: var(--z-index-toast); }
+  .z-emergency { z-index: var(--z-index-emergency); }
+}
+
+/* === Content boundary (App shell) — STAGED REMOVAL (R1) =========================
+   Consumers: src/components/shell/app-shell.tsx (lines 40, 52, 66).
+   Inventory: docs/sj-content-reset-inventory.json (generated by scripts/inventory-sj-content-reset.ts).
+   Removal gate: zero consumers + route cohort sign-off per docs/UI_TOKEN_MIGRATION.md.
+   When the new shell wraps the app in .sj-root, un-migrated shadcn pages render
+   inside the new token world. This boundary restores the legacy shadcn tokens +
+   Geist fonts for page bodies so they stay pixel-identical. Mirrors the :root/.dark
+   shadcn values defined above. Removed in Phase N when every surface is migrated. */
+.sj-content-reset {
+  /* fonts back to Geist (the old app default) */
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: "Geist", "Geist Fallback", ui-serif, Georgia, Cambria,
+    "Times New Roman", Times, serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+
+  /* restore shadcn light token values (mirror :root) */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.14 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.14 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.14 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.2 0 0);
+  --border: oklch(0.92 0 0);
+  --ring: oklch(0.71 0 0);
+  --muted-foreground: oklch(0.56 0 0);
+  --success: #1a6e62;
+  --status-blue: #1e6a9a;
+  --warning-yellow: #c98a2b;
+
+  /* re-map Tailwind color utilities back to the restored bare vars */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+
+  color: var(--foreground);
+}
+
+/* Dark page bodies: keep .dark (next-themes bridge) AND data-theme (canonical). */
+.dark .sj-content-reset,
+html[data-theme="dark"] .sj-content-reset {
+  /* Bridge: delete .dark selector when next-themes removed (UI_TOKEN_MIGRATION.md). */
+  --background: oklch(0.14 0 0);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(0.2 0 0);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.2 0 0);
+  --popover-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.27 0 0);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.56 0 0);
+  --muted-foreground: oklch(0.71 0 0);
+  --success: #4ecdc4;
+  --status-blue: #6bb3d9;
+  --warning-yellow: #e0a94e;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .sj-content-reset {
+    --background: oklch(0.14 0 0);
+    --foreground: oklch(0.99 0 0);
+    --card: oklch(0.2 0 0);
+    --card-foreground: oklch(0.99 0 0);
+    --popover: oklch(0.2 0 0);
+    --popover-foreground: oklch(0.99 0 0);
+    --accent: oklch(0.27 0 0);
+    --accent-foreground: oklch(0.99 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --ring: oklch(0.56 0 0);
+    --muted-foreground: oklch(0.71 0 0);
+    --success: #4ecdc4;
+    --status-blue: #6bb3d9;
+    --warning-yellow: #e0a94e;
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-border: var(--border);
+    --color-muted-foreground: var(--muted-foreground);
+  }
+}
+
+/* Scroll-to-error highlight (see helpers/form.ts applyFormFieldErrorHighlight). */
+[data-form-error-highlight="true"] {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+  transition: outline-color 0.15s ease;
+}
+
+/* Workspace logos — enter + hover. Overlay remounts .sj.sj-{name} to replay. */
+.sj-hr .swing{transform-box:view-box;transform-origin:52px 6px;animation:sj-hr-swing 1.4s cubic-bezier(.3,.7,.3,1) both}
+.sj-hr:hover .swing{animation:sj-hr-jiggle .9s ease-in-out}
+@keyframes sj-hr-swing{0%{transform:rotate(-14deg)}25%{transform:rotate(9deg)}50%{transform:rotate(-5deg)}72%{transform:rotate(2.5deg)}88%{transform:rotate(-1deg)}100%{transform:rotate(0)}}
+@keyframes sj-hr-jiggle{0%{transform:rotate(0)}20%{transform:rotate(-6deg)}45%{transform:rotate(4deg)}70%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
+@media(prefers-reduced-motion:reduce){.sj-hr *{animation:none!important;transition:none!important}}
+.sj-finance .paper{transform-box:view-box;transform-origin:32px 32px;animation:sj-finance-land .5s cubic-bezier(.2,.8,.2,1) both}
+.sj-finance .ln{transform-box:fill-box;transform-origin:left center;animation:sj-finance-print .35s cubic-bezier(.2,.8,.2,1) both}
+.sj-finance .l1{animation-delay:.35s}.sj-finance .l2{animation-delay:.55s}.sj-finance .l3{animation-delay:.75s}.sj-finance .k{animation-delay:1s;transition:transform .3s}
+.sj-finance:hover .k{transform:translate(2px,0)}
+@keyframes sj-finance-land{from{opacity:0;transform:translate(0,-8px)}to{opacity:1;transform:none}}
+@keyframes sj-finance-print{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.sj-finance *{animation:none!important;transition:none!important}}
+.sj-studio .pen{transform-box:view-box;transform-origin:32px 32px;animation:sj-studio-fall .7s cubic-bezier(.34,1.4,.5,1) both;transition:transform .3s}
+.sj-studio .k{transform-box:fill-box;transform-origin:50% 0;animation:sj-studio-drip 1.5s .55s both}
+.sj-studio:hover .pen{transform:translate(-1px,2px)}
+@keyframes sj-studio-fall{from{opacity:0;transform:translate(6px,-22px) rotate(8deg)}to{opacity:1;transform:none}}
+@keyframes sj-studio-drip{0%{transform:scale(.12,.12);animation-timing-function:cubic-bezier(.25,.6,.35,1)}42%{transform:scale(1,1);animation-timing-function:cubic-bezier(.4,0,.6,1)}58%{transform:scale(.96,1.08);animation-timing-function:cubic-bezier(.5,0,.85,.55)}80%{transform:translate(0,4.5px) scale(1,1.02);animation-timing-function:cubic-bezier(.3,0,.5,1)}90%{transform:translate(0,4.5px) scale(1.03,.97);animation-timing-function:cubic-bezier(.3,0,.5,1)}100%{transform:translate(0,4.5px) scale(1,1)}}
+.sj-admissions .frame{animation:sj-admissions-fade .3s ease-out both}
+.sj-admissions .slab{transform-box:view-box;transform-origin:16.6px 32px;animation:sj-admissions-shut .38s cubic-bezier(.5,0,.8,.4) .55s both}
+.sj-admissions .door{transform-box:view-box;transform-origin:16.5px 32px;animation:sj-admissions-open .75s cubic-bezier(.2,.8,.2,1) .9s both;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.sj-admissions:hover .door{transform:scaleX(1.12)}
+@keyframes sj-admissions-fade{from{opacity:0}to{opacity:1}}
+@keyframes sj-admissions-shut{0%{transform:scaleX(1);opacity:1}99%{transform:scaleX(.04);opacity:1}100%{transform:scaleX(.04);opacity:0}}
+@keyframes sj-admissions-open{from{transform:scaleX(.05)}to{transform:scaleX(1)}}
+.sj-crm .phone{transform-box:view-box;transform-origin:32px 40px;animation:sj-crm-in .5s cubic-bezier(.2,.8,.2,1) both}
+.sj-crm .handset{transform-box:view-box;transform-origin:32px 23px;animation:sj-crm-lift 1.1s cubic-bezier(.2,.8,.2,1) .25s both;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.sj-crm .cord{transform-box:view-box;transform-origin:6.5px 29px;animation:sj-crm-boing 1.1s cubic-bezier(.2,.8,.2,1) .3s both;transition:transform .35s}
+.sj-crm:hover .handset{transform:translate(0,-2.5px) rotate(-4deg)}.sj-crm:hover .cord{transform:scaleY(1.08)}
+@keyframes sj-crm-in{from{opacity:0;transform:translate(0,6px)}to{opacity:1;transform:none}}
+@keyframes sj-crm-lift{0%{transform:translate(0,7px) rotate(0)}45%{transform:translate(0,-4px) rotate(-6deg)}70%{transform:translate(0,1px) rotate(1.5deg)}100%{transform:none}}
+@keyframes sj-crm-boing{0%{transform:scaleY(.35)}45%{transform:scaleY(1.2)}70%{transform:scaleY(.94)}100%{transform:none}}
+@media(prefers-reduced-motion:reduce){.sj.sj-hr *,.sj.sj-finance *,.sj.sj-studio *,.sj.sj-admissions *,.sj.sj-crm *{animation:none!important;transition:none!important}.sj-admissions .slab{opacity:0!important}}

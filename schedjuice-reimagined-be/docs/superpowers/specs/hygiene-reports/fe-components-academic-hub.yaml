@@ -1,0 +1,63 @@
+slice_id: fe-components-academic-hub
+repo: schedjuice-reimagined-fe
+path: src/components/academic-hub
+skipped: false
+deleted:
+  - path: src/components/academic-hub/academic-hub-page.tsx
+    symbol: AcademicHubPage
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused Suspense wrapper around AcademicHubPageInner. /courses route
+      (src/app/(internal)/courses/page.tsx) already provides Suspense + skeleton
+      and imports AcademicHubPageInner + useAcademicHubPageHeader directly.
+      Zero static/dynamic imports of AcademicHubPage across src. Removed unused
+      Suspense and CardGridSkeleton imports with the wrapper.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/academic-hub/academic-hub-toolbar.tsx
+    symbol: AcademicHubToolbar
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >-
+      Only imported by use-academic-hub-page-header.tsx (same folder). Must stay
+      exported for cross-file import; leave unless folder is consolidated.
+  - path: src/components/academic-hub/academic-hub-secondary-toolbar.tsx
+    symbol: AcademicHubSecondaryToolbar
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >-
+      Only imported by use-academic-hub-page-header.tsx (same folder). Cross-file
+      export required; do not demote without consolidating modules.
+  - path: src/components/academic-hub/course-grid.tsx
+    symbol: CourseGrid
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >-
+      Only imported by academic-hub-page.tsx. Prefer leave exported (Next.js /
+      feature-folder pattern) unless inlined into page module.
+  - path: src/components/academic-hub/empty-state.tsx
+    symbol: AcademicHubEmptyState
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >-
+      Only imported by academic-hub-page.tsx. Prefer leave exported; local
+      STATUS_LABEL duplicates helpers/academic-hub/status-counts — shared import
+      would be a refactor, not dead-code delete.
+  - path: src/components/academic-hub/academic-hub-page.tsx
+    symbol: AcademicHubPageInner
+    reason: app-router-entry
+    confidence: ambiguous
+    notes: >-
+      Live entry for /courses via app/(internal)/courses/page.tsx. Keep exported.
+files_touched:
+  - src/components/academic-hub/academic-hub-page.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-academic-hub.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/academic-hub
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/academic-hub (vitest: "No test files
+    found"). Skipped per hygiene playbook.

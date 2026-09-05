@@ -1,0 +1,17 @@
+slice_id: fe-components-loading
+repo: schedjuice-reimagined-fe
+path: src/components/loading
+skipped: false
+deleted:
+  []
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/loading
+  passed: true
+  tests_passed: 7
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

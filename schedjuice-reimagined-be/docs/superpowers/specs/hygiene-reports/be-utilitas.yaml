@@ -1,0 +1,123 @@
+slice_id: be-utilitas
+repo: schedjuice-reimagined-be
+path: utilitas
+skipped: false
+deleted:
+  - path: utilitas/views.py
+    symbol: swagger_auto_schema
+    reason: commented-out-block
+    confidence: obvious
+    notes: >-
+      Removed two commented @swagger_auto_schema decorations (BaseListView.get /
+      BaseDetailsView.get) with no ticket pointer, plus the now-unused
+      drf_yasg.utils.swagger_auto_schema import.
+  - path: utilitas/views.py
+    symbol: Prefetch
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.db.models.Prefetch import; QuerySet/BooleanField remain used.
+  - path: utilitas/serializers.py
+    symbol: FilterParamSerializer.validate.field_name_gate
+    reason: commented-out-block
+    confidence: obvious
+    notes: >-
+      Removed commented field_name-in-available_fields ValidationError block;
+      live path uses validate_filter_param_for_custom_fields instead.
+  - path: utilitas/serializers.py
+    symbol: read_only_fields
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed lone commented kwargs.pop("read_only_fields") line in BaseModelSerializer.__init__.
+  - path: utilitas/tests.py
+    symbol: tests
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Empty Django scaffold (unused TestCase import only); shadowed by
+      utilitas/tests/ package which importlib resolves as utilitas.tests.
+fixed_docs:
+  - path: utilitas/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: >-
+      Removed "# Register your models here." and unused django.contrib.admin
+      import; left empty admin module (no model registrations).
+  - path: utilitas/models.py
+    reason: comment-typo
+    confidence: obvious
+    notes: Fixed comment typo user_firendly_fields → user_friendly_fields.
+anti_pattern_fixes: []
+ambiguous:
+  - path: utilitas/swagger_query_params.py
+    symbol: size_param_getter
+    reason: only-referenced-from-removed-comments
+    confidence: ambiguous
+    notes: >-
+      Helpers (size/page/sorts/fields/expand_param_getter) had zero live call
+      sites after removing commented swagger_auto_schema blocks. Shared swagger
+      surface — do not delete without confirm no planned re-enablement.
+  - path: utilitas/swagger_serializers.py
+    symbol: FilterParamsSerializer
+    reason: unused-public-swagger-helpers
+    confidence: ambiguous
+    notes: >-
+      FilterSerializer / FilterParamsSerializer never imported; distinct from
+      live FilterParamSerializer in serializers.py. May be intentional OpenAPI
+      stubs — leave for human review.
+  - path: utilitas/managers.py
+    symbol: CustomManager
+    reason: empty-unused-public-manager
+    confidence: ambiguous
+    notes: >-
+      Empty models.Manager subclass with zero references. Shared utilitas public
+      API — do not delete without confirm.
+  - path: utilitas/exceptions.py
+    symbol: field_validation_errors
+    reason: unused-sibling-helper
+    confidence: ambiguous
+    notes: >-
+      Plural helper never called; singular field_validation_error is used by
+      app_custom_fields and app_microsoft. Keep as convenience API unless confirmed unused.
+  - path: utilitas/models.py
+    symbol: RELATION_FIELDS
+    reason: unused-module-constant
+    confidence: ambiguous
+    notes: Defined but never referenced; could be leftover or intended public constant.
+  - path: utilitas/models.py
+    symbol: BaseModel.get_fields
+    reason: open-todo-comment
+    confidence: ambiguous
+    notes: "TODO: clean this up" above CharField/TextField/… allowlist; still plausible open work.
+  - path: utilitas/serializers.py
+    symbol: BaseSerializer.role_based_fields
+    reason: unused-public-attr
+    confidence: ambiguous
+    notes: Class attr set to None with no readers; may be extension hook for subclasses.
+  - path: utilitas/serializers.py
+    symbol: excluded_fields
+    reason: popped-but-unused
+    confidence: ambiguous
+    notes: >-
+      kwargs.pop("excluded_fields") discards caller kwarg before super().__init__;
+      value never applied. Unclear if intentional strip-only or unfinished feature.
+  - path: utilitas/urls.py
+    symbol: urlpatterns
+    reason: empty-urlconf
+    confidence: ambiguous
+    notes: Empty urlpatterns; may exist for Django app scaffolding / future routes.
+  - path: utilitas/admin.py
+    symbol: admin
+    reason: empty-admin-no-registrations
+    confidence: ambiguous
+    notes: No utilitas models registered; matches many apps' empty admin.py.
+files_touched:
+  - utilitas/views.py
+  - utilitas/serializers.py
+  - utilitas/admin.py
+  - utilitas/tests.py
+  - utilitas/models.py
+  - docs/superpowers/specs/hygiene-reports/be-utilitas.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh utilitas.tests
+  passed: true
+  notes: Ran 27 tests, OK, --keepdb

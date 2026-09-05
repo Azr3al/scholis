@@ -1,0 +1,16 @@
+slice_id: fe-lib-microsoft
+repo: schedjuice-reimagined-fe
+path: src/lib/microsoft
+skipped: false
+deleted:
+  - path: src/lib/microsoft/password-reset-bulk.test.ts
+    test_name: exports cap of 50
+    reason: tautology
+replaced: []
+ambiguous: []
+files_touched:
+  - src/lib/microsoft/password-reset-bulk.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/microsoft
+  passed: true
+  tests_passed: 1

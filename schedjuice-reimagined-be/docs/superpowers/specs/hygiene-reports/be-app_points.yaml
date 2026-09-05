@@ -1,0 +1,45 @@
+slice_id: be-app_points
+repo: schedjuice-reimagined-be
+path: app_points
+skipped: false
+deleted:
+  - path: app_points/serializers.py
+    symbol: UserPointsSerializer
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Zero call sites; UserPointsView builds balances/point_types/transactions
+      dict manually with PointTypeSerializer/PointTransactionSerializer.
+  - path: app_points/serializers.py
+    symbol: StaffPointsSheetRowSerializer
+    reason: dead-export
+    confidence: obvious
+    notes: Only referenced by unused StaffPointsSheetSerializer; sheet view returns plain dicts from get_staff_sheet_rows.
+  - path: app_points/serializers.py
+    symbol: StaffPointsSheetSerializer
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; StaffPointsSheetView builds payload dict manually.
+  - path: app_points/serializers.py
+    symbol: PostTransactionResponseSerializer
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; UserPointTransactionCreateView builds transaction/balances dict manually.
+  - path: app_points/guards.py
+    symbol: require_staff_points_enabled
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Zero call sites; superseded by _StaffPointsEnabledMixin using staff_points_enabled.
+      Removed unused Request import with it.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - app_points/serializers.py
+  - app_points/guards.py
+  - docs/superpowers/specs/hygiene-reports/be-app_points.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_points.tests
+  passed: true
+  notes: 11 tests OK

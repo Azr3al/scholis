@@ -1,0 +1,142 @@
+slice_id: be-app_chat
+repo: schedjuice-reimagined-be
+path: app_chat
+skipped: false
+deleted:
+  - path: app_chat/views.py
+    symbol: queue_course_chat_message_pushes
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; consumers.py still queues course pushes on WS create
+  - path: app_chat/views.py
+    symbol: user_is_dm_participant
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; still used inside services (can_access_thread / create_dm_message)
+  - path: app_chat/services.py
+    symbol: can_send_course_chat_message
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Zero call sites after legacy CourseChatMessage views removed; phase2b plan
+      already noted it as leftover
+  - path: app_chat/services.py
+    symbol: can_edit_course_chat_message
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; edit rules inlined in ChatThreadMessageDetailView.patch
+  - path: app_chat/services.py
+    symbol: can_delete_course_chat_message
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; delete rules inlined in ChatThreadMessageDetailView.delete
+  - path: app_chat/services.py
+    symbol: author_is_student_in_course
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites after unified chat migration
+  - path: app_chat/services.py
+    symbol: staff_read_receipt_user_ids
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; read-receipt broadcast no longer filters to staff-only list
+  - path: app_chat/services.py
+    symbol: mark_dm_read_state
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; ChatThreadReadStatePutView updates ChatReadState inline
+  - path: app_chat/services.py
+    symbol: timezone
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import after mark_dm_read_state removal
+  - path: app_chat/course_chat_list_cache.py
+    symbol: get_list_cache_generation
+    reason: dead-export
+    confidence: obvious
+    notes: Only used by removed course_chat_list_cache_key
+  - path: app_chat/course_chat_list_cache.py
+    symbol: course_chat_list_cache_key
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; HTTP list get/set path retired with unified thread API
+  - path: app_chat/course_chat_list_cache.py
+    symbol: get_course_chat_list_cache
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; nothing reads list cache anymore
+  - path: app_chat/course_chat_list_cache.py
+    symbol: set_course_chat_list_cache
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; nothing writes list cache anymore
+  - path: app_chat/course_chat_list_cache.py
+    symbol: _query_fingerprint
+    reason: dead-export
+    confidence: obvious
+    notes: Only used by removed course_chat_list_cache_key
+  - path: app_chat/contracts.py
+    symbol: ChatAttachmentKind
+    reason: dead-export
+    confidence: obvious
+    notes: Enum never referenced; attachment validation uses MIME/extension sets only
+fixed_docs:
+  - path: app_chat/course_chat_list_cache.py
+    reason: described-removed-list-cache-get-set
+    confidence: obvious
+    notes: >-
+      Module docstring claimed Redis/LocMem caching for GET course chat list;
+      updated to describe invalidate-only remnant after get/set removal
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_chat/realtime_presence.py
+    symbol: typing_user_ids
+    reason: unused-presence-mirror-helper
+    confidence: ambiguous
+    notes: >-
+      Twin of online_user_ids (which backs GET presence); set_typing is used by WS
+      but no HTTP/WS reader calls typing_user_ids. May be intentional public helper
+      for a future typing-list endpoint.
+  - path: app_chat/course_chat_list_cache.py
+    symbol: invalidate_course_chat_list_cache
+    reason: write-side-invalidate-without-readers
+    confidence: ambiguous
+    notes: >-
+      Still called from views/consumers/signals on course-message writes, but after
+      removing get/set nothing populates list keys. Could delete module+signals+calls
+      (and settings COURSE_CHAT_LIST_CACHE_TIMEOUT outside this slice) once confirmed.
+  - path: app_chat/apps.py
+    symbol: _patch_silk_garbage_collect_deadlock_safe/_patch_silk_explain_safe_for_json_params
+    reason: silk-patches-hosted-in-chat-app
+    confidence: ambiguous
+    notes: >-
+      Global Silk monkeypatches run from AppChatConfig.ready when SILK_ENABLED.
+      Not dead, but odd ownership vs utilitas/settings — leave for relocate decision.
+  - path: app_chat/models.py
+    symbol: ChatThreadKind.GROUP
+    reason: reserved-future-enum-value
+    confidence: ambiguous
+    notes: Comment says reserved for future phase; schema/enum value — do not delete
+  - path: app_chat/serializers.py
+    symbol: DirectMessageSerializer
+    reason: thin-alias-still-wired
+    confidence: ambiguous
+    notes: >-
+      Empty subclass of ChatMessageSerializer; still used by consumers/realtime/tests.
+      Could collapse to ChatMessageSerializer later — not unreferenced.
+files_touched:
+  - app_chat/views.py
+  - app_chat/services.py
+  - app_chat/course_chat_list_cache.py
+  - app_chat/contracts.py
+  - docs/superpowers/specs/hygiene-reports/be-app_chat.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_chat.tests
+  passed: true
+  notes: >-
+    Official script initially failed before any app_chat tests ran:
+    AttributeError app_course.serializers has no UserSerializer (parallel
+    be-app_course hygiene removed the re-export CourseAvailabilityView needs).
+    Re-ran via django.setup() + temporary UserSerializer patch on
+    app_course.serializers (no app_course files edited): 70 tests OK, 1 skipped
+    (--keepdb). app_chat changes unrelated to the bootstrap failure.

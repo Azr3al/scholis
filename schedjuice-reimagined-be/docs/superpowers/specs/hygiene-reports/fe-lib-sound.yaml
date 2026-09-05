@@ -1,0 +1,64 @@
+slice_id: fe-lib-sound
+repo: schedjuice-reimagined-fe
+path: src/lib/sound
+skipped: false
+deleted:
+  - path: src/lib/sound/click-sound.ts
+    symbol: primeAudio
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Zero static callers across src; warm-up never wired. Removed function
+      entirely (not used inside the module either).
+  - path: src/lib/sound/sound-preference.ts
+    symbol: UI_SOUNDS_STORAGE_KEY
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/sound/sound-preference.ts
+    symbol: UI_SOUNDS_VOLUME_STORAGE_KEY
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/sound/sound-preference.ts
+    symbol: UI_SOUNDS_CHANGED_EVENT
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/sound/sound-preference.ts
+    symbol: DEFAULT_UI_SOUND_VOLUME
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/sound/sound-preference.ts
+    symbol: setUiSoundEnabled
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by useUiSoundEnabled.
+      Callers use the hook (appearance-pane).
+  - path: src/lib/sound/sound-preference.ts
+    symbol: setUiSoundVolume
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by useUiSoundVolume.
+      Callers use the hook (appearance-pane).
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/sound/stagger-tick-sound.ts
+    symbol: staggerTickFrequencyHz
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by playStaggerTick and unit tests; zero other prod imports.
+      Comment says "Exported for tests" — keep for direct frequency coverage.
+files_touched:
+  - src/lib/sound/click-sound.ts
+  - src/lib/sound/sound-preference.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-sound.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/sound
+  passed: true
+  tests_passed: 1

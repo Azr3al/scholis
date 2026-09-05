@@ -1,0 +1,86 @@
+slice_id: be-app_organization
+repo: schedjuice-reimagined-be
+path: app_organization
+skipped: false
+deleted:
+  - path: app_organization/services.py
+    symbol: services
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Empty 0-byte module with zero imports across the repo
+  - path: app_organization/apps.py
+    symbol: run_on_ready_commands
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused import; AppConfig.ready() only imports signals. run_on_ready_commands
+      remains used by management/commands/db_setup.py
+  - path: app_organization/helpers.py
+    symbol: connection
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.db.connection import; helpers never open a cursor
+  - path: app_organization/models.py
+    symbol: settings
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.conf.settings import; no settings reads in models.py
+fixed_docs:
+  - path: app_organization/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: >-
+      Removed "# Register your models here." and unused django.contrib.admin
+      import; left empty admin module (no model registrations)
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_organization/models.py
+    symbol: Organization.zoom_s2s_configured
+    reason: deprecated-stub-intentionally-kept
+    confidence: ambiguous
+    notes: >-
+      Always returns False; docstring says kept for straggling callers. Only
+      referenced by test_zoom_account.py now (production uses has_active_zoom_account).
+      Do not delete without confirm that no external/dynamic callers remain.
+  - path: app_organization/admin.py
+    symbol: admin
+    reason: empty-admin-no-registrations
+    confidence: ambiguous
+    notes: >-
+      No Organization/ZoomAccount/PlatformOpsSettings/etc. registered in admin;
+      matches many other apps' empty admin.py. Unclear if intentional.
+  - path: app_organization/helpers.py
+    symbol: authenticate_with_multiple_tenants
+    reason: possible-auth-loop-bug
+    confidence: ambiguous
+    notes: >-
+      Loop overwrites is_legit each iteration and returns only the last tenant's
+      check_password result; also assumes User exists. Used by UserTenantView.
+      Auth surface — do not change without confirm.
+  - path: app_organization/management/commands/find_user_schema.py
+    symbol: find_user_schema
+    reason: command-name-mismatches-behavior
+    confidence: ambiguous
+    notes: >-
+      Module/command name suggests lookup; help string and handle() delete a user
+      by email in a schema (ORM then raw SQL fallback). Renaming would break
+      scripts invoking manage.py find_user_schema; leave for human review.
+  - path: app_organization/test_zoom_account.py
+    symbol: test_zoom_account
+    reason: tests-outside-tests-package
+    confidence: ambiguous
+    notes: >-
+      Discovers as app_organization.test_zoom_account (package root) while other
+      tests live under app_organization/tests/. Functional; moving is out of
+      hygiene obvious scope.
+files_touched:
+  - app_organization/services.py
+  - app_organization/admin.py
+  - app_organization/apps.py
+  - app_organization/helpers.py
+  - app_organization/models.py
+  - docs/superpowers/specs/hygiene-reports/be-app_organization.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_organization.tests
+  passed: true
+  notes: Ran 67 tests, OK (skipped=1), --keepdb

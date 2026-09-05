@@ -1,0 +1,145 @@
+slice_id: fe-lib-ui-remediation
+repo: schedjuice-reimagined-fe
+path: src/lib/ui-remediation
+skipped: false
+deleted:
+  - path: src/lib/ui-remediation/r6-global-route-classes.test.ts
+    test_name: maps auth-minimal to narrow
+    reason: tautology
+  - path: src/lib/ui-remediation/r6-global-route-classes.test.ts
+    test_name: maps public-card to default
+    reason: tautology
+  - path: src/lib/ui-remediation/r6-global-route-classes.test.ts
+    test_name: maps shell-standard to default
+    reason: tautology
+  - path: src/lib/ui-remediation/r7-dashboard-layout-classes.test.ts
+    test_name: uses larger gap for comfortable density
+    reason: tautology
+  - path: src/lib/ui-remediation/r7-dashboard-layout-classes.test.ts
+    test_name: includes responsive columns for 4-up metrics
+    reason: tautology
+  - path: src/lib/ui-remediation/r7-dashboard-layout-classes.test.ts
+    test_name: wraps filters without forcing fixed widths
+    reason: tautology
+  - path: src/lib/ui-remediation/r8-admin-crud-layout-classes.test.ts
+    test_name: wraps actions on narrow viewports
+    reason: tautology
+  - path: src/lib/ui-remediation/r8-admin-crud-layout-classes.test.ts
+    test_name: uses semantic surface tokens
+    reason: tautology
+  - path: src/lib/ui-remediation/r8-admin-crud-layout-classes.test.ts
+    test_name: stacks detail sections vertically
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: stacks tab sections with min-width guard
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: scrolls horizontally before crushing columns
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: sets full width and minimum table width
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: pads and prevents header text wrapping
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: aligns body cells with header padding
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: separates header row from body
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: uses sticky in-flow layer token
+    reason: tautology
+  - path: src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+    test_name: includes elevated sticky chrome without duplicate surface overrides
+    reason: tautology
+  - path: src/lib/ui-remediation/r10-content-route-classes.test.ts
+    test_name: centers public take flow
+    reason: tautology
+  - path: src/lib/ui-remediation/r10-content-route-classes.test.ts
+    test_name: stacks tool routes with consistent gaps
+    reason: tautology
+  - path: src/lib/ui-remediation/r10-content-route-classes.test.ts
+    test_name: stacks editorial routes with wider gaps
+    reason: tautology
+  - path: src/lib/ui-remediation/r10-content-route-classes.test.ts
+    test_name: keeps toolbar actions wrapping
+    reason: tautology
+  - path: src/lib/ui-remediation/__tests__/sync-route-qa-status.test.ts
+    test_name: maps pass evidence to pass
+    reason: tautology
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: parses all route families
+    reason: tautology
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: parses coverage modes and verification variants
+    reason: tautology
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: parses risk tiers and qa status
+    reason: tautology
+  - path: src/lib/ui-remediation/__tests__/route-manifest-generator.test.ts
+    test_name: assigns every route exactly one route family
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: src/lib/ui-remediation/__tests__/sync-route-qa-status.test.ts
+    test_name: aggregates to pass when all variants pass
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin all-pass aggregate; fail/blocked/pending siblings remain. Likely the
+      intentional success contrast for aggregate priority rules.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: accepts a valid manifest entry
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin happy parse for RouteManifestEntrySchema; paired with fixtureUrl /
+      family / duplicate-variant rejects in the same describe.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: accepts one real student-payment route with three variants
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin success for the three-variant student-payments set; incomplete-set
+      reject remains. May be intentional contrast for the variant-set rule.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: accepts complete passing variant evidence
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin pass evidence parse; paired with fail-without-defect rejection.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+    test_name: accepts concrete route-pattern to fixture-URL mappings
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin overrides success; paired with non-path fixture URL rejection.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-generator.test.ts
+    test_name: returns a valid manifest with unique route patterns
+    reason: may-be-integration-smoke
+    notes: >
+      Schema parse + length>50 over full app tree; exclusion / prior-pass /
+      student-payment variant tests remain. Unclear if broad smoke is needed.
+  - path: src/lib/ui-remediation/__tests__/route-manifest-classifier.test.ts
+    test_name: classifies help docs as quizzes-docs-content-services
+    reason: may-be-matrix-cell
+    notes: >
+      Same family return as quizzes-v3; exercises /help prefix in the shared OR
+      branch. Unclear whether each prefix cell is intentional matrix coverage.
+  - path: src/lib/ui-remediation/r6-global-route-classes.test.ts
+    test_name: classifies auth routes as auth-minimal
+    reason: may-be-matrix-cell
+    notes: >
+      Kept with public-card / shell-standard siblings after deleting
+      globalRoutePageWidth tautologies. Thin classification matrix; exception
+      paths (people slug, watch token) untested.
+files_touched:
+  - src/lib/ui-remediation/r6-global-route-classes.test.ts
+  - src/lib/ui-remediation/r7-dashboard-layout-classes.test.ts
+  - src/lib/ui-remediation/r8-admin-crud-layout-classes.test.ts
+  - src/lib/ui-remediation/r9-course-record-layout-classes.test.ts
+  - src/lib/ui-remediation/r10-content-route-classes.test.ts
+  - src/lib/ui-remediation/__tests__/sync-route-qa-status.test.ts
+  - src/lib/ui-remediation/__tests__/route-manifest-schema.test.ts
+  - src/lib/ui-remediation/__tests__/route-manifest-generator.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/ui-remediation
+  passed: true
+  tests_passed: 57

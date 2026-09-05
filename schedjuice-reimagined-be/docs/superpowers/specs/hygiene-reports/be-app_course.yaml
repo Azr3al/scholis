@@ -1,0 +1,156 @@
+slice_id: be-app_course
+repo: schedjuice-reimagined-be
+path: app_course
+skipped: false
+deleted:
+  - path: app_course/models.py
+    symbol: datetime/pytz/timezone/MoneyField
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; models use django_timezone and Decimal/Char fields, not MoneyField or pytz
+  - path: app_course/serializers.py
+    symbol: date/timedelta/timezone/Serializer/SerializerMethodField/BaseListSerializer/send_generic_mail
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Unused imports; SerializerMethodField/Serializer used via rest_framework.serializers
+      module; mail never sent here. UserSerializer import retained (re-export for views).
+  - path: app_course/views.py
+    symbol: ensure_teacher_userevents_for_events
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; teacher UserEvent sync not invoked from this module
+  - path: app_course/views.py
+    symbol: check_userevent_read
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; write/scope helpers remain in use
+  - path: app_course/views.py
+    symbol: get_public_schema_name/schema_context
+    reason: dead-export
+    confidence: obvious
+    notes: Unused tenant_schemas imports
+  - path: app_course/views.py
+    symbol: MembershipEventInput/record_membership_events_bulk
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; only record_membership_event call sites remain
+  - path: app_course/views.py
+    symbol: pytz (duplicate import)
+    reason: dead-export
+    confidence: obvious
+    notes: Second identical import pytz removed; first import retained
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_course/views.py
+    symbol: async_task
+    reason: unused-import-with-todo
+    confidence: ambiguous
+    notes: >
+      Import unused today; nearby TODO says "revert to async_task after debugging"
+      (sync create_course_meeting_if_needed path). Leave until async restore decision.
+  - path: app_course/views.py
+    symbol: get_user_categories
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: Zero call sites; category scoping may still be intended for clients/tools. High-risk surface.
+  - path: app_course/views.py
+    symbol: print-debug-ms-meeting
+    reason: debug-print-leftover
+    confidence: ambiguous
+    notes: >
+      print() on MS meeting create/remove paths; paired with async_task TODO.
+      Do not strip without confirming logging policy.
+  - path: app_course/urls.py
+    symbol: meeting-attendance legacy alias
+    reason: intentional-legacy-route
+    confidence: ambiguous
+    notes: Comment marks legacy alias of meeting-attendance-dashboard; keep for old clients.
+  - path: app_course/course_member_counts.py
+    symbol: schema_name_from_drf_context
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: Zero call sites; callers pass schema_name explicitly. May be intended serializer helper.
+  - path: app_course/course_program_validation.py
+    symbol: validate_intake_dates_do_not_conflict_with_courses
+    reason: unused-validation-helper
+    confidence: ambiguous
+    notes: >
+      Never wired into Intake serializers/views; looks like planned shrink-guard.
+      Prefer confirm before delete (program/intake integrity).
+  - path: app_course/course_search_queryset.py
+    symbol: prefetch_course_lookup
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: Thin Prefetch wrapper; sibling optimized builders are used cross-app. Possible WIP API.
+  - path: app_course/course_status.py
+    symbol: effective_status_in_sql
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: >
+      Companion to used effective_active_course_sql; general multi-status SQL fragment
+      unused. Likely kept for raw-query callers — leave.
+  - path: app_course/join_code_helpers.py
+    symbol: is_join_code_usable
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: >
+      Call sites use is_join_code_enabled + is_join_code_expired separately.
+      Thin composition helper; may be intentional public API.
+  - path: app_course/serializers.py
+    symbol: handle_microsoft_group_membership
+    reason: unused-ms-roster-helper
+    confidence: ambiguous
+    notes: >
+      Zero call sites; roster MS sync lives in roster_management/roster_writes/views.
+      Contains print() on errors. High-risk MS path — list only.
+  - path: app_course/serializers.py
+    symbol: UserSerializer
+    reason: reexport-public-api
+    confidence: ambiguous
+    notes: >
+      Imported from app_auth and used as app_course.serializers.UserSerializer
+      (CourseAvailabilityView). Looks unused inside serializers.py but is a module re-export.
+  - path: app_course/category_search.py
+    symbol: get_search_q
+    reason: reexport-public-api
+    confidence: ambiguous
+    notes: Re-exported in __all__; may be consumed via star/from package clients.
+  - path: app_course/course_search.py
+    symbol: get_search_q
+    reason: reexport-public-api
+    confidence: ambiguous
+    notes: Re-exported in __all__; same as category_search.
+  - path: app_course/course_insights_services.py
+    symbol: paginate_rows
+    reason: reexport-public-api
+    confidence: ambiguous
+    notes: Re-export of app_attendance.god_view_services.paginate_rows via __all__.
+files_touched:
+  - app_course/models.py
+  - app_course/serializers.py
+  - app_course/views.py
+  - docs/superpowers/specs/hygiene-reports/be-app_course.yaml
+verification:
+  command: >-
+    ./scripts/run_backend_tests.sh app_course.tests.test_rbac_course
+    app_course.tests.test_student_join_request
+    app_course.tests.test_auto_assign_creator_mt
+    app_course.tests.test_course_status
+    app_course.tests.test_roster_management_atomic
+    app_course.tests.test_user_course_roster_order
+    app_course.tests.test_course_scoping
+    app_course.test_rate_utils
+    app_course.test_course_member_counts
+    app_course.tests.test_zoom_schedule_view
+    app_course.tests.test_microsoft_channels
+  passed: true
+  notes: >
+    Focused 81 tests OK (import/serializer/view/roster/status surfaces touched by
+    hygiene). Full app_course.tests: 315 ran, 7 failures + 5 errors appear
+    pre-existing and unrelated to unused-import cleanup (overlap assertions,
+    assignment available_datetime NotNull in RBAC assessment fixtures,
+    membership event count, intake shrink/edit validation not wired,
+    resolve_bulk admin gate). Notably test_intake_shrink_rejected_* fails because
+    validate_intake_dates_do_not_conflict_with_courses is unused — listed ambiguous.

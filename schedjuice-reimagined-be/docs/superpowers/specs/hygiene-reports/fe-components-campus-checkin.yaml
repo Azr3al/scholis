@@ -1,0 +1,31 @@
+slice_id: fe-components-campus-checkin
+repo: schedjuice-reimagined-fe
+path: src/components/campus-checkin
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/campus-checkin/campus-checkin-button.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button remains used).
+  - path: src/components/campus-checkin/campus-checkin-dialog.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button/Dialog/Select/useToast remain used).
+ambiguous: []
+files_touched:
+  - src/components/campus-checkin/campus-checkin-button.tsx
+  - src/components/campus-checkin/campus-checkin-dialog.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-campus-checkin.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/campus-checkin
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/campus-checkin (vitest: "No test files
+    found"). Skipped per hygiene playbook. Live chain:
+    src/app/(internal)/services/campus-checkin/page.tsx → CampusCheckinButton →
+    CampusCheckinDialog.

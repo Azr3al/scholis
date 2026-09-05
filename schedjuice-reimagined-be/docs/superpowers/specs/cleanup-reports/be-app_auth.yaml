@@ -1,0 +1,111 @@
+slice_id: be-app_auth
+repo: schedjuice-reimagined-be
+path: app_auth/tests
+skipped: false
+deleted:
+  - path: app_auth/tests/test_web_push_subscription_migration.py
+    test_name: WebPushSubscriptionMigrationTest.test_webpushsubscription_table_exists
+    reason: tautology
+  - path: app_auth/tests/test_web_push_subscription_migration.py
+    test_name: WebPushSubscriptionMigrationTest.test_webpushsubscription_constraint_exists
+    reason: tautology
+  - path: app_auth/tests/test_web_push_subscription.py
+    test_name: WebPushSubscriptionModelTest.test_create_web_push_subscription
+    reason: tautology
+  - path: app_auth/tests/test_web_push_subscription.py
+    test_name: WebPushSubscriptionModelTest.test_model_string_representation
+    reason: tautology
+  - path: app_auth/tests/test_login_legacy.py
+    test_name: AuthTest.test_login
+    reason: obvious-smoke
+  - path: app_auth/tests/test_user_ai_preferences_model.py
+    test_name: UserAIPreferencesModelTests.test_defaults_when_created
+    reason: tautology
+  - path: app_auth/tests/test_user_ai_preferences_model.py
+    test_name: UserAIPreferencesModelTests.test_monthly_usd_limit_nullable
+    reason: tautology
+  - path: app_auth/tests/test_id_card.py
+    test_name: IdCardTests.test_blood_type_persists
+    reason: tautology
+  - path: app_auth/tests/test_id_card.py
+    test_name: IdCardTests.test_user_serializer_exposes_photo_urls
+    reason: obvious-smoke
+  - path: app_auth/tests/test_import_fields.py
+    test_name: BuildImportFieldsTest.test_fields_endpoint_returns_schema
+    reason: obvious-smoke
+  - path: app_auth/tests/test_user_merge.py
+    test_name: UserMergeApplyTests.test_merge_preview_api
+    reason: obvious-smoke
+  - path: app_auth/tests/test_import_user_match.py
+    test_name: NormalizePhoneDigitsTest.test_already_digits
+    reason: tautology
+  - path: app_auth/tests/test_dvr.py
+    test_name: NormalizeDvrFieldsTests.test_objects_preserved
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: app_auth/tests/test_registration_form_config.py
+    test_name: RegistrationFormConfigViewTests.test_enabled_tenant_returns_config
+    reason: may-be-contrast-anchor
+    notes: Thin 200 success paired with disabled-tenant 400 in the same file
+  - path: app_auth/tests/test_rbac_auth.py
+    test_name: AuthRBACTests.test_public_login_works_without_auth
+    reason: may-be-contrast-anchor
+    notes: Login 200 under RBAC enforce; documents public endpoint allowlist vs scoped user APIs
+  - path: app_auth/tests/test_security_tenant_jwt.py
+    test_name: TenantBoundJwtSecurityTest.test_token_with_matching_tenant_claim_is_accepted
+    reason: may-be-contrast-anchor
+    notes: Thin success for matching tenant claim; pairs with cross-tenant/missing-claim denials
+  - path: app_auth/tests/test_id_photo_urls.py
+    test_name: IdPhotoUrlsViewTests.test_returns_full_urls
+    reason: may-be-redundant-variant
+    notes: Near-duplicate of thumb success; may encode distinct full-variant contract vs smoke
+  - path: app_auth/tests/test_id_card.py
+    test_name: IdCardTests.test_org_branding_defaults_and_serializer
+    reason: may-encode-default-contract
+    notes: Field presence plus accent hex defaults; unclear if silent branding contract vs smoke
+  - path: app_auth/tests/test_public_profile.py
+    test_name: PublicProfileSlugTests.test_generate_public_profile_slug_uses_p_prefix
+    reason: may-encode-format-contract
+    notes: Prefix-only assert; may guard public URL format or be trivial
+  - path: app_auth/tests/test_user_search_query_count.py
+    test_name: UserSearchQueryCountTest.test_hub_search_query_count_does_not_scale_with_rows
+    reason: brittle-query-count
+    notes: Asserts exact 6 queries; suite currently sees 7 (extra org lookup). Intent is N+1 guard
+  - path: app_auth/tests/test_user_details_prefetch.py
+    test_name: UserDetailsPrefetchRegressionTest.test_profile_expand_no_user_courses_prefetch_collision
+    reason: pre-existing-broken
+    notes: SimpleTestCase forbids DB; allowing DB still hits public schema without tenant setup
+  - path: app_auth/tests/test_import_user_match.py
+    test_name: MatchUsersFuzzyPhoneTest.test_near_phone_surfaces_candidate_when_fuzzy
+    reason: env-or-drift
+    notes: Expects fuzzy kind; observed none — trigram/extension or threshold drift; not deleted
+  - path: app_auth/tests/test_student_activation_enrollment.py
+    test_name: StudentActivationEnrollmentTest.test_activate_account_idempotent_no_duplicate_email
+    reason: env-or-drift
+    notes: 'async_task call_count 0!=1; mock path/side-effect drift; keep for human review'
+  - path: app_auth/tests/test_teaching_subjects.py
+    test_name: UserTeachingSubjectApiTests.test_teacher_self_create_list_delete_subject
+    reason: status-contract-drift
+    notes: Delete returns 200 not 204; may be intentional soft-delete response shape
+files_touched:
+  - app_auth/tests/test_web_push_subscription_migration.py
+  - app_auth/tests/test_web_push_subscription.py
+  - app_auth/tests/test_login_legacy.py
+  - app_auth/tests/test_user_ai_preferences_model.py
+  - app_auth/tests/test_id_card.py
+  - app_auth/tests/test_import_fields.py
+  - app_auth/tests/test_user_merge.py
+  - app_auth/tests/test_import_user_match.py
+  - app_auth/tests/test_dvr.py
+  - app_auth/tests/test_teaching_subjects.py
+  - app_auth/tests/test_registration_form_config.py
+verification:
+  command: ./scripts/run_backend_tests.sh app_auth.tests
+  passed: false
+  notes: >
+    Cleaned modules OK (32 tests) under SCHEDJUICE_TEST_FRESH=1 on
+    test_web_push_subscription, test_id_card, test_dvr, test_import_fields,
+    test_user_merge, test_registration_form_config. Full app_auth.tests still has
+    pre-existing failures (user_code unique collisions, query-count 7!=6, fuzzy
+    phone, activation mock, teaching-subjects delete status, prefetch SimpleTestCase).

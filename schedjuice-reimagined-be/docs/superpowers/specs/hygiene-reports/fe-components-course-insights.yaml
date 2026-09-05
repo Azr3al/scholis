@@ -1,0 +1,42 @@
+slice_id: fe-components-course-insights
+repo: schedjuice-reimagined-fe
+path: src/components/course-insights
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/course-insights/course-insights-table.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button remains used).
+ambiguous:
+  - path: src/components/course-insights/course-insights-filters.tsx
+    symbol: CourseInsightsIssueBadge
+    reason: export-only-used-in-slice
+    confidence: ambiguous
+    notes: >-
+      Exported badge only imported by CourseInsightsTable in this directory;
+      zero external src/ imports. Prefer ambiguous for public component surface
+      / Next.js reachability — do not un-export/delete without confirm.
+  - path: src/components/course-insights/overlap-fix-preview-sheet.tsx
+    symbol: OverlapFixPreviewSheet
+    reason: export-only-used-in-slice
+    confidence: ambiguous
+    notes: >-
+      Exported sheet only imported by CourseInsightsTable in this directory;
+      zero external src/ imports (live via shortcuts/course-insights page →
+      table). Prefer ambiguous for Next.js reachability — do not un-export/delete
+      without confirm.
+files_touched:
+  - src/components/course-insights/course-insights-table.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-course-insights.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/course-insights
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/course-insights (vitest: "No test files
+    found"). Skipped per hygiene playbook. Live chain: app/(internal)/shortcuts/
+    course-insights/page.tsx → CourseInsightsFilters + CourseInsightsTable →
+    CourseInsightsIssueBadge + OverlapFixPreviewSheet.

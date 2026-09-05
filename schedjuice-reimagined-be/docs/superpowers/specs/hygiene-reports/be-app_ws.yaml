@@ -1,0 +1,93 @@
+slice_id: be-app_ws
+repo: schedjuice-reimagined-be
+path: app_ws
+skipped: false
+deleted:
+  - path: app_ws/consumers.py
+    symbol: set_search_path
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Entire module unreferenced (no imports of app_ws.consumers). Only contained
+      unused json import plus set_search_path (zero call sites; chat uses
+      schema_context instead). Leftover after consumers moved to app_chat.
+  - path: app_ws/views.py
+    symbol: render
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.shortcuts.render import in empty scaffold views module
+  - path: app_ws/tests.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.test.TestCase import in empty scaffold tests module
+  - path: app_ws/admin.py
+    symbol: admin
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.contrib.admin import; no model registrations
+fixed_docs:
+  - path: app_ws/views.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your views here." with unused render import; left empty module
+  - path: app_ws/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here." with unused TestCase import; left empty module
+  - path: app_ws/models.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your models here."; left django.db.models import
+  - path: app_ws/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Register your models here." and unused admin import; left empty module
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_ws/views.py
+    symbol: views.py
+    reason: empty-views-module
+    confidence: ambiguous
+    notes: >-
+      Empty after scaffold cleanup; app has no HTTP views (WS only via routing.py).
+      Keep module for startapp/discovery convention.
+  - path: app_ws/tests.py
+    symbol: tests.py
+    reason: empty-tests-module
+    confidence: ambiguous
+    notes: >-
+      Module empty after scaffold cleanup; no behavioral tests. WS coverage lives
+      under app_chat.tests. Left in place for discovery path.
+  - path: app_ws/admin.py
+    symbol: admin
+    reason: empty-admin-no-registrations
+    confidence: ambiguous
+    notes: >-
+      No models and no admin registrations; matches empty startapp scaffold.
+  - path: app_ws/models.py
+    symbol: models.py
+    reason: empty-models-module
+    confidence: ambiguous
+    notes: >-
+      No models; only django.db.models import remains. migrations/ has empty
+      __init__ only — never delete migrations in this pass.
+  - path: app_ws/routing.py
+    symbol: websocket_urlpatterns
+    reason: asgi-string-import-registration
+    confidence: ambiguous
+    notes: >-
+      Live WS route for ChatThreadConsumer; imported from
+      schedjuice_backend.asgi (outside slice). Not dead — listed so orchestrator
+      knows registration is outside app_ws static graph.
+files_touched:
+  - app_ws/consumers.py
+  - app_ws/views.py
+  - app_ws/tests.py
+  - app_ws/models.py
+  - app_ws/admin.py
+  - docs/superpowers/specs/hygiene-reports/be-app_ws.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_ws.tests
+  passed: true
+  notes: Found 0 tests, OK (--keepdb); empty scaffold tests module only

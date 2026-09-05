@@ -1,0 +1,15 @@
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  /* --surface-sunken is scoped to .sj-root; use the @theme token (or literal). */
+  background-color: var(--color-surface-sunken, #f5f0e8);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

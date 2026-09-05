@@ -1,0 +1,12 @@
+id: attendance-story
+description: Seed one demo course with recent sessions and mixed attendance outcomes.
+seeds:
+  course_title: DEMO-Attendance-Story
+  student_count: 3
+  sessions:
+    - days_ago: 1
+      status: present
+    - days_ago: 3
+      status: late
+    - days_ago: 6
+      status: absent

@@ -1,0 +1,176 @@
+slice_id: be-app_microsoft
+repo: schedjuice-reimagined-be
+path: app_microsoft
+skipped: false
+deleted:
+  - path: app_microsoft/tasks.py
+    symbol: tasks.py
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Empty 0-byte Django/Celery scaffold; zero imports or task definitions.
+      Celery autodiscover_tasks finds nothing useful; safe to remove.
+  - path: app_microsoft/announcement_helpers.py
+    symbol: get_course_month_type
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Thin unused wrapper over month_type_for_course; zero call sites in prod
+      or tests. Also dropped unused month_type_for_course import.
+  - path: app_microsoft/mail.py
+    symbol: os/email.mime.base/requests
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; SMTP/Graph send paths do not reference them.
+  - path: app_microsoft/flows.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks.async_task import; payment assignment uses helper async.
+  - path: app_microsoft/meeting_helpers.py
+    symbol: get_public_schema_name/schema_context
+    reason: dead-export
+    confidence: obvious
+    notes: Unused tenant_schemas imports; helpers use tenant_async/django_q_task.
+  - path: app_microsoft/provisioning.py
+    symbol: MicrosoftAlreadyExistsError
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused import; exception still raised by CreateUserFlow and documented in
+      provision_user_account docstring. Callers import from flows directly.
+  - path: app_microsoft/graph_wrapper/base.py
+    symbol: schema_context
+    reason: dead-export
+    confidence: obvious
+    notes: Unused tenant_schemas import.
+  - path: app_microsoft/graph_wrapper/user.py
+    symbol: _GRAPH_CALL_MAX_ATTEMPTS/_is_transient_microsoft_error/_retry_after_seconds
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused aliased imports; MSUser._graph_call_with_retry only uses
+      graph_call_with_retry.
+  - path: app_microsoft/admin.py
+    symbol: admin/scaffold-comment
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused django.contrib.admin import and "# Register your models here."
+      scaffold; MicrosoftRepairJob remains unregistered (unchanged).
+  - path: app_microsoft/tests/test_provisioning.py
+    symbol: STATUS_READY
+    reason: dead-export
+    confidence: obvious
+    notes: Imported but never referenced in assertions/body.
+  - path: app_microsoft/tests/test_unlicensed_repair.py
+    symbol: STATUS_READY_LICENSE
+    reason: dead-export
+    confidence: obvious
+    notes: Imported but never referenced in assertions/body.
+  - path: app_microsoft/tests/test_rbac_platform_internal.py
+    symbol: patch
+    reason: dead-export
+    confidence: obvious
+    notes: Unused unittest.mock.patch import.
+  - path: app_microsoft/tests/test_teams_inline_images.py
+    symbol: BytesIO/MSMeeting
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports after prior test cleanup.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_microsoft/teams_image_content.py
+    symbol: build_hosted_image_entries
+    reason: legacy-test-only-helper
+    confidence: ambiguous
+    notes: >-
+      Docstring marks as legacy vs build_image_message_batches; only referenced
+      from tests (and historical plans). Prefer leave until tests rewritten.
+  - path: app_microsoft/announcement_helpers.py
+    symbol: _build_teams_html
+    reason: test-only-wrapper
+    confidence: ambiguous
+    notes: >-
+      Thin wrapper over _build_teams_message_batches; production sync paths call
+      batches helper directly. Still imported by tests — leave.
+  - path: app_microsoft/test_payment_assignment_helpers.py
+    symbol: module-at-app-root
+    reason: misplaced-test-module
+    confidence: ambiguous
+    notes: >-
+      Lives beside production modules instead of tests/; still discovered by
+      Django. Relocation is structural, not dead-code — leave.
+  - path: app_microsoft/admin.py
+    symbol: admin stub
+    reason: django-app-scaffold
+    confidence: ambiguous
+    notes: Empty admin module after scaffold strip; standard Django pattern — leave.
+  - path: app_microsoft/teams_link_helpers.py
+    symbol: decode_teams_context_query/parse_teams_meet_short_url/parse_meetup_join_url
+    reason: internal-only-helpers
+    confidence: ambiguous
+    notes: >-
+      Only used inside teams_link_helpers (and via parse_teams_url /
+      management command). Intentional parsing helpers — leave.
+  - path: app_microsoft/mail.py
+    symbol: file_attachment/getRecipients/getAttachments
+    reason: internal-only-helpers
+    confidence: ambiguous
+    notes: Module-private Graph/SMTP helpers; used by send_mail — leave.
+  - path: app_microsoft/scope_team_sync.py
+    symbol: user_matches_course_scope/teaching_owner_user_ids/users_with_scope_for_course
+    reason: internal-only-public-helpers
+    confidence: ambiguous
+    notes: >-
+      Used within scope_team_sync (+ tests for owner repair). May be intentional
+      public surface for course/auth callers — leave.
+  - path: app_microsoft/graph_wrapper/base.py
+    symbol: STAFFY_ID/STAFFY_DELEGATED_UPN legacy env comment
+    reason: intentional-legacy-fallback-docs
+    confidence: ambiguous
+    notes: >-
+      Comment documents env fallbacks when Organization.delegated_account_* blank;
+      still wired in _delegated_account_* helpers — not stale.
+files_touched:
+  - app_microsoft/tasks.py
+  - app_microsoft/announcement_helpers.py
+  - app_microsoft/mail.py
+  - app_microsoft/flows.py
+  - app_microsoft/meeting_helpers.py
+  - app_microsoft/provisioning.py
+  - app_microsoft/graph_wrapper/base.py
+  - app_microsoft/graph_wrapper/user.py
+  - app_microsoft/admin.py
+  - app_microsoft/tests/test_provisioning.py
+  - app_microsoft/tests/test_unlicensed_repair.py
+  - app_microsoft/tests/test_rbac_platform_internal.py
+  - app_microsoft/tests/test_teams_inline_images.py
+  - docs/superpowers/specs/hygiene-reports/be-app_microsoft.yaml
+verification:
+  command: >-
+    ./scripts/run_backend_tests.sh app_microsoft.tests.test_provisioning
+    app_microsoft.tests.test_unlicensed_repair
+    app_microsoft.tests.test_rbac_platform_internal
+    app_microsoft.tests.test_teams_inline_images
+    app_microsoft.tests.test_teams_image_batching
+    app_microsoft.tests.test_course_feed_teams_sync
+    app_microsoft.tests.test_announcement_teams_reliability
+    app_microsoft.tests.test_create_user_flow
+    app_microsoft.tests.test_reset_password_kwarg
+    app_microsoft.tests.test_password_reset_bulk
+    app_microsoft.tests.test_group_list_owners
+    app_microsoft.tests.test_scope_team_sync
+    app_microsoft.tests.test_scope_team_owner_repair
+    app_microsoft.tests.test_backfill_teams_announcements
+    app_microsoft.tests.test_organization_id_targeting
+    app_microsoft.test_payment_assignment_helpers
+  passed: true
+  notes: >-
+    Focused 100 tests OK (surfaces touched by hygiene). Full
+    app_microsoft.tests: 95 ran, 3 errors appear pre-existing and unrelated
+    to unused-import / dead-wrapper cleanup —
+    CourseSerializerTeamProvisioningTests fail in app_course.serializers
+    create via compute_course_search_text_from_fks joining MagicMock title
+    (TypeError), not microsoft hygiene edits.

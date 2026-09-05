@@ -1,0 +1,99 @@
+slice_id: fe-components-courses
+repo: schedjuice-reimagined-fe
+path: src/components/courses
+skipped: false
+deleted:
+  - path: src/components/courses/ui/badge.tsx
+    symbol: BadgeProps
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Exported interface had zero external importers; only used as Badge
+      props. Removed export keyword; kept as module-private interface.
+  - path: src/components/courses/ui/calendar.tsx
+    symbol: CalendarProps
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Exported type had zero external importers; only used as Calendar
+      props. Removed export keyword; kept as module-private type.
+  - path: src/components/courses/ui/date-picker.tsx
+    symbol: DatePickerProps
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Exported type had zero external importers under src/; only used as
+      DatePicker props. Removed export keyword; kept as module-private type.
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/courses/ui/url-tabs.tsx
+    symbol: shallow
+    reason: pages-router-only-noop
+    confidence: obvious
+    notes: >-
+      Removed shallow={true} on next/link TabsTrigger. Next documents shallow
+      as Pages Router only; this module already uses App Router
+      usePathname/useSearchParams, so the prop was a no-op.
+ambiguous:
+  - path: src/components/courses/ui/badge.tsx
+    symbol: badgeVariants
+    reason: dead-export
+    confidence: ambiguous
+    notes: >-
+      Named export has zero external importers; only used internally by Badge.
+      Kept as chrome/shadcn-style public variants surface — prefer ambiguous
+      for Next.js reachability / copy-paste consumers.
+  - path: src/components/courses/ui/card.tsx
+    symbol: CardAction|CardFooter
+    reason: dead-export
+    confidence: ambiguous
+    notes: >-
+      Exported compound pieces with zero importers from this shim (callers use
+      Card/Header/Title/Description/Content). Chrome-parity temporary lift —
+      prefer ambiguous over deleting API surface.
+  - path: src/components/courses/ui/table.tsx
+    symbol: TableFooter|TableCaption
+    reason: dead-export
+    confidence: ambiguous
+    notes: >-
+      Exported compound pieces with zero importers from this shim (callers use
+      Table/Header/Body/Head/Row/Cell). Chrome-parity temporary lift — prefer
+      ambiguous over deleting API surface.
+  - path: src/components/courses/ui/toggle-group.tsx
+    symbol: type
+    reason: unused-prop-no-op
+    confidence: ambiguous
+    notes: >-
+      type prop accepted (callers pass type="single") but voided; only single
+      selection is implemented. Do not remove without updating out-of-slice
+      callers / deciding multi support.
+  - path: src/components/courses/ui/url-tabs.tsx
+    symbol: TabsTrigger.variant-underline
+    reason: unused-variant-branch
+    confidence: ambiguous
+    notes: >-
+      underline variant styles exist but zero callers pass
+      variant="underline". Prefer ambiguous for Next.js reachability.
+  - path: src/components/courses/ui/README.md
+    symbol: route-local-ui-shims
+    reason: temporary-shim-cohort
+    confidence: ambiguous
+    notes: >-
+      README documents temporary R9 lifts pending primitives/date merge. All
+      ui/* modules are still live-imported by app routes — do not delete the
+      folder as a unit without consolidation confirm.
+files_touched:
+  - src/components/courses/ui/badge.tsx
+  - src/components/courses/ui/calendar.tsx
+  - src/components/courses/ui/date-picker.tsx
+  - src/components/courses/ui/url-tabs.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-courses.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/courses
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/courses (vitest: "No test files found").
+    Skipped per hygiene playbook. Live chain: courses/assignments/submissions
+    routes + attendance-god-view → courses/ui badge/card/table/date pickers/
+    url-tabs/toggle-group/scroll-area/label.

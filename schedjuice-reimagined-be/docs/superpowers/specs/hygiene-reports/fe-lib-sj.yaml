@@ -1,0 +1,76 @@
+slice_id: fe-lib-sj
+repo: schedjuice-reimagined-fe
+path: src/lib/sj
+skipped: false
+deleted:
+  - path: src/lib/sj/theme.ts
+    symbol: THEME_COOKIE
+    reason: dead-export
+    confidence: obvious
+    notes: Un-exported; only used internally by applyTheme (layout hardcodes "theme")
+  - path: src/lib/sj/theme.ts
+    symbol: readThemePreference
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static callers across src; removed entirely
+  - path: src/lib/sj/motion.ts
+    symbol: heavyContentEnter
+    reason: dead-export
+    confidence: obvious
+    notes: Zero callers; only referenced by deleted resolveHeavyCrossfadeVariants
+  - path: src/lib/sj/motion.ts
+    symbol: resolveHeavyCrossfadeVariants
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static imports; async-content-panel/data-table use crossfadeOpacity/crossfadeInstant directly
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/sj/theme.ts
+    symbol: isThemePreference
+    reason: test-only-export
+    confidence: ambiguous
+    notes: Only imported by theme.test.ts; production uses normalizeTheme
+  - path: src/lib/sj/palette.ts
+    symbol: RAW|WARM|LIGHT|DARK
+    reason: design-token-source
+    confidence: ambiguous
+    notes: Only imported by palette.test.ts for AA; intentional DESIGN.md §5/§16 source of truth mirrored in CSS
+  - path: src/lib/sj/contrast.ts
+    symbol: relativeLuminance|contrastRatio
+    reason: test-only-aa-utility
+    confidence: ambiguous
+    notes: Only used by contrast.test.ts and palette.test.ts; keep for AA regression suite
+  - path: src/lib/sj/motion.ts
+    symbol: EASE|STAGGER
+    reason: public-token-surface
+    confidence: ambiguous
+    notes: Exported design tokens; no current component imports but DESIGN.md §12 documents them as importable
+  - path: src/lib/sj/motion.ts
+    symbol: EASE.quiet
+    reason: unused-token-key
+    confidence: ambiguous
+    notes: Documented CSS mirror; unused in JS variants today — do not drop without design confirm
+  - path: src/lib/sj/motion.ts
+    symbol: listItemPresence|listItemPresenceReduced
+    reason: public-variant-surface
+    confidence: ambiguous
+    notes: Only used via resolveListItemPresence; DESIGN.md §12 case study still names them as importable
+  - path: src/lib/sj/legacy-token-aliases.ts
+    symbol: isLegacyTokenClass
+    reason: test-only-export
+    confidence: ambiguous
+    notes: Only asserted in colocated test; check-legacy-tokens.ts uses LEGACY_TOKEN_CLASS_PATTERN
+  - path: src/lib/sj/legacy-token-aliases.ts
+    symbol: LEGACY_TOKEN_ALIASES
+    reason: script-and-css-source-map
+    confidence: ambiguous
+    notes: Drives LEGACY_TOKEN_CLASS_PATTERN + globals.css comment source map; leave exported
+files_touched:
+  - src/lib/sj/theme.ts
+  - src/lib/sj/motion.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-sj.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/sj
+  passed: true
+  tests_passed: 28

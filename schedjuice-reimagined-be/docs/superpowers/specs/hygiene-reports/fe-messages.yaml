@@ -1,0 +1,41 @@
+slice_id: fe-messages
+repo: schedjuice-reimagined-fe
+path: src/messages
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/messages/dm-chat.ts
+    symbol: pickerCreating
+    reason: unused-i18n-copy-key
+    confidence: ambiguous
+    notes: >
+      Zero static refs to dmChatCopy.pickerCreating ("Starting chat…").
+      Copy object is actively imported; leave key pending picker loading UX /
+      eventual i18n wiring — do not delete without confirm.
+  - path: src/messages/dm-chat.ts
+    symbol: loadingMessages
+    reason: unused-i18n-copy-key
+    confidence: ambiguous
+    notes: >
+      Zero static refs to dmChatCopy.loadingMessages. Thread UI uses
+      connectingHint instead; may be reserved for message-list loading —
+      prefer leave.
+  - path: src/messages/dm-chat.ts
+    symbol: attachmentLabel
+    reason: unused-i18n-copy-key
+    confidence: ambiguous
+    notes: >
+      Zero static refs to dmChatCopy.attachmentLabel ("Attach file"). Composer
+      attach control may use icon-only / other label — prefer leave as i18n
+      surface.
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/messages
+  passed: false
+  skipped: true
+  notes: >
+    No test files under src/messages (Vitest exit 1, "No test files found").
+    Both modules (dmChatCopy, chatComposerCopy) are statically imported by
+    chat/DM components; no in-slice edits — nothing to regress.

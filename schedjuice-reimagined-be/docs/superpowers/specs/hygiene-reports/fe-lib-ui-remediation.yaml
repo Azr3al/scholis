@@ -1,0 +1,199 @@
+slice_id: fe-lib-ui-remediation
+repo: schedjuice-reimagined-fe
+path: src/lib/ui-remediation
+skipped: false
+deleted:
+  - path: src/lib/ui-remediation/r8-admin-crud-layout-classes.ts
+    symbol: adminCrudHeaderActionRowClassName
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Zero static callers across src/scripts. Deleted entirely (not demoted).
+  - path: src/lib/ui-remediation/r8-admin-crud-layout-classes.ts
+    symbol: adminListEmptyStateClassName
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Zero static callers across src/scripts. Deleted entirely (not demoted).
+  - path: src/lib/ui-remediation/r6-global-route-classes.ts
+    symbol: GlobalRouteLayoutVariant
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only resolveGlobalRouteLayout /
+      globalRoutePageWidth param and return. Callers pass inferred strings.
+  - path: src/lib/ui-remediation/route-manifest-classifier.ts
+    symbol: VerificationVariantPlan
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only classifyVerificationVariants return shape
+      and RESOURCE_TABLE / GLIDE constants. Zero external imports.
+  - path: src/lib/ui-remediation/route-manifest-classifier.ts
+    symbol: getImplementationMeta
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only called by classifyVerificationVariants.
+      Zero external imports.
+  - path: src/lib/ui-remediation/route-manifest-generator.ts
+    symbol: GenerateOptions
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only generateRouteManifest / writeRouteManifest
+      options. Scripts pass object literals. Zero external imports of the type.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: isFixtureBlockerReason
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only mergeVariantQaFromPrior. Zero external
+      imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: applyVariantQaResolution
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only mergePriorManifestQa / syncManifestQaStatus.
+      Zero external imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: applyRouteQaAggregation
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only mergePriorManifestQa / syncManifestQaStatus.
+      Zero external imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: EvidenceReader
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only syncManifestQaStatus readEvidence param.
+      Scripts pass inline callbacks. Zero external imports of the type.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RouteFamilySchema
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only RouteManifestEntrySchema + RouteFamily
+      infer. Zero external imports of the Zod const.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: CoverageModeSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only entry schema + CoverageMode infer.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: VerificationVariantIdSchema
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only variant / evidence schemas + type infer.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RiskTierSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only entry schema + RiskTier infer.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: ImplementationStatusSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only entry schema field. No type alias export.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: QaStatusSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only variant / entry schemas + QaStatus infer.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: ViewportSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only evidence / entry schemas.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: VerificationVariantSchema
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only entry schema array + VerificationVariant
+      infer. Zero external imports of the Zod const.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RouteQaDefectSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only RouteQaEvidenceSchema.defect field.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RouteManifestExclusions
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Deleted unused type alias; Schema stays exported for generator. Zero
+      references to the type name.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RouteFixtureOverrides
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Deleted unused type alias; Schema stays exported for generate script.
+      Zero references to the type name.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/ui-remediation/route-manifest-generator.ts
+    symbol: generateRouteManifest
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by writeRouteManifest (scripts) and generator unit tests. Do not
+      demote without updating tests to go through writeRouteManifest.
+  - path: src/lib/ui-remediation/route-manifest-schema.ts
+    symbol: RouteManifestEntrySchema
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Also composes RouteManifestFileSchema; unit tests import EntrySchema
+      directly for reject/accept cases. Leave exported.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: resolveVariantQaWithoutEvidence
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by syncManifestQaStatus and unit tests; zero other prod imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: resolveVariantQaFromEvidence
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by syncManifestQaStatus and unit tests; zero other prod imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: aggregateRouteQaStatus
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by applyRouteQaAggregation and unit tests; zero other prod imports.
+  - path: src/lib/ui-remediation/sync-route-qa-status.ts
+    symbol: mergeVariantQaFromPrior
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by mergePriorManifestQa and unit tests; zero other prod imports.
+  - path: src/lib/ui-remediation/route-manifest-classifier.ts
+    symbol: toRoutePattern|classifyRouteFamily|classifyRiskTier|classifyCoverageMode|classifyVerificationVariants|slugifyRoutePattern
+    reason: package-internal-api
+    confidence: ambiguous
+    notes: >
+      Only consumed by route-manifest-generator (+ classifier tests). Leave as
+      public module exports for generator coupling — do not demote without
+      consolidating into a single non-exported module.
+files_touched:
+  - src/lib/ui-remediation/r8-admin-crud-layout-classes.ts
+  - src/lib/ui-remediation/r6-global-route-classes.ts
+  - src/lib/ui-remediation/route-manifest-classifier.ts
+  - src/lib/ui-remediation/route-manifest-generator.ts
+  - src/lib/ui-remediation/sync-route-qa-status.ts
+  - src/lib/ui-remediation/route-manifest-schema.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-ui-remediation.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/ui-remediation
+  passed: true
+  tests_passed: 49
+  notes: 5 files / 49 tests passed.

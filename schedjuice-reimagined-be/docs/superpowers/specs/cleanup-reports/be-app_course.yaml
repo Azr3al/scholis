@@ -1,0 +1,128 @@
+slice_id: be-app_course
+repo: schedjuice-reimagined-be
+path: app_course/tests
+skipped: false
+deleted:
+  - path: app_course/tests/test_legacy_api.py
+    test_name: CourseTest.test_create_course
+    reason: obvious-smoke
+  - path: app_course/tests/test_legacy_api.py
+    test_name: CourseTest.test_create_event
+    reason: obvious-smoke
+  - path: app_course/tests/test_legacy_api.py
+    test_name: CourseTest.test_course_event_edit
+    reason: obvious-smoke
+  - path: app_course/tests/test_legacy_api.py
+    test_name: CourseTest.test_user_course_management
+    reason: obvious-smoke
+  - path: app_course/tests/test_course_month_type.py
+    test_name: CourseMonthTypeTests.test_day_10_is_fm
+    reason: setup-theater
+  - path: app_course/tests/test_roster_event_weekdays.py
+    test_name: RosterEventWeekdayTests.test_format_weekday_labels_all_sessions
+    reason: tautology
+  - path: app_course/tests/test_import_matching.py
+    test_name: NormalizeCourseTitleTest.test_lowercases_and_collapses_whitespace
+    reason: tautology
+  - path: app_course/tests/test_user_uploaded_recording.py
+    test_name: NormalizeYouTubeUrlTest.test_normalizes_to_watch_url
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: app_course/tests/test_rbac_school_setup.py
+    test_name: SchoolSetupRBACTests.test_superadmin_can_list_programs
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with test_manager_forbidden_on_programs
+  - path: app_course/tests/test_rbac_school_setup.py
+    test_name: SchoolSetupRBACTests.test_superadmin_can_list_subjects
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with teacher forbidden on subjects
+  - path: app_course/tests/test_rbac_school_setup.py
+    test_name: SchoolSetupRBACTests.test_superadmin_can_list_intakes
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with manager forbidden on intakes
+  - path: app_course/tests/test_rbac_school_setup.py
+    test_name: SchoolSetupRBACTests.test_superadmin_can_list_assigned_as_roles
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with manager forbidden on assigned-as-roles
+  - path: app_course/tests/test_rbac_school_setup.py
+    test_name: CategoryRBACTests.test_manager_can_list_categories
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with teacher forbidden on categories
+  - path: app_course/tests/test_rbac_assessment.py
+    test_name: AssessmentRBACTests.test_admin_can_search_submission_tracker
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with teacher forbidden on submission tracker
+  - path: app_course/tests/test_rbac_assessment.py
+    test_name: AssessmentRBACTests.test_teacher_can_list_assignments
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with student forbidden on assignment list
+  - path: app_course/tests/test_rbac_course.py
+    test_name: CourseRBACTests.test_teacher_can_list_students_on_assigned_course
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; no dedicated list-forbid pair (forbid covers add-student unassigned)
+  - path: app_course/tests/test_rbac_course.py
+    test_name: CourseRBACTests.test_manager_can_list_campuses
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with teacher forbidden on campuses
+  - path: app_course/tests/test_payment_plan_mandatory.py
+    test_name: PaymentPlanMandatoryTests.test_create_course_without_plan_allowed_when_flag_off
+    reason: may-be-matrix-cell
+    notes: Thin 201 allow for flag-off; pairs with reject-when-flag-on and with-plan-ok
+  - path: app_course/tests/test_payment_plan_mandatory.py
+    test_name: PaymentPlanMandatoryTests.test_create_course_with_plan_ok_when_flag_on
+    reason: may-be-contrast-anchor
+    notes: Thin 201 success unlocking reject-without-plan when flag on
+  - path: app_course/tests/test_program_intake.py
+    test_name: ProgramIntakeTest.test_setup_program_structure_happy_path
+    reason: may-be-contrast-anchor
+    notes: Thin success counting levels/sections; unlocks empty/duplicate/existing reject tests
+  - path: app_course/tests/test_program_intake.py
+    test_name: ProgramIntakeTest.test_general_program_exists_after_migrations
+    reason: may-be-seed-smoke
+    notes: Asserts default/protected seed flags; delete protection covered separately
+  - path: app_course/tests/test_search_fts.py
+    test_name: CourseSearchFtsTests.test_empty_query_returns_no_crash
+    reason: soft-no-crash-smoke
+    notes: 'assertGreaterEqual(count, 0) is tautological; assertFalse(used) may still be intentional empty-query contract'
+  - path: app_course/tests/test_user_uploaded_recording.py
+    test_name: ExtractYouTubeVideoIdTest.test_embed_url
+    reason: may-be-redundant-matrix-cell
+    notes: Shares _PATH_PATTERNS with shorts; unclear if both path alts need dedicated cases
+  - path: app_course/tests/test_user_uploaded_recording.py
+    test_name: ExtractYouTubeVideoIdTest.test_shorts_url
+    reason: may-be-redundant-matrix-cell
+    notes: Same path-pattern regex as embed; left pending human review
+  - path: app_course/tests/test_queryset_mixins.py
+    test_name: QuerysetMixinRegressionTest.test_build_body_params_coerces_boolean_exact_filters
+    reason: may-be-utilitas-tautology
+    notes: Tests BaseView boolean coercion via Program model; may belong in utilitas or guard silent filter bugs
+  - path: app_course/tests/test_microsoft_channels.py
+    test_name: CourseMicrosoftChannelsViewTests.test_lists_channels_for_linked_course
+    reason: may-be-contrast-anchor
+    notes: Mocked happy path asserting channel names; pairs with empty-when-not-linked
+files_touched:
+  - app_course/tests/test_legacy_api.py
+  - app_course/tests/test_course_month_type.py
+  - app_course/tests/test_roster_event_weekdays.py
+  - app_course/tests/test_import_matching.py
+  - app_course/tests/test_user_uploaded_recording.py
+  - docs/superpowers/specs/cleanup-reports/be-app_course.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_course.tests
+  passed: false
+  notes: >
+    Touched modules green (29 tests) on isolated DATABASE_URL
+    postgres://user:password@127.0.0.1:55432/course_slice_db via manage.py test
+    --keepdb. Full app_course.tests: Ran 303 (was 311), FAILED (failures=6,
+    errors=7, skipped=1) — pre-existing, unrelated to deletions:
+    program_intake intake PUT UnsupportedMediaType + serializer validate True-not-false;
+    rbac_assessment Assignment create IntegrityError; course_event_edit overlap
+    expects 400 got 200; insights overlapping_events missing; resolve_bulk
+    test_requires_admin. Shared test_db contention forced isolated DB for this run.
+counts:
+  deleted: 8
+  replaced: 0
+  ambiguous: 18
+  tests_before: 311
+  tests_after: 303

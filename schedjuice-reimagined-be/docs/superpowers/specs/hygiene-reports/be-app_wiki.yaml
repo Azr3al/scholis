@@ -1,0 +1,70 @@
+slice_id: be-app_wiki
+repo: schedjuice-reimagined-be
+path: app_wiki
+skipped: false
+deleted:
+  - path: app_wiki/serializers.py
+    symbol: UniqueTogetherValidator
+    reason: dead-export
+    confidence: obvious
+    notes: Unused rest_framework UniqueTogetherValidator import; no validators on ItemSerializer
+  - path: app_wiki/models.py
+    symbol: UniqueConstraint
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django UniqueConstraint import; unique_name_parent constraint removed in migration 0006
+  - path: app_wiki/admin.py
+    symbol: admin/scaffold-comment
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.contrib.admin import and "# Register your models here." scaffold; Item remains unregistered (unchanged)
+  - path: app_wiki/tests.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.test.TestCase import in empty startapp scaffold; no behavioral tests in module
+fixed_docs:
+  - path: app_wiki/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Register your models here." with unused admin import; left empty module
+  - path: app_wiki/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here." with unused TestCase import; left empty module
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_wiki/admin.py
+    symbol: admin stub
+    reason: django-app-scaffold
+    confidence: ambiguous
+    notes: Empty admin module after scaffold strip; Item unregistered. Matches other apps' empty admin.py — leave.
+  - path: app_wiki/tests.py
+    symbol: empty tests module
+    reason: no-behavioral-tests
+    confidence: ambiguous
+    notes: Module empty after scaffold cleanup; no app_wiki behavioral tests. Adding coverage is out of hygiene scope.
+  - path: app_wiki/models.py
+    symbol: Item.__doc__
+    reason: docstring-may-be-outdated
+    confidence: ambiguous
+    notes: >-
+      Docstring says "file or a link" but ItemType also includes CONTENT and
+      is_folder exists; plausible shorthand — do not rewrite without product confirm.
+  - path: app_wiki/permissions.py
+    symbol: user_can_view_course_items
+    reason: internal-helper-only
+    confidence: ambiguous
+    notes: >-
+      Only called by user_can_view_item in-module; looks like intentional public
+      helper for course-scoped checks — do not delete without confirm.
+files_touched:
+  - app_wiki/serializers.py
+  - app_wiki/models.py
+  - app_wiki/admin.py
+  - app_wiki/tests.py
+  - docs/superpowers/specs/hygiene-reports/be-app_wiki.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_wiki.tests
+  passed: true
+  notes: Ran 0 tests, OK (--keepdb); empty tests module only.

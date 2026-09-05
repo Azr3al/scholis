@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["school_name", "slug", "niche", "pain_points", "demo_date"],
+  "properties": {
+    "school_name": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "niche": { "type": "string", "minLength": 1 },
+    "pain_points": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "terminology_overrides": { "type": "object", "additionalProperties": { "type": "string" } },
+    "timezone": { "type": "string" },
+    "demo_date": { "type": "string", "format": "date" },
+    "domain_url": { "type": "string" },
+    "import": {
+      "type": "object",
+      "required": ["file", "mode"],
+      "properties": {
+        "file": { "type": "string" },
+        "mode": { "enum": ["merge", "replace_fiction"] }
+      }
+    }
+  },
+  "additionalProperties": false
+}

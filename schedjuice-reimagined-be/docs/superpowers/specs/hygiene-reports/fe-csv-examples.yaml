@@ -1,0 +1,27 @@
+slice_id: fe-csv-examples
+repo: schedjuice-reimagined-fe
+path: src/csv-examples
+skipped: false
+deleted:
+  - path: src/csv-examples/user.ts
+    symbol: userCsvExample
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Zero static imports of module or symbol across src; sibling examples
+      (access-log, screenshot-verification) remain wired to upload pages
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/csv-examples/user.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/csv-examples
+  passed: true
+  skipped: true
+  notes: >-
+    No test files under src/csv-examples (Vitest: "No test files found").
+    Remaining modules are live sample data for CsvToTable on
+    /services/upload-access-log and
+    /finances/student-payments/verification-upload. No docs/comments or
+    severe anti-patterns in slice.

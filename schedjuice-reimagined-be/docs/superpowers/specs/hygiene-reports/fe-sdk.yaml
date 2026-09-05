@@ -1,0 +1,117 @@
+slice_id: fe-sdk
+repo: schedjuice-reimagined-fe
+path: src/sdk
+skipped: false
+deleted:
+  - path: src/sdk/__tests__/define-search-list.test.ts
+    symbol: defineSearchListResource
+    reason: commented-out-block
+    confidence: obvious
+    notes: >-
+      Empty describe("defineSearchListResource") with only beforeEach/search mock
+      caused Vitest "No test found in suite"; removed scaffold + unused http mock.
+      Kept toFilterBody tests.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/sdk/resources/quizes.ts
+    symbol: listQuizes|quizesSearch|useQuizesList
+    reason: duplicate-public-sdk-surface
+    confidence: ambiguous
+    notes: >-
+      Same API path (`quizes`) and LegacyQuiz shape as legacy-quizzes.*; both
+      call sites exist (categories page vs course grading). Consolidation is a
+      public API change — do not delete without confirm.
+  - path: src/sdk/resources/legacy-quizzes.ts
+    symbol: listLegacyQuizzes|legacyQuizzesSearch|useLegacyQuizzesList
+    reason: duplicate-public-sdk-surface
+    confidence: ambiguous
+    notes: >-
+      Parallel wrapper over identical `quizes` search; intentional rename path
+      vs misspelled `quizes` module — leave both until cutover plan.
+  - path: src/sdk/core/define-search-list-hook.ts
+    symbol: defineSearchList
+    reason: public-sdk-factory-unused
+    confidence: ambiguous
+    notes: >-
+      Barrel-exported factory; zero call sites (resources use
+      defineSearchListResource + useSearchListQuery). Keep as public SDK helper.
+  - path: src/sdk/core/define-search-list.ts
+    symbol: defineSearchListFn|defineSearchListKeys
+    reason: public-sdk-factory-unused
+    confidence: ambiguous
+    notes: >-
+      Only used inside defineSearchListResource but re-exported from src/sdk
+      barrel — treat as intentional public composition API.
+  - path: src/sdk/keys/index.ts
+    symbol: queryKeys
+    reason: public-sdk-export-unused
+    confidence: ambiguous
+    notes: >-
+      Aggregate queryKeys map re-exported from barrel; zero static imports
+      outside sdk (local vars named queryKeys elsewhere are unrelated).
+  - path: src/sdk/index.ts
+    symbol: campusesKeys
+    reason: public-sdk-export-unused
+    confidence: ambiguous
+    notes: >-
+      Special-cased barrel re-export of campusesKeys; no outside consumers
+      (other keys imported via @/sdk/keys/*). Public surface — leave.
+  - path: src/sdk/index.ts
+    symbol: list*
+    reason: public-sdk-imperative-lists-unused
+    confidence: ambiguous
+    notes: >-
+      Most listX imperative helpers are only wired through hooks / *Search;
+      zero direct app imports. Keep as public SDK surface for non-hook callers.
+  - path: src/sdk/keys/index.ts
+    symbol: "*Keys (most)"
+    reason: public-sdk-key-exports-unused
+    confidence: ambiguous
+    notes: >-
+      Individual *Keys re-exports unused outside sdk except userPaymentsKeys,
+      coursesKeys, userCoursesKeys. Remainder look like intentional cache-key API.
+  - path: src/sdk/resources/unpaid-users.ts
+    symbol: unpaidUsersKeys
+    reason: keys-not-in-queryKeys-bag
+    confidence: ambiguous
+    notes: >-
+      Custom endpoint keys live on resource module; not registered in
+      queryKeys aggregate. Used by hook — not dead; bag incompleteness only.
+  - path: src/sdk/resources/quiz-attempts.ts
+    symbol: quizAttemptsKeys
+    reason: keys-not-in-queryKeys-bag
+    confidence: ambiguous
+    notes: >-
+      Nested attempts keys not in keys/index queryKeys; used by hook — leave.
+  - path: src/sdk/resources/staff-payments.ts
+    symbol: staffPaymentsSearch
+    reason: keys-not-in-queryKeys-bag
+    confidence: ambiguous
+    notes: >-
+      staff-payments has no keys/*.ts module; invalidation uses string
+      ["staff-payments"] in hook. Possible incomplete cutover — not unused.
+  - path: src/sdk/core/http.ts
+    symbol: T0-dependency-comment
+    reason: cutover-jargon-comment
+    confidence: ambiguous
+    notes: >-
+      Module comment references "T0 dependency" / cutover; still accurate
+      bootstrap note — do not strip without product doc confirm.
+  - path: src/sdk/core/define-search-list.ts
+    symbol: T1-cutover-comment
+    reason: cutover-jargon-comment
+    confidence: ambiguous
+    notes: >-
+      "T1 entity list cutovers" wording in factory docs; may be historical
+      phase label still meaningful to authors — leave.
+files_touched:
+  - src/sdk/__tests__/define-search-list.test.ts
+  - docs/superpowers/specs/hygiene-reports/fe-sdk.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/sdk
+  passed: true
+  notes: >-
+    2 files / 4 tests passed after removing empty defineSearchListResource suite.
+    Prefer `pnpm exec vitest run --config vitest.config.mts src/sdk` over
+    `pnpm test:unit -- src/sdk` (latter may still collect the full unit suite).

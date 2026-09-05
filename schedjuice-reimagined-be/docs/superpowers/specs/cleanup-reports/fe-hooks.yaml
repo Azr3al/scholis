@@ -1,0 +1,39 @@
+slice_id: fe-hooks
+repo: schedjuice-reimagined-fe
+path: src/hooks
+skipped: false
+deleted:
+  - path: src/hooks/__tests__/useRbacLiveRefresh.test.ts
+    test_name: isRbacUpdateMessage returns true for an rbac.updated payload
+    reason: obvious-smoke
+  - path: src/hooks/useInternalTenant.test.ts
+    test_name: normalizeInternalTenantId trims non-empty values
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: src/hooks/__tests__/useTenant.test.tsx
+    test_name: useTenant reuses the react-query cache across remounts within staleTime
+    reason: may-be-rq-tautology
+    notes: >
+      Asserts axiosGet called once across remounts; may guard intentional staleTime=30m
+      on organizations/public, or may only re-test react-query cache semantics. Sibling
+      test already covers slim-cookie enrichment fetch.
+  - path: src/hooks/useSessionCheckinEnabled.test.ts
+    test_name: canShowSessionCheckin shows for teacher when use_teacher_session_checkin is true
+    reason: may-be-matrix-cell
+    notes: >
+      Thin success for teacher×flag; file also has student hide/show. Unclear whether
+      this cell is intentional matrix coverage vs redundant happy path. Implementation
+      uses !== false (teacher false-hide edge is not covered).
+  - path: src/hooks/__tests__/usePermissions.test.ts
+    test_name: permission checker can() matches a held code
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin can() success; denials + superadmin sentinel remain in the same file.
+      Likely the allowed contrast anchor for can() false.
+files_touched:
+  - src/hooks/__tests__/useRbacLiveRefresh.test.ts
+  - src/hooks/useInternalTenant.test.ts
+verification:
+  command: 'pnpm test:unit -- src/hooks'
+  passed: true

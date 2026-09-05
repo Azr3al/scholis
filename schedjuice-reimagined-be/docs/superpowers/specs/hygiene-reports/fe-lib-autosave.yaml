@@ -1,0 +1,20 @@
+slice_id: fe-lib-autosave
+repo: schedjuice-reimagined-fe
+path: src/lib/autosave
+skipped: false
+deleted:
+  - path: src/lib/autosave/autosave-core.ts
+    symbol: CollectInput
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used as collectDirtyValidFields param type; zero external imports
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/lib/autosave/autosave-core.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-autosave.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/autosave
+  passed: true
+  notes: 1 file / 17 tests passed.

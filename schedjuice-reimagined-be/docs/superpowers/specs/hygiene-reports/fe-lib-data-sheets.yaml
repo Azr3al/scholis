@@ -1,0 +1,99 @@
+slice_id: fe-lib-data-sheets
+repo: schedjuice-reimagined-fe
+path: src/lib/data-sheets
+skipped: false
+deleted:
+  - path: src/lib/data-sheets/student-data-sheet-field-utils.ts
+    symbol: fieldValueAtRow
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used by studentFieldText.
+  - path: src/lib/data-sheets/student-data-sheet-field-utils.ts
+    symbol: formatStudentFieldDisplay
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used by studentFieldText.
+  - path: src/lib/data-sheets/user-payments-sheet-adapter.ts
+    symbol: UserPaymentsSheetAdapterOpts
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external type imports.
+  - path: src/lib/data-sheets/student-data-sheet-adapter.ts
+    symbol: StudentDataSheetAdapterOpts
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external type imports.
+  - path: src/lib/data-sheets/student-data-sheet-cell.ts
+    symbol: StudentCellContext
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; callers pass object literals without importing the type.
+  - path: src/lib/data-sheets/student-data-sheet-columns.ts
+    symbol: StudentSheetColumn
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used inside this module.
+  - path: src/lib/data-sheets/course-data-paired-layout.ts
+    symbol: CoursePairedLayoutResult
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; return type inferred by callers.
+  - path: src/lib/data-sheets/course-data-paired-layout.ts
+    symbol: getCoursePairedBlocks
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used by buildCoursePairedDisplayRows / pairedLayoutTotals.
+  - path: src/lib/data-sheets/course-data-grouping.ts
+    symbol: buildCourseDisplayRows
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Removed; zero production imports. Course-data page uses
+      buildCoursePairedDisplayRows only. Dedicated unit test removed with it.
+  - path: src/lib/data-sheets/course-data-grouping.ts
+    symbol: CourseDisplayRow
+    reason: dead-export
+    confidence: obvious
+    notes: Removed with buildCourseDisplayRows; zero external imports.
+  - path: src/lib/data-sheets/course-data-grouping.ts
+    symbol: COURSE_GROUP_ORDER
+    reason: dead-export
+    confidence: obvious
+    notes: Removed; only referenced by deleted buildCourseDisplayRows.
+  - path: src/lib/data-sheets/course-data-grouping.ts
+    symbol: COURSE_GROUP_LABEL
+    reason: dead-export
+    confidence: obvious
+    notes: Removed; only referenced by deleted buildCourseDisplayRows.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/data-sheets/course-data-grouping.ts
+    symbol: isHalfMonth
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by groupKeyFor and unit tests; zero other prod imports.
+      Prefer keep for direct unit coverage of day-of-month boundary.
+  - path: src/lib/data-sheets/course-data-paired-layout.ts
+    symbol: pairedLayoutTotals
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by unit tests only; prod uses summary rows from
+      buildCoursePairedDisplayRows. Prefer keep for direct totals coverage.
+files_touched:
+  - src/lib/data-sheets/student-data-sheet-field-utils.ts
+  - src/lib/data-sheets/user-payments-sheet-adapter.ts
+  - src/lib/data-sheets/student-data-sheet-adapter.ts
+  - src/lib/data-sheets/student-data-sheet-cell.ts
+  - src/lib/data-sheets/student-data-sheet-columns.ts
+  - src/lib/data-sheets/course-data-paired-layout.ts
+  - src/lib/data-sheets/course-data-grouping.ts
+  - src/lib/data-sheets/course-data-grouping.test.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-data-sheets.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/data-sheets
+  passed: true
+  tests_passed: 40
+  notes: 5 files / 40 tests passed.

@@ -1,0 +1,104 @@
+slice_id: fe-lib-root
+repo: schedjuice-reimagined-fe
+path: src/lib
+skipped: false
+deleted:
+  - path: src/lib/youtube.test.ts
+    test_name: builds thumbnail and watch URLs
+    reason: tautology
+  - path: src/lib/course-cache.test.ts
+    test_name: supports bulk flows without a course id
+    reason: obvious-smoke
+  - path: src/lib/password-requirements.test.ts
+    test_name: exposes five stable rule ids in order
+    reason: tautology
+  - path: src/lib/leads-table.test.ts
+    test_name: includes the core columns in order
+    reason: tautology
+  - path: src/lib/leads-table.test.ts
+    test_name: renders plain fields
+    reason: obvious-smoke
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /shortcuts/todays-classes
+    reason: tautology
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /shortcuts/unpaid-course-counts
+    reason: tautology
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /finances/make-payment
+    reason: tautology
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /finances/student-payments
+    reason: tautology
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /finances/recent-transactions
+    reason: tautology
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: resolves /services/org-wide-announcements on web
+    reason: tautology
+  - path: src/lib/posthog.test.ts
+    test_name: includes internal routes
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: src/lib/leads-view-mode.test.ts
+    test_name: round-trips a written mode
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin localStorage round-trip; defaults + invalid fallback remain. Likely the
+      intentional success contrast for write/read.
+  - path: src/lib/posthog.test.ts
+    test_name: includes help and platform docs
+    reason: may-be-allowlist-matrix
+    notes: >
+      Thin shouldTrackPage true for docs prefixes; exclude-list siblings cover denials.
+      capturePageview already exercises an included app route. Unclear if docs
+      allowlist cells are intentional matrix coverage.
+  - path: src/lib/posthog.test.ts
+    test_name: preserves static segments
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin normalizePath identity for non-id segments; numeric/uuid replacements
+      remain. May be intentional contrast for path normalization.
+  - path: src/lib/password-requirements.test.ts
+    test_name: sets allMet only when every rule passes
+    reason: may-be-redundant-with-parity
+    notes: >
+      Overlaps with passwordRegex parity samples that already include a fully valid
+      password; may still be the explicit allMet focus case.
+  - path: src/lib/resolve-utility-notification-href.test.ts
+    test_name: does not prefix paths with /(protected)
+    reason: may-be-regression-guard
+    notes: >
+      Identity return for unknown routes; documents no Next.js route-group prefix.
+      Generic fallback would still return the same path — weak as allowlist guard.
+  - path: src/lib/academic-hub-my-preference.test.ts
+    test_name: returns false for admin/manager/superadmin without teacher
+    reason: may-be-matrix-cell
+    notes: >
+      Boolean truth-table cell for resolveMyDefault; sibling covers admin+teacher.
+      Unclear whether full 2x2 matrix is intentional vs redundant admin=false cases.
+files_touched:
+  - src/lib/youtube.test.ts
+  - src/lib/course-cache.test.ts
+  - src/lib/password-requirements.test.ts
+  - src/lib/leads-table.test.ts
+  - src/lib/resolve-utility-notification-href.test.ts
+  - src/lib/posthog.test.ts
+verification:
+  command: >
+    pnpm exec vitest run --config vitest.config.mts
+    src/lib/youtube.test.ts src/lib/course-cache.test.ts
+    src/lib/password-requirements.test.ts src/lib/leads-table.test.ts
+    src/lib/resolve-utility-notification-href.test.ts src/lib/posthog.test.ts
+    src/lib/academic-hub-my-preference.test.ts src/lib/account-cookie.test.ts
+    src/lib/api.test.ts src/lib/course-chat-timeline.test.ts
+    src/lib/course-feed-timeline.test.ts src/lib/course-status-menu-items.test.ts
+    src/lib/is-course-record-route.test.ts src/lib/kanban-board.test.ts
+    src/lib/leads-board.test.ts src/lib/leads-view-mode.test.ts
+    src/lib/main-content-scroll.test.ts src/lib/org-logo-monogram.test.ts
+    src/lib/platform-admin-url.test.ts src/lib/tenant-cookie.test.ts
+    src/lib/user-checkin-mutation.test.ts
+    src/lib/utility-notifications-last-seen.test.ts
+  passed: true
+  tests_passed: 111

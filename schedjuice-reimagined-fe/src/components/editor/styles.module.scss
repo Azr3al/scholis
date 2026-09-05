@@ -1,0 +1,99 @@
+.tableClass {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: auto;
+  background-color: hsl(var(--background));
+
+  td,
+  th {
+    border: 1.5px solid hsl(var(--border));
+    box-sizing: border-box;
+    min-width: 1em;
+    width: 6em;
+    padding: 3px 5px;
+    position: relative;
+    vertical-align: top;
+
+    > * {
+      margin-bottom: 0;
+    }
+  }
+
+  th {
+    background-color: hsl(var(--muted));
+    font-weight: bold;
+    text-align: left;
+  }
+
+  .selectedCell:after {
+    background: rgba(200, 200, 255, 0.4);
+    content: "";
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+
+  .column-resize-handle {
+    background-color: #adf;
+    bottom: -2px;
+    position: absolute;
+    right: -2px;
+    top: 0;
+    width: 4px;
+    z-index: 5;
+    cursor: col-resize;
+    pointer-events: auto;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.tableWrapper {
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+
+.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+/* Shared TipTap prose styling (composer + read-only) */
+.editorShell :global(.ProseMirror) {
+  mark {
+    background-color: color-mix(in srgb, var(--brand) 25%, transparent);
+    color: inherit;
+    border-radius: 0.125rem;
+    padding: 0 0.125rem;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+}
+
+/* Read-only TipTap: make links obvious and clickable-looking */
+.tiptapViewShell :global(.ProseMirror a[href]) {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}

@@ -1,0 +1,48 @@
+slice_id: fe-lib-juicebox
+repo: schedjuice-reimagined-fe
+path: src/lib/juicebox
+skipped: false
+deleted:
+  - path: src/lib/juicebox/use-juicebox-attachments.ts
+    symbol: juiceBoxAttachmentsQueryKey
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by useJuiceBoxAttachments.
+      Zero external imports.
+  - path: src/lib/juicebox/use-juicebox-attachments.ts
+    symbol: attachmentType
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Removed unused re-export of @/types/attachment attachmentType;
+      zero importers of the re-export.
+  - path: src/lib/juicebox/upload.ts
+    symbol: UploadToJuiceBoxParams
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used as uploadToJuiceBoxMultipart
+      param type; zero external imports.
+  - path: src/lib/juicebox/map-rows.ts
+    symbol: mapJuiceBoxRowToAttachmentType
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by mapJuiceBoxRowsToAttachmentTypes.
+      Zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/lib/juicebox/use-juicebox-attachments.ts
+  - src/lib/juicebox/upload.ts
+  - src/lib/juicebox/map-rows.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-juicebox.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/juicebox
+  passed: true
+  skipped: true
+  notes: >-
+    Vitest exit 1: "No test files found" under src/lib/juicebox — treated as
+    skip. Live callers remain (announcement/assignments/chat/wiki/helpers).

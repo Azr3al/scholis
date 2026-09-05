@@ -1,0 +1,56 @@
+slice_id: be-app_product_docs
+repo: schedjuice-reimagined-be
+path: app_product_docs/tests
+skipped: false
+deleted:
+  - path: app_product_docs/tests/test_services.py
+    test_name: AudienceFilterTests.test_student_sees_all_audience_not_admin_only
+    reason: obvious-smoke
+  - path: app_product_docs/tests/test_services.py
+    test_name: AudienceFilterTests.test_student_does_not_see_admin_only_article
+    reason: obvious-smoke
+  - path: app_product_docs/tests/test_media_upload.py
+    test_name: ClassifyUploadTests.test_video_mp4
+    reason: tautology
+  - path: app_product_docs/tests/test_media_upload.py
+    test_name: ClassifyUploadTests.test_image_png
+    reason: tautology
+  - path: app_product_docs/tests/test_media_upload.py
+    test_name: ImageSnippetTests.test_builds_standard_markdown
+    reason: tautology
+  - path: app_product_docs/tests/test_github_video_client.py
+    test_name: ContentTypeForFilenameTests.test_mp4
+    reason: tautology
+  - path: app_product_docs/tests/test_github_video_client.py
+    test_name: ContentTypeForFilenameTests.test_png
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: app_product_docs/tests/test_platform_context.py
+    test_name: PlatformContextViewTests.test_superadmin_on_admin_tenant_gets_admin_org
+    reason: may-be-contrast-anchor
+    notes: Thin status-200 + key presence; customer-tenant test already asserts full admin_org payload
+  - path: app_product_docs/tests/test_platform_docs_access.py
+    test_name: PlatformDocsNonAdminTenantAccessTests.test_get_categories_on_non_admin_tenant
+    reason: may-be-contrast-anchor
+    notes: Soft status-200 list; pairs with patch mutation on non-admin tenant in same file
+  - path: app_product_docs/tests/test_media_upload.py
+    test_name: PlatformDocsMediaUploadViewTests.test_image_upload_returns_snippet
+    reason: may-be-contrast-anchor
+    notes: Success path asserting no DocVideo row; contrasts video_upload_still_creates_doc_video
+  - path: app_product_docs/tests/test_github_video_upload.py
+    test_name: GitHubVideoUploadViewTests.test_success_returns_markdown_snippet
+    reason: may-be-contrast-anchor
+    notes: Thin success READY path; unlocks failure/503 coverage in the same class
+  - path: app_product_docs/tests/test_github_video_client.py
+    test_name: ContentTypeForFilenameTests.test_unknown
+    reason: may-encode-fallback-contract
+    notes: Default octet-stream for unknown extension; unclear if intentional MIME fallback guard
+files_touched:
+  - app_product_docs/tests/test_services.py
+  - app_product_docs/tests/test_media_upload.py
+  - app_product_docs/tests/test_github_video_client.py
+  - docs/superpowers/specs/cleanup-reports/be-app_product_docs.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_product_docs.tests
+  passed: true

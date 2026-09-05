@@ -1,0 +1,119 @@
+slice_id: be-app_reports
+repo: schedjuice-reimagined-be
+path: app_reports
+skipped: false
+deleted:
+  - path: app_reports/table.py
+    symbol: stack_horizontal/stack_vertical
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Only referenced via unused imports in services.py; zero call sites after
+      import trim. Module deleted.
+  - path: app_reports/views.py
+    symbol: get_is_course_ended
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static references; also dropped pytz (only used by this helper).
+  - path: app_reports/views.py
+    symbol: csv/Coalesce/ExtractDay/ExtractHour/ExtractMonth/ExtractYear/HttpResponse/validate/UserCourse
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports (jsonschema.validate never called).
+  - path: app_reports/services.py
+    symbol: APIView/Request/Response/status/Event/CourseSerializer/stack_horizontal/stack_vertical
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; Event unused (course.events related manager used instead).
+  - path: app_reports/services.py
+    symbol: commented-course-type-assign
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed "# c.course_type = get_course_type(c)" with no ticket pointer.
+  - path: app_reports/sql_strings.py
+    symbol: commented-where-duplicate
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed duplicate commented WHERE clause after classes_data_sql.
+  - path: app_reports/admin.py
+    symbol: admin
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.contrib.admin import; no model registrations.
+  - path: app_reports/tests.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.test.TestCase import in empty startapp scaffold.
+fixed_docs:
+  - path: app_reports/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Register your models here."; left empty module.
+  - path: app_reports/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here." with unused TestCase import; left empty module.
+  - path: app_reports/views.py
+    reason: stale-error-copy-category-id
+    confidence: obvious
+    notes: >-
+      classes_data 400 message cited unused category_id and "request query";
+      body uses date_from/date_to only via request.data.
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_reports/views.py
+    symbol: mt_at_ratios/dropout_rates
+    reason: accepted-report-types-without-handlers
+    confidence: ambiguous
+    notes: >-
+      HR_REPORT_TYPES allows these strings but post() has no branches; falls
+      through returning None. May be intentional stubs or client-facing contract;
+      do not remove without confirm.
+  - path: app_reports/services.py
+    symbol: get_classes_data_report.category_id
+    reason: unused-optional-param
+    confidence: ambiguous
+    notes: >-
+      Parameter accepted but never applied to SQL filter; views never pass it.
+      Removing changes public signature.
+  - path: app_reports/admin.py
+    symbol: Log
+    reason: empty-admin-no-registrations
+    confidence: ambiguous
+    notes: >-
+      Log model exists and is written from auth paths; not registered in admin.
+      Matches other apps' empty admin — unclear if intentional.
+  - path: app_reports/views.py
+    symbol: _TZ_NAME_FOR_POSTGRES
+    reason: duplicated-tz-alias-map
+    confidence: ambiguous
+    notes: >-
+      Same Asia/Rangoon→Asia/Yangon map exists in analytics_services.py.
+      Not dead; leave intentional dedupe refactor out of hygiene.
+  - path: app_reports/tests.py
+    symbol: tests.py
+    reason: empty-tests-module
+    confidence: ambiguous
+    notes: >-
+      Empty after scaffold cleanup; real tests live under app_reports/tests/.
+      Left in place for discovery path.
+files_touched:
+  - app_reports/table.py
+  - app_reports/views.py
+  - app_reports/services.py
+  - app_reports/sql_strings.py
+  - app_reports/admin.py
+  - app_reports/tests.py
+  - docs/superpowers/specs/hygiene-reports/be-app_reports.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_reports.tests
+  passed: false
+  notes: >-
+    Ran 22 tests: 17 passed, 5 failed (--keepdb). Failures are pre-existing and
+    unrelated to hygiene edits (confirmed by re-running the same 5 cases after
+    temporarily reverting app_reports changes — same 404 on
+    /reports/id-photos/export and same id_photo_url assertion mismatch).
+    Failures: IdPhotosExportTests (4× route 404) and
+    StudentDataSheetTests.test_student_row_includes_id_card_fields
+    (asserts id_photo_url absent but API returns it).

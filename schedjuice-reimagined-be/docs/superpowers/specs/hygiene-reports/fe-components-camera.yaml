@@ -1,0 +1,36 @@
+slice_id: fe-components-camera
+repo: schedjuice-reimagined-fe
+path: src/components/camera
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/camera/live-camera-capture.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button remains used).
+ambiguous:
+  - path: src/components/camera/live-camera-capture.tsx
+    symbol: LiveCameraErrorReason
+    reason: public-type-surface
+    confidence: ambiguous
+    notes: >-
+      Re-exported type has zero external imports under src/ (only used for
+      LiveCameraCaptureProps in this module). Prefer ambiguous for Next.js
+      reachability / public type surface — do not delete.
+  - path: src/components/camera/live-camera-capture-utils.ts
+    symbol: captureVideoFrameToFile
+    reason: export-only-used-in-slice
+    confidence: ambiguous
+    notes: >-
+      Exported helper is only called from LiveCameraCapture in this directory;
+      no other src/ imports. Prefer ambiguous for public helper surface — do
+      not un-export/delete without confirm.
+files_touched:
+  - src/components/camera/live-camera-capture.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-camera.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/camera
+  passed: true
+  tests_passed: 2

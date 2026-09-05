@@ -1,0 +1,48 @@
+slice_id: fe-lib-layout
+repo: schedjuice-reimagined-fe
+path: src/lib/layout
+skipped: false
+deleted:
+  - path: src/lib/layout/page-width.ts
+    symbol: PAGE_WIDTHS
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by resolvePageWidthClass.
+      Callers use resolvePageWidthClass / DEFAULT_PAGE_WIDTH / PageWidth type
+      (page-container). Zero external imports of PAGE_WIDTHS.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/layout/page-composition.ts
+    symbol: routeFamilyPageWidth
+    reason: unused-public-contract
+    confidence: ambiguous
+    notes: >
+      Zero production callers; only components/layout page-composition tests.
+      Pages hardcode PageContainer width/density instead. R5 remediation
+      contract — do not delete without confirm.
+  - path: src/lib/layout/page-composition.ts
+    symbol: RouteFamily
+    reason: public-type-surface
+    confidence: ambiguous
+    notes: >
+      Exported type only used inside this module; zero external imports
+      (ui-remediation has a separate RouteFamily). May be intentional public
+      typing for routeFamilyPageWidth callers — do not un-export without confirm.
+  - path: src/lib/layout/page-composition.ts
+    symbol: PageLayoutPreset
+    reason: return-type-export
+    confidence: ambiguous
+    notes: >
+      Exported type only used as routeFamilyPageWidth return annotation;
+      zero external imports. May be intentional public typing — do not
+      un-export without confirm.
+files_touched:
+  - src/lib/layout/page-width.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-layout.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/layout
+  passed: true
+  tests_passed: 4
+  notes: 2 files / 4 tests passed (page-width + entity-title-chrome).

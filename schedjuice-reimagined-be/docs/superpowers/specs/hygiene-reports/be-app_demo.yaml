@@ -1,0 +1,64 @@
+slice_id: be-app_demo
+repo: schedjuice-reimagined-be
+path: app_demo
+skipped: false
+deleted:
+  - path: app_demo/tenant_access.py
+    symbol: connection
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.db.connection import; schema checks use schema_context only.
+  - path: app_demo/tests/test_catalog.py
+    symbol: load_blueprint
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; tests only exercise catalog.safe_artifact_path / scan helpers.
+  - path: app_demo/tests/test_catalog.py
+    symbol: load_brief
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; tests only exercise catalog helpers.
+  - path: app_demo/tests/test_catalog.py
+    symbol: resolve_demo_config
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; config resolution covered in test_config.py.
+  - path: app_demo/tests/test_catalog.py
+    symbol: resolved_config_to_dict
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; serializer covered elsewhere.
+  - path: app_demo/tests/test_import_merge.py
+    symbol: ARTIFACTS_ROOT
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; merge tests build ResolvedDemoConfig directly.
+  - path: app_demo/tests/test_provision_jobs.py
+    symbol: provision_result_to_dict
+    reason: dead-export
+    confidence: obvious
+    notes: Imported but never called; worker path still uses the production helper.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_demo/scenario_packs/__init__.py
+    symbol: RUNNERS
+    reason: reexported-public-api-unused
+    confidence: ambiguous
+    notes: >-
+      Re-exported via __all__ but no static importers outside the package
+      (only run_pack is imported). Leave as intentional package surface.
+verification:
+  command: ./scripts/run_backend_tests.sh app_demo.tests
+  passed: false
+  notes: >-
+    Ran 35 tests; FAILED (failures=2). Both failures are pre-existing
+    DemoProvisionApiTests permission denials (403 vs expected 201/404),
+    unrelated to unused-import removals. django.setup() + edited module
+    imports succeed; remaining 33 tests OK.
+files_touched:
+  - app_demo/tenant_access.py
+  - app_demo/tests/test_catalog.py
+  - app_demo/tests/test_import_merge.py
+  - app_demo/tests/test_provision_jobs.py
+  - docs/superpowers/specs/hygiene-reports/be-app_demo.yaml

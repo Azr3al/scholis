@@ -1,0 +1,31 @@
+slice_id: fe-components-filters
+repo: schedjuice-reimagined-fe
+path: src/components/filters
+skipped: false
+deleted:
+  - path: src/components/filters/filter-toolbar.test.tsx
+    test_name: uses dashboard filter toolbar layout classes
+    reason: tautology
+  - path: src/components/filters/filter-toolbar.test.tsx
+    test_name: renders label with toolbar spacing and width token
+    reason: tautology
+  - path: src/components/filters/filter-toolbar.test.tsx
+    test_name: returns consistent field stack spacing
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  - path: src/components/filters/filter-toolbar.test.tsx
+    test_name: renders an invisible label spacer for toolbar alignment
+    reason: may-be-a11y-layout-contract
+    notes: >
+      Invisible spacer + aria-hidden may encode intentional toolbar alignment
+      fix.
+files_touched:
+  - src/components/filters/filter-toolbar.test.tsx
+  - docs/superpowers/specs/cleanup-reports/fe-components-filters.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/filters
+  passed: true
+  tests_passed: 1
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

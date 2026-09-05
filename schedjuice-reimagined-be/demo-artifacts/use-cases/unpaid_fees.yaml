@@ -1,0 +1,14 @@
+id: unpaid_fees
+label: Track who has not paid
+scenario_packs:
+  - unpaid-students
+demo_stops:
+  - route: /shortcuts/unpaid-course-counts
+    role: demo-admin
+    talk_track: Every month your finance team opens this to see unpaid balances by course.
+    look_for:
+      - DEMO-Unpaid-Math-L2
+      - Students with unpaid balance
+  - route: /finances/student-payments
+    role: demo-finance
+    talk_track: Drill into individual students and confirm who still needs follow-up.

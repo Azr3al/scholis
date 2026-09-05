@@ -1,0 +1,70 @@
+slice_id: be-app_tools
+repo: schedjuice-reimagined-be
+path: app_tools
+skipped: false
+deleted:
+  - path: app_tools/views.py
+    symbol: FloatField
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.db.models.FloatField import; FullTextSearch annotations use CharField/Value/F only. Also merged duplicate app_tools.services imports.
+  - path: app_tools/admin.py
+    symbol: admin/scaffold-comment
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.contrib.admin import and "# Register your models here." scaffold; models remain unregistered (unchanged).
+  - path: app_tools/tests.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.test.TestCase import in empty startapp scaffold; no behavioral tests in module.
+fixed_docs:
+  - path: app_tools/models.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed unused "# Create your models here." scaffold comment.
+  - path: app_tools/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Register your models here." with unused admin import; left empty module.
+  - path: app_tools/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here." with unused TestCase import; left empty module.
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_tools/admin.py
+    symbol: admin stub
+    reason: django-app-scaffold
+    confidence: ambiguous
+    notes: Empty admin module after scaffold strip; EmailTemplate/UserEmail unregistered. Matches other apps' empty admin.py — leave.
+  - path: app_tools/tests.py
+    symbol: empty tests module
+    reason: no-behavioral-tests
+    confidence: ambiguous
+    notes: Module empty after scaffold cleanup; no app_tools behavioral tests. Adding coverage is out of hygiene scope.
+  - path: app_tools/models.py
+    symbol: UserEmail.__doc__
+    reason: docstring-may-be-aspirational
+    confidence: ambiguous
+    notes: >-
+      Docstring says "email sent to a user" but rows can be unsent (is_sent=False).
+      Plausible shorthand — do not rewrite without product confirm.
+  - path: app_tools/services.py
+    symbol: send_mail (missing export)
+    reason: external-broken-import
+    confidence: ambiguous
+    notes: >-
+      app_data/management/commands/misc.py imports send_mail from app_tools.services,
+      but this module only exposes send_email_from_user_email/detect_ai (send_mail lives
+      in app_microsoft.mail). Out-of-slice fix; do not add a re-export in hygiene pass.
+files_touched:
+  - app_tools/views.py
+  - app_tools/models.py
+  - app_tools/admin.py
+  - app_tools/tests.py
+  - docs/superpowers/specs/hygiene-reports/be-app_tools.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_tools.tests
+  passed: true
+  notes: Ran 0 tests, OK (--keepdb); empty tests module only.

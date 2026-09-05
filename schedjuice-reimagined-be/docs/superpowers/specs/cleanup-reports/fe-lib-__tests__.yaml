@@ -1,0 +1,18 @@
+slice_id: fe-lib-__tests__
+repo: schedjuice-reimagined-fe
+path: src/lib/__tests__
+skipped: false
+deleted: []
+replaced: []
+ambiguous:
+  - path: src/lib/__tests__/internal-route-access.test.ts
+    test_name: matches tenant-scoped internal tools
+    reason: may-be-allowlist-matrix
+    notes: >
+      Lists every tenant-scoped /internal tool path as true. Sibling exclusions
+      cover denials; unclear if full allowlist matrix is intentional vs tautology.
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/__tests__
+  passed: true
+  tests_passed: 12

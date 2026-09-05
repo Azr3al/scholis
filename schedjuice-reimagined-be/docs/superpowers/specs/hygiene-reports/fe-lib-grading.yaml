@@ -1,0 +1,24 @@
+slice_id: fe-lib-grading
+repo: schedjuice-reimagined-fe
+path: src/lib/grading
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/grading/compute-grade.ts
+    symbol: computeGrade
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >-
+      Used by computeStudentOverall and unit tests; zero other prod imports
+      (DEFAULT_GRADING_BANDS + computeStudentOverall are live via results page /
+      monthly-result-sheet-adapter). Prefer keep for direct band-boundary
+      coverage — do not un-export without confirm.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-lib-grading.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/grading
+  passed: true
+  tests_passed: 4
+  notes: 1 file / 4 tests passed. No FE source edits (scan-only).

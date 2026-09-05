@@ -1,0 +1,81 @@
+slice_id: fe-middleware
+repo: schedjuice-reimagined-fe
+path: src/middleware.ts
+skipped: false
+deleted: []
+fixed_docs:
+  - path: src/middleware.ts
+    reason: stale-todo-authorization
+    confidence: obvious
+    notes: >
+      Removed "// TODO: set up authorization" — authorization guards (roles,
+      internal paths, org billing, demo-guide, default-deny permissions) already
+      implemented below.
+  - path: src/middleware.ts
+    reason: stale-create-next-app-comment
+    confidence: obvious
+    notes: >
+      Removed create-next-app boilerplate "See Matching Paths below" plus an
+      incomplete matcher bullet list that no longer matched the live regex
+      (missing svgs/notfound/terms/privacy/etc.; claimed _next/static vs _next/).
+anti_pattern_fixes:
+  - path: src/middleware.ts
+    reason: leftover-unnecessary-ts-ignore
+    confidence: obvious
+    notes: >
+      Removed //@ts-ignore on getAccountFromRequest — helper already returns
+      accountType; suppress was leftover after cookie helper typing.
+ambiguous:
+  - path: src/middleware.ts
+    symbol: config.matcher
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      Matcher negative-lookahead exclusions are the public-route allowlist for
+      the Edge middleware. Do not shrink/expand without product confirm.
+  - path: src/middleware.ts
+    symbol: isLoggedIn
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      Cookie presence truthiness (access OR refresh+session_id) is Edge auth
+      gate; changing semantics risks login loops / open redirects.
+  - path: src/middleware.ts
+    symbol: showGlobalAlert
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      Calls Zustand getState + JSX Link from Edge middleware. Possibly
+      questionable on Edge, but removing would change UX — leave for review.
+  - path: src/middleware.ts
+    symbol: bannedRouteSegments
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      Student path ban uses pathname.includes(segment) ("dashboard"|"edit"|
+      "create") — overbroad substring match, but live gate behavior.
+  - path: src/middleware.ts
+    symbol: organizations-billing-gates
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      Tenant-aware /organizations + billing orgId checks are intentional Edge
+      UX gates; do not refactor in hygiene pass.
+  - path: src/middleware.ts
+    symbol: default-deny-permission-guard
+    reason: next-middleware-edge-behavior
+    confidence: ambiguous
+    notes: >
+      ruleForPath / permissions.length / own-profile exceptions are documented
+      rollout-safe defaults; leave alone.
+files_touched:
+  - src/middleware.ts
+  - docs/superpowers/specs/hygiene-reports/fe-middleware.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/middleware.ts
+  passed: true
+  skipped: true
+  notes: >
+    No unit tests for src/middleware.ts (only related coverage is
+    src/lib/tenant-cookie.test.ts, outside this single-file slice).
+    Comment/ts-ignore-only edits; Edge matcher/auth branches untouched.

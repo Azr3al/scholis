@@ -1,0 +1,112 @@
+slice_id: fe-components-auto-form
+repo: schedjuice-reimagined-fe
+path: src/components/auto-form
+skipped: false
+deleted:
+  - path: src/components/auto-form/index.ts
+    symbol: Controller
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused react-hook-form Controller import in barrel (never re-exported or
+      referenced).
+  - path: src/components/auto-form/field-map.tsx
+    symbol: RequiredMark
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused RequiredMark import; FieldLabelSuffix is the live required marker.
+  - path: src/components/auto-form/schema-utils.ts
+    symbol: prettifyEnumLabel
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Removed export keyword; only used inside schema-utils (enum option labels).
+  - path: src/components/auto-form/schema-utils.ts
+    symbol: getZodFieldDescription
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Removed export keyword; only used by resolveAutoFormLabel in same module.
+  - path: src/components/auto-form/__tests__/auto-form-submit.test.ts
+    symbol: auto-form-submit.test.ts
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Empty describe shell after prior test cleanup; Vitest fails with "No test
+      found in suite". Deleted whole file.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/auto-form/index.ts
+    symbol: default
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Named AutoForm is widely used; default re-export has zero default importers.
+      Prefer ambiguous for Next.js reachability / default-import convenience.
+  - path: src/components/auto-form/index.ts
+    symbol: useAutoForm
+    reason: public-barrel-unused-externally
+    confidence: ambiguous
+    notes: >-
+      Only consumed by auto-form.tsx; barrel-exported as public hook API.
+  - path: src/components/auto-form/use-auto-form.ts
+    symbol: FormProvider|resolvedSchema
+    reason: unused-hook-return-fields
+    confidence: ambiguous
+    notes: >-
+      Returned from useAutoForm but sole caller (AutoForm) uses its own
+      FormProvider import and ignores resolvedSchema. Changing return shape is
+      an API change — leave until confirm.
+  - path: src/components/auto-form/index.ts
+    symbol: beautifyObjectName|getBaseSchema|getZodEnumSelectOptions|isZodFieldRequired|resolveAutoFormLabel|withRequiredEmptyStringMessages|zodToHtmlInputProps
+    reason: public-barrel-unused-externally
+    confidence: ambiguous
+    notes: >-
+      Re-exported schema helpers with zero external importers; still used inside
+      the slice. May be intentional public surface for form authors.
+  - path: src/components/auto-form/index.ts
+    symbol: DEFAULT_ZOD_HANDLERS|INPUT_COMPONENTS|renderMappedFieldControl|resolveFieldControlKind
+    reason: public-barrel-unused-externally
+    confidence: ambiguous
+    notes: >-
+      field-map internals re-exported from barrel; external apps/tests may rely
+      on them (tests import renderMappedFieldControl via relative path today).
+  - path: src/components/auto-form/index.ts
+    symbol: AutoFormProps|AutoFormSkeletonProps|UseAutoFormOptions|AutoFormFieldControlKind
+    reason: public-type-export-unused
+    confidence: ambiguous
+    notes: >-
+      Barrel type exports with zero external type importers; keep as public
+      component/hook contract.
+  - path: src/components/auto-form/auto-form-field.tsx
+    symbol: AutoFormFieldProps
+    reason: public-type-export-unused
+    confidence: ambiguous
+    notes: >-
+      Exported props type only used in-module; AutoFormField is barrel-exported
+      so props type may be intentional for wrappers.
+  - path: src/components/auto-form/auto-form-group.tsx
+    symbol: AutoFormGroupProps
+    reason: public-type-export-unused
+    confidence: ambiguous
+    notes: >-
+      Same as AutoFormFieldProps — module-local use only; prefer ambiguous.
+  - path: src/components/auto-form/schema-utils.ts
+    symbol: defaultDetailsGroup
+    reason: temporary-fallback-still-wired
+    confidence: ambiguous
+    notes: >-
+      Comment says temporary until F1/F2; still used by generic-form with
+      TODO(F1/F2). Not stale enough to delete or rewrite docs here.
+files_touched:
+  - src/components/auto-form/index.ts
+  - src/components/auto-form/field-map.tsx
+  - src/components/auto-form/schema-utils.ts
+  - src/components/auto-form/__tests__/auto-form-submit.test.ts
+  - docs/superpowers/specs/hygiene-reports/fe-components-auto-form.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/auto-form
+  passed: true
+  notes: 4 files / 14 tests passed.

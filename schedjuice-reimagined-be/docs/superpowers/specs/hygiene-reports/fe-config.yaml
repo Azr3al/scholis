@@ -1,0 +1,166 @@
+slice_id: fe-config
+repo: schedjuice-reimagined-fe
+path: src/config
+skipped: false
+deleted:
+  - path: src/config/defaults.ts
+    symbol: MUTED_WHITE_TEXT
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static references; never wired into DEFAULT_THEME or consumers
+  - path: src/config/defaults.ts
+    symbol: DEFAULT_FIRST_PAGE_INDEX
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used to build queryParamDefault
+  - path: src/config/defaults.ts
+    symbol: MUTED_BLACK_TEXT
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used as DEFAULT_THEME.mutedText
+  - path: src/config/course-record-nav.ts
+    symbol: RAIL_OVERFLOW_EXCLUDED_HREFS
+    reason: dead-export
+    confidence: obvious
+    notes: Zero consumers after tautology tests removed; PANEL_OVERFLOW_EXCLUDED_HREFS remains in use
+  - path: src/config/course-record-nav.test.ts
+    symbol: COURSE_RECORD_NAV_ENTRIES describe
+    reason: commented-out-block
+    confidence: obvious
+    notes: Empty describe scaffold left after test cleanup; removed
+  - path: src/config/quiz.ts
+    symbol: QUIZ_JSON_VERSION
+    reason: dead-export
+    confidence: obvious
+    notes: Zero static references
+  - path: src/config/quiz.ts
+    symbol: paragraphFieldType
+    reason: dead-export
+    confidence: obvious
+    notes: Unused type alias
+  - path: src/config/quiz.ts
+    symbol: fileFieldType
+    reason: dead-export
+    confidence: obvious
+    notes: Unused type alias
+  - path: src/config/quiz.ts
+    symbol: answerSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Schema + answerType unused; superseded by quiz-v3 types elsewhere
+  - path: src/config/quiz.ts
+    symbol: answerModelSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Schema + answerModelType unused; removed with answerSchema
+  - path: src/config/quiz.ts
+    symbol: answerType
+    reason: dead-export
+    confidence: obvious
+    notes: Unused type alias
+  - path: src/config/quiz.ts
+    symbol: answerModelType
+    reason: dead-export
+    confidence: obvious
+    notes: Unused type alias
+  - path: src/config/quiz.ts
+    symbol: paragraphFieldSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used inside questionSchema
+  - path: src/config/quiz.ts
+    symbol: fileFieldSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used inside questionSchema
+  - path: src/config/quiz.ts
+    symbol: quizModelSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used for quizModelType
+  - path: src/config/quiz.ts
+    symbol: inputQuestionSchema|radioOptionSchema|radioQuestionSchema|questionSchema|quizSchema|quizSectionSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Removed barrel re-export; schemas stay private for typeof type aliases still consumed by store
+  - path: src/config/quiz.ts
+    symbol: quizScopes.public
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed commented-out enum member `// public="public",` with no ticket pointer
+  - path: src/config/quiz.ts
+    symbol: categorySchema|accountSchema
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports left after answerModelSchema removal (categorySchema was already unused)
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/config/course-record-nav.ts
+    symbol: COURSE_RECORD_NAV_GROUPS|visibleCourseRecordEntries|CourseRecordNavId|CourseRecordNavGroupId|CourseRecordNavGroup|CourseRecordNavSectionGroup|CourseRecordNavSections
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: >
+      Exported but only referenced inside this module (or via structural typing on
+      other exports). May be intentional public nav config surface.
+  - path: src/config/route-permissions.ts
+    symbol: ROUTE_RULES|RouteRule
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Only used by ruleForPath; may be intentional for tooling/tests outside slice
+  - path: src/config/shortcuts-tools.ts
+    symbol: SHORTCUT_TOOLS|ShortcutToolDef
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Only used by filterShortcutToolsForUser; likely intentional config surface
+  - path: src/config/shortcuts-tools.ts
+    symbol: ShortcutToolDef.roles comment
+    reason: possibly-stale-docs
+    confidence: ambiguous
+    notes: >
+      Comment cites "RBAC Plan-3 Task 6" permission migration still pending; roles
+      remain role-gated — unclear if plan shipped or comment still accurate.
+  - path: src/config/org-record-sections.ts
+    symbol: ORG_SECTION_IDS|OrgSectionDef
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: ORG_SECTION_IDS only feeds isOrgSectionId; OrgSectionDef annotates ORG_SECTIONS
+  - path: src/config/organization-profile-sections.ts
+    symbol: ORGANIZATION_PROFILE_EDIT_SECTIONS
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Only used by getOrgSchemaSection* helpers in same file
+  - path: src/config/universal-link-registry.ts
+    symbol: UNIVERSAL_LINK_HOSTS|UniversalLinkHostRow|ResolvedUniversalLinkHost
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: >
+      Host table only used by resolveUniversalLinkHost; keep-in-sync comment with
+      mobile config suggests intentional shared surface.
+  - path: src/config/find-page-items.ts
+    symbol: FindPageGroup
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Type only used to annotate FindPageItem in same module
+  - path: src/config/internal-nav-routes.tsx
+    symbol: InternalNavItem
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Type only used to annotate internalNavLinks
+  - path: src/config/org-setting-help-copy.ts
+    symbol: OrgSettingHelpEntry
+    reason: internal-only-export
+    confidence: ambiguous
+    notes: Type only used to annotate ORG_SETTING_HELP
+files_touched:
+  - src/config/defaults.ts
+  - src/config/course-record-nav.ts
+  - src/config/course-record-nav.test.ts
+  - src/config/quiz.ts
+  - docs/superpowers/specs/hygiene-reports/fe-config.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/config
+  passed: true
+  notes: >-
+    6 files / 35 tests passed.
+    Equivalent to `pnpm test:unit -- src/config` with path scoped via vitest args.

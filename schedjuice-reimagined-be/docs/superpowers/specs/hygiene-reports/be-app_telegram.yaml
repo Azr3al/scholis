@@ -1,0 +1,91 @@
+slice_id: be-app_telegram
+repo: schedjuice-reimagined-be
+path: app_telegram
+skipped: false
+deleted:
+  - path: app_telegram/config.py
+    symbol: _public_org
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Private helper never called; configure_telegram and
+      re_register_telegram_webhook inline schema_context + Organization.objects.get.
+  - path: app_telegram/tests/test_admin_link.py
+    symbol: TelegramLinkToken
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; admin link tests assert HTTP status only.
+  - path: app_telegram/tests/test_callbacks.py
+    symbol: MagicMock/timezone/timedelta
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; tests use patch decorator and uuid/date only.
+  - path: app_telegram/tests/test_config.py
+    symbol: patch/get_public_schema_name/Organization
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports in scaffold module with no test_* methods.
+  - path: app_telegram/tests/test_linking.py
+    symbol: build_group_link_deeplink
+    reason: dead-export
+    confidence: obvious
+    notes: Imported but unused; linking exercised via handle_my_chat_member.
+  - path: app_telegram/management/commands/reconcile-telegram-rosters.py
+    symbol: logging/connection
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused logger and no-op `_ = connection.schema_name` after stub rewrite;
+      removed with docstring/help fix.
+fixed_docs:
+  - path: app_telegram/management/commands/reconcile-telegram-rosters.py
+    reason: stale-command-docstring
+    confidence: obvious
+    notes: >-
+      Module docstring/help claimed teacher-group reconcile; handle() is a no-op
+      stub after dropout roster removal. Updated to describe stub + keep command name.
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_telegram/tasks.py
+    symbol: send_telegram_group_message
+    reason: string-referenced-django-q-task
+    confidence: ambiguous
+    notes: >-
+      @django_q_task with zero static callers; may be intended for string/async
+      dispatch or future announcement path. Leave.
+  - path: app_telegram/client.py
+    symbol: set_my_commands
+    reason: unused-client-api-method
+    confidence: ambiguous
+    notes: Thin Bot API wrapper; no call sites. May be intentional public surface — leave.
+  - path: app_telegram/client.py
+    symbol: get_chat
+    reason: unused-client-api-method
+    confidence: ambiguous
+    notes: Thin Bot API wrapper; no call sites. May be intentional public surface — leave.
+  - path: app_telegram/management/commands/reconcile-telegram-rosters.py
+    symbol: Command
+    reason: stubbed-management-command
+    confidence: ambiguous
+    notes: >-
+      Always prints success; design docs outside slice describe fuller reconcile.
+      Docstring fixed; do not delete command without confirm.
+  - path: app_telegram/tests/test_config.py
+    symbol: TelegramConfigTests
+    reason: empty-test-scaffold
+    confidence: ambiguous
+    notes: >-
+      Class has setUp/setUpTestData but zero test_* methods. Looks like WIP
+      scaffold; do not delete module without confirm.
+files_touched:
+  - app_telegram/config.py
+  - app_telegram/tests/test_admin_link.py
+  - app_telegram/tests/test_callbacks.py
+  - app_telegram/tests/test_config.py
+  - app_telegram/tests/test_linking.py
+  - app_telegram/management/commands/reconcile-telegram-rosters.py
+  - docs/superpowers/specs/hygiene-reports/be-app_telegram.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_telegram.tests
+  passed: true
+  notes: 64 tests OK (--keepdb)

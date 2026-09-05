@@ -1,0 +1,53 @@
+slice_id: fe-components-chat
+repo: schedjuice-reimagined-fe
+path: src/components/chat
+skipped: false
+deleted:
+  - path: src/components/chat/dm/dm-user-picker.tsx
+    symbol: default-export
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Removed unused default export; callers import named DmUserPicker only
+      (chat-lists). Named export retained.
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/chat/voice-record-button.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button remains used).
+  - path: src/components/chat/dm/dm-user-picker.tsx
+    symbol: buttonVariants|inputClassName
+    reason: unused-import
+    confidence: obvious
+    notes: >-
+      Imported from primitives but never referenced (Avatar/Button/Dialog/Input
+      remain used).
+  - path: src/components/chat/dm/dm-section.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced.
+  - path: src/components/chat/dm/dm-section.tsx
+    symbol: fetchThreadMessages|CHAT_THREAD_MESSAGES_CACHE_TIME_MS|CHAT_THREAD_MESSAGES_STALE_MS
+    reason: unused-import
+    confidence: obvious
+    notes: >-
+      Imported from chat-messages-query but never referenced in this module
+      (prefetch lives in dm-list-item). Kept chatThreadMessagesQueryKey and
+      sortChatMessages.
+ambiguous: []
+files_touched:
+  - src/components/chat/voice-record-button.tsx
+  - src/components/chat/dm/dm-user-picker.tsx
+  - src/components/chat/dm/dm-section.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-chat.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/chat
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/chat (vitest: "No test files found").
+    Skipped per hygiene playbook. Live chain: course/chat → DmSection /
+    DmListItem / DmUserPicker / voice + reaction helpers.

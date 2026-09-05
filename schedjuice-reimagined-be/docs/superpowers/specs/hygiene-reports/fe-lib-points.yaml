@@ -1,0 +1,18 @@
+slice_id: fe-lib-points
+repo: schedjuice-reimagined-fe
+path: src/lib/points
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-lib-points.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/points
+  passed: true
+  tests_passed: 4
+  notes: >-
+    1 file / 4 tests passed. No FE source edits (scan-only). All exports live:
+    isStaffSubject + canViewPointsSection (record/points UI);
+    buildStaffPointsColumns + cellText (points page).

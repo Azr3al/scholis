@@ -1,0 +1,20 @@
+slice_id: fe-components-course
+repo: schedjuice-reimagined-fe
+path: src/components/course
+skipped: false
+deleted:
+  - path: src/components/course/record/course-section-rail.test.tsx
+    test_name: renders section links and group labels when course is loaded
+    reason: obvious-smoke
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/course/record/course-section-rail.test.tsx
+  - docs/superpowers/specs/cleanup-reports/fe-components-course.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/course
+  passed: true
+  tests_passed: 3
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

@@ -1,0 +1,31 @@
+slice_id: fe-lib-fullscreen
+repo: schedjuice-reimagined-fe
+path: src/lib/fullscreen
+skipped: false
+deleted:
+  - path: src/lib/fullscreen/fullscreen-state.ts
+    symbol: shouldShowFullscreenToggle
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Zero static refs outside this module. Callers gate the toggle with
+      isFullscreenAvailable directly (e.g. fullscreen-toggle.tsx). Function
+      was a tautology (return isFullscreenAvailable); removed entirely.
+  - path: src/lib/fullscreen/fullscreen-state.ts
+    symbol: FullscreenDerivationInput
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used as param type for the two remaining
+      exports. Zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/lib/fullscreen/fullscreen-state.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-fullscreen.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/fullscreen
+  passed: true
+  tests_passed: 3
+  notes: 1 file / 3 tests passed.

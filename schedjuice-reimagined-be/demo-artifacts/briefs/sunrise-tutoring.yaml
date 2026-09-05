@@ -1,0 +1,14 @@
+school_name: Sunrise Learning Center
+slug: sunrise
+niche: tutoring-center
+pain_points:
+  - unpaid_fees
+  - lead_to_enrollment
+  - schedule_lookup
+terminology_overrides:
+  category: Subject Area
+timezone: Asia/Bangkok
+demo_date: "2026-06-30"
+import:
+  file: demo-artifacts/imports/sunrise-roster.csv
+  mode: merge

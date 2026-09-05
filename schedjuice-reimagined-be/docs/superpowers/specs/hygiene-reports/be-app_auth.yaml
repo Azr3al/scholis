@@ -1,0 +1,94 @@
+slice_id: be-app_auth
+repo: schedjuice-reimagined-be
+path: app_auth
+skipped: false
+deleted:
+  - path: app_auth/serializers.py
+    symbol: PublicTeacherProfileSerializer
+    reason: dead-export
+    confidence: obvious
+    notes: Deprecated alias of PublicProfileSerializer; zero call sites; PublicProfileView uses PublicProfileSerializer
+  - path: app_auth/public_profile_helpers.py
+    symbol: generate_public_teacher_slug
+    reason: dead-export
+    confidence: obvious
+    notes: Unused thin wrapper over generate_public_profile_slug; only latter is called
+  - path: app_auth/public_profile_helpers.py
+    symbol: LEGACY_SLUG_PREFIX
+    reason: dead-export
+    confidence: obvious
+    notes: Constant never read; legacy t_ prefix not referenced in runtime code
+  - path: app_auth/views.py
+    symbol: IsSuperAdminOrAdmin
+    reason: dead-export
+    confidence: obvious
+    notes: Permission alias never referenced; removed with unused IsAdmin/IsSuperAdmin imports
+  - path: app_auth/helpers.py
+    symbol: Organization/User/schema_context/get_public_schema_name
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports left after helpers shrank to generate_verification_code only
+  - path: app_auth/views.py
+    symbol: send_generic_mail/issue_refresh_pair_for_tenant/Task/BaseView
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; no remaining references in views.py
+  - path: app_auth/serializers.py
+    symbol: reissue_tokens_with_tenant_claim/send_user_create_email
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; welcome mail invoked via async_task string path
+  - path: app_auth/completeness_views.py
+    symbol: IsAuthenticated/RBACPermission
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; RBACView supplies auth/permission wiring
+  - path: app_auth/models.py
+    symbol: make_password
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; password hashing goes through Django auth paths elsewhere
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_auth/views.py
+    symbol: UserAvailabilityView
+    reason: unrouted-incomplete-stub
+    confidence: ambiguous
+    notes: >-
+      Class not in urls.py; post() ends after check_user_read with no response body.
+      Auth/high-risk surface — left in place in case of WIP wiring or external docs.
+  - path: app_auth/user_profile_scoping.py
+    symbol: check_self_profile_update
+    reason: unused-auth-helper-inlined-elsewhere
+    confidence: ambiguous
+    notes: >-
+      actor_may_self_edit_profile + check_self_profile_update unused; student self-edit
+      denial is inlined in UserDetailsView.put. Prefer confirm before delete (auth path).
+  - path: app_auth/shortcuts_availability_helpers.py
+    symbol: get_staff_user_filter_params
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: >-
+      Zero call sites; looks like intentional filter-param API for list/search clients.
+      filter_active_staff_users remains in use.
+files_touched:
+  - app_auth/serializers.py
+  - app_auth/public_profile_helpers.py
+  - app_auth/helpers.py
+  - app_auth/views.py
+  - app_auth/completeness_views.py
+  - app_auth/models.py
+  - docs/superpowers/specs/hygiene-reports/be-app_auth.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_auth.tests
+  passed: false
+  notes: >-
+    Full app_auth.tests: 235 ran, 1 failure + 6 errors appear pre-existing and unrelated
+    to hygiene edits (id_photo_thumbs WSGIRequest.query_params, user_code UniqueViolation,
+    teaching_subjects 200!=204, import_sdec contenttypes flush). Targeted suite for
+    touched auth surfaces passed: app_auth.tests.test_public_profile
+    app_auth.tests.test_completeness_endpoint app_auth.tests.test_verification_code_expiry
+    app_auth.tests.test_profile_self_update app_auth.tests.test_login_permissions
+    app_auth.tests.test_rbac_auth app_auth.tests.test_refresh_sessions
+    app_auth.tests.test_security_tenant_jwt (34 tests OK).

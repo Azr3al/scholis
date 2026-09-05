@@ -1,0 +1,28 @@
+slice_id: fe-components-assignment
+repo: schedjuice-reimagined-fe
+path: src/components/assignment
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/assignment/assignment-status-badge.tsx
+    symbol: AssignmentStatusBadge
+    reason: imported-but-never-rendered
+    confidence: ambiguous
+    notes: >-
+      Sole file in slice. Static import exists in
+      src/components/course/assignment-card.tsx but the JSX never renders
+      AssignmentStatusBadge (dead import in course slice). Prefer ambiguous for
+      Next.js reachability — do not delete here without removing that import
+      first (out of slice). Live chain otherwise:
+      assessments page → AssignmentTab → AssignmentList → AssignmentCard.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-components-assignment.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/assignment
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/assignment (vitest: "No test files
+    found"). Skipped per hygiene playbook. No FE source edits (scan-only).

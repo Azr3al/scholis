@@ -1,0 +1,24 @@
+slice_id: fe-lib-attachment
+repo: schedjuice-reimagined-fe
+path: src/lib/attachment
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/attachment/attachment-url.ts
+    symbol: AttachmentLike
+    reason: public-type-surface
+    confidence: ambiguous
+    notes: >-
+      Exported type only used as param annotation for getAttachmentUrl /
+      isAttachmentImage in this module; zero external imports. May be
+      intentional public typing for callers — do not un-export without confirm.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-lib-attachment.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/attachment
+  passed: true
+  notes: >-
+    1 file / 5 tests passed. No FE source edits (both exports live in
+    course feed gallery, attachment uploader, announcement card).

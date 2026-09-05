@@ -1,0 +1,7 @@
+role: student
+columns:
+  Student Name: name
+  Email: email
+  Phone: phone_number
+  Date of Birth: date_of_birth
+  Class: course_title
