@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import { textToRichText } from '@scholis/schema';
->>>>>>> master
 import { describe, expect, it } from 'vitest';
 import {
   attemptState,
@@ -21,10 +18,7 @@ describe('progress', () => {
       total: 3,
       unanswered: ['q1', 'q2', 'q3'],
       markedForReview: 0,
-<<<<<<< HEAD
-=======
       settled: 0,
->>>>>>> master
     });
   });
 
@@ -32,11 +26,7 @@ describe('progress', () => {
     const state = attemptState({
       responses: {
         q1: { kind: 'choice', optionIds: ['q1-a'] },
-<<<<<<< HEAD
-        q2: { kind: 'short', text: 'answer' },
-=======
         q2: { kind: 'short', doc: textToRichText('answer') },
->>>>>>> master
       },
     });
     expect(progress(pkg, state)).toMatchObject({ answered: 2, unanswered: ['q3'] });
@@ -48,11 +38,7 @@ describe('progress', () => {
     const state = attemptState({
       responses: {
         q1: { kind: 'choice', optionIds: [] },
-<<<<<<< HEAD
-        q2: { kind: 'short', text: '   ' },
-=======
         q2: { kind: 'short', doc: textToRichText('   ') },
->>>>>>> master
         q3: { kind: 'essay', doc: { type: 'doc', content: [] } },
       },
     });
@@ -60,11 +46,7 @@ describe('progress', () => {
   });
 
   it('returns unanswered ids in test order, not response order', () => {
-<<<<<<< HEAD
-    const state = attemptState({ responses: { q2: { kind: 'short', text: 'x' } } });
-=======
     const state = attemptState({ responses: { q2: { kind: 'short', doc: textToRichText('x') } } });
->>>>>>> master
     expect(progress(pkg, state).unanswered).toEqual(['q1', 'q3']);
   });
 
@@ -78,11 +60,6 @@ describe('progress', () => {
       total: 0,
       unanswered: [],
       markedForReview: 0,
-<<<<<<< HEAD
-    });
-  });
-});
-=======
       settled: 0,
     });
   });
@@ -141,4 +118,3 @@ describe('progress.settled', () => {
     expect(progress(pkg, attemptState({ cursor: 0, responses: answers })).settled).toBe(1);
   });
 });
->>>>>>> master

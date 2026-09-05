@@ -7,13 +7,9 @@ export default mergeConfig(
   defineConfig({
     test: {
       // apps/web has no `src/`; layers sit at the app root.
-<<<<<<< HEAD
-      include: ['{app,data,server,lib,components,test}/**/*.test.ts'],
-=======
       include: ['{app,lib,components}/**/*.test.ts'],
       // Playwright owns e2e/; vitest would try to run those specs.
       exclude: ['e2e/**', 'node_modules/**'],
->>>>>>> master
       // Integration tests boot a database per file, so the default 5s is tight
       // on a cold PGlite start.
       testTimeout: 20_000,

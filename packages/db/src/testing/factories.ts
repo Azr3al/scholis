@@ -96,11 +96,7 @@ export const makeChoiceQuestion = async (
   const settings: ChoiceSettings = {
     selection: 'single',
     variant: 'plain',
-<<<<<<< HEAD
-    partialCredit: false,
-=======
     rubric: null,
->>>>>>> master
     ...args.settings,
   };
 

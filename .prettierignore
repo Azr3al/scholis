@@ -1,0 +1,38 @@
+# Prettier runs from the repository root, so without this file `pnpm format`
+# reaches into everything that lives here — including the vendored Schedjuice
+# trees, which have their own tooling and their own formatting conventions.
+# Rewriting 3,000 of their files would bury every real change in whitespace.
+#
+# One of those files (a YAML spec in schedjuice-reimagined-be) also fails to
+# parse, which made `pnpm format:check` exit non-zero before it ever reported
+# anything about Scholis.
+
+# Vendored sibling projects — not part of the Scholis workspace
+schedjuice-reimagined-fe/
+schedjuice-reimagined-be/
+
+# Generated: reformatting these only creates churn on the next regeneration
+pnpm-lock.yaml
+**/pnpm-lock.yaml
+packages/db/migrations/meta/
+
+# Build output and tooling caches
+dist/
+**/dist/
+.next/
+**/.next/
+.turbo/
+**/.turbo/
+coverage/
+**/coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Runtime artifacts
+.storage/
+**/.storage/
+
+# Not text prettier should own
+.env
+.env.*

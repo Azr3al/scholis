@@ -53,8 +53,6 @@ describe('richTextToPlainText', () => {
   it('handles a block node with no content', () => {
     expect(richTextToPlainText(doc({ type: 'paragraph' }))).toBe('');
   });
-<<<<<<< HEAD
-=======
 
   it('separates list items with newlines', () => {
     const list = doc({
@@ -80,5 +78,4 @@ describe('richTextToPlainText', () => {
     });
     expect(richTextToPlainText(quoted)).toBe('quoted');
   });
->>>>>>> master
 });

@@ -2,26 +2,11 @@ import { clamp, round4 } from './round';
 import { scoreChoice } from './score-choice';
 import { scoreShort } from './score-short';
 import type { QuestionScore, ScoreInput, ScoreReport } from './score.types';
-<<<<<<< HEAD
-
-/**
- * Mark a whole attempt.
- *
- * Total: an unanswered question, a response of the wrong kind, and a question
- * with a broken answer key all score zero rather than throwing. A scorer that
- * can fail halfway leaves an attempt in a state where some questions are marked
- * and others are not, which is worse than a defensible zero.
- *
- * Pure — no clock, no database, no I/O. Given the same inputs it returns the
- * same report, which is what makes a disputed mark re-checkable.
- */
-=======
 import { isShortManuallyGraded } from '@scholis/schema';
 
 // Total: unanswered, wrong response kind, and a broken answer key all score
 // zero rather than throwing. A scorer that fails halfway leaves an attempt
 // half-marked, which is worse than a defensible zero.
->>>>>>> master
 export const score = (input: ScoreInput): ScoreReport => {
   const questionScores: QuestionScore[] = input.questions.map((question) => {
     const response = input.responses[question.id];
@@ -36,9 +21,6 @@ export const score = (input: ScoreInput): ScoreReport => {
           status: 'auto',
         };
 
-<<<<<<< HEAD
-      case 'short':
-=======
       case 'short': {
         if (isShortManuallyGraded(question.settings)) {
           const mark = input.manualMarks[question.id];
@@ -52,17 +34,13 @@ export const score = (input: ScoreInput): ScoreReport => {
             status: 'manual',
           };
         }
->>>>>>> master
         return {
           questionId: question.id,
           awarded: scoreShort(question, response),
           maxPoints,
           status: 'auto',
         };
-<<<<<<< HEAD
-=======
       }
->>>>>>> master
 
       case 'essay': {
         const mark = input.manualMarks[question.id];

@@ -8,11 +8,6 @@
       "when": 1786082864964,
       "tag": "0000_goofy_boom_boom",
       "breakpoints": true
-<<<<<<< HEAD
-    }
-  ]
-}
-=======
     },
     {
       "idx": 1,
@@ -72,4 +67,3 @@
     }
   ]
 }
->>>>>>> master

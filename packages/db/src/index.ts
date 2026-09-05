@@ -4,27 +4,6 @@ export type { Database, Executor, Tx } from './executor.types';
 export * as schema from './schema';
 
 export {
-<<<<<<< HEAD
-  attemptStatus,
-  attempts,
-  events,
-  mutations,
-  organizations,
-  questionOptions,
-  questionType,
-  questions,
-  responses,
-  shortAnswerKeys,
-  testStatus,
-  tests,
-  userRole,
-  users,
-} from './schema';
-
-export type {
-  AttemptRow,
-  EventRow,
-=======
   accounts,
   apiClientKind,
   apiClientSecrets,
@@ -63,26 +42,15 @@ export type {
   AttemptRow,
   EventRow,
   IdempotencyKeyRow,
->>>>>>> master
   MutationRow,
   NewAttemptRow,
   NewEventRow,
   NewQuestionRow,
-<<<<<<< HEAD
-=======
   NewSectionRow,
->>>>>>> master
   NewResponseRow,
   NewTestRow,
   OrganizationRow,
   QuestionOptionRow,
-<<<<<<< HEAD
-  QuestionRow,
-  ResponseRow,
-  ShortAnswerKeyRow,
-  TestRow,
-  UserRow,
-=======
   InvitationRow,
   QuestionRow,
   SectionRow,
@@ -95,5 +63,4 @@ export type {
   UserRow,
   WebhookDeliveryRow,
   WebhookEndpointRow,
->>>>>>> master
 } from './schema';

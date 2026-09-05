@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-export default function HomePage() {
-  return (
-    <main>
-      <h1>Scholis</h1>
-      <p>Phase 0 — foundations. Authoring lands in Phase 4.</p>
-=======
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -28,7 +21,6 @@ export default function HomePage() {
           </Button>
         </Link>
       </div>
->>>>>>> master
     </main>
   );
 }
