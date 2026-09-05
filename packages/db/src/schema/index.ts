@@ -1,29 +1,36 @@
 import type { apiClientSecrets, apiClients } from './api-clients';
-import type { attempts, mutations, responses } from './attempts';
+import type { attemptEvents, attempts, mutations, responses } from './attempts';
 import type { accounts, sessions, verifications } from './auth';
 import type { events } from './events';
 import type { idempotencyKeys } from './idempotency';
+import type { invitations } from './invitations';
 import type { launchTokens } from './launch-tokens';
 import type { organizations, users } from './organizations';
-import type { invitations } from './invitations';
-import type { attemptEvents } from './attempts';
 import type { questionOptions, questions, sections, shortAnswerKeys } from './questions';
 import type { testTagAssignments, testTags } from './tags';
+import type { teacherSsoTickets } from './teacher-sso';
 import type { tests } from './tests';
 import type { webhookDeliveries, webhookEndpoints } from './webhooks';
 
 export { apiClientKind, apiClientSecrets, apiClients } from './api-clients';
-export { attempts, attemptStatus, mutations, responses } from './attempts';
+export {
+  attemptEventKind,
+  attemptEvents,
+  attemptStatus,
+  attempts,
+  mutations,
+  responses,
+} from './attempts';
 export { accounts, sessions, verifications } from './auth';
 export { events } from './events';
 export { idempotencyKeys } from './idempotency';
+export { invitations } from './invitations';
 export { launchTokens } from './launch-tokens';
 export { organizations, userRole, users } from './organizations';
-export { invitations } from './invitations';
-export { attemptEvents, attemptEventKind } from './attempts';
-export { questionOptions, questions, questionType, sections, shortAnswerKeys } from './questions';
+export { questionOptions, questionType, questions, sections, shortAnswerKeys } from './questions';
 export { testTagAssignments, testTags } from './tags';
-export { tests, testStatus } from './tests';
+export { teacherSsoTickets } from './teacher-sso';
+export { testStatus, tests } from './tests';
 export { webhookDeliveries, webhookEndpoints } from './webhooks';
 
 /**
@@ -56,6 +63,7 @@ export type VerificationRow = typeof verifications.$inferSelect;
 export type ApiClientRow = typeof apiClients.$inferSelect;
 export type ApiClientSecretRow = typeof apiClientSecrets.$inferSelect;
 export type LaunchTokenRow = typeof launchTokens.$inferSelect;
+export type TeacherSsoTicketRow = typeof teacherSsoTickets.$inferSelect;
 export type WebhookEndpointRow = typeof webhookEndpoints.$inferSelect;
 export type WebhookDeliveryRow = typeof webhookDeliveries.$inferSelect;
 

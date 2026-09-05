@@ -1,53 +1,20 @@
 import { createClient, organizations, users } from '@scholis/db';
 import { eq } from 'drizzle-orm';
+import { parseProvisionArgs } from './provision-args';
 
 // The only thing that may create an organisation.
 //
 // Sign-in authenticates and never provisions, so without this nobody can get
 // in — that's intended, not an oversight.
 //
-//   pnpm --filter @scholis/web provision -- --name "Oakwood School" \
+//   pnpm --filter @scholis/api provision -- --name "Oakwood School" \
 //     --slug oakwood --email head@oakwood.test --owner "Ada Lovelace"
 //
 // Idempotent on slug and email. A provisioning script that can't be run twice
 // gets run twice anyway, usually at the worst moment.
 
-interface Args {
-  name: string;
-  slug: string;
-  email: string;
-  owner: string;
-}
-
-const parseArgs = (argv: string[]): Args => {
-  const values = new Map<string, string>();
-  for (let i = 0; i < argv.length; i += 2) {
-    const flag = argv[i];
-    const value = argv[i + 1];
-    if (flag?.startsWith('--') === true && value !== undefined) {
-      values.set(flag.slice(2), value);
-    }
-  }
-
-  const required = ['name', 'slug', 'email', 'owner'] as const;
-  const missing = required.filter((key) => values.get(key) === undefined);
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required flags: ${missing.map((m) => `--${m}`).join(', ')}\n\n` +
-        'Usage: provision --name "School" --slug school --email head@school.test --owner "Name"',
-    );
-  }
-
-  return {
-    name: values.get('name') ?? '',
-    slug: values.get('slug') ?? '',
-    email: (values.get('email') ?? '').toLowerCase(),
-    owner: values.get('owner') ?? '',
-  };
-};
-
 const main = async (): Promise<void> => {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseProvisionArgs(process.argv.slice(2));
 
   const url = process.env.DATABASE_URL;
   if (url === undefined || url === '') throw new Error('DATABASE_URL is not set.');

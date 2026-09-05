@@ -6,7 +6,9 @@ export default mergeConfig(
   baseTestConfig,
   defineConfig({
     test: {
-      include: ['{src,server,data,http,lib,test}/**/*.test.ts'],
+      // scripts is included because the provision script's flag parser shipped
+      // broken for exactly as long as nothing ran it.
+      include: ['{src,server,data,http,lib,test,scripts}/**/*.test.ts'],
       // Integration tests boot a database per file; 5s is tight on a cold
       // PGlite start.
       testTimeout: 20_000,

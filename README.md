@@ -56,7 +56,7 @@ being serialised to clients with no business seeing them.
 pnpm install
 cp .env.example .env
 pnpm dev          # api on :3001, web on :3000
-pnpm verify       # typecheck → lint → architecture → 451 tests
+pnpm verify       # typecheck → lint → architecture → 475 tests
 ```
 
 Requires Node 22+ and pnpm 9.15+. **No database or Docker needed** — integration
@@ -72,7 +72,7 @@ the Better Auth session cookie stays first-party — see
 | Command          | Does                                                    |
 | ---------------- | ------------------------------------------------------- |
 | `pnpm verify`    | typecheck → lint → arch → test. Run before pushing.     |
-| `pnpm test`      | 451 tests across every package                          |
+| `pnpm test`      | 475 tests across every package                          |
 | `pnpm test:e2e`  | Playwright, 16 specs against a running pair of services |
 | `pnpm arch`      | dependency-cruiser — the layering rules                 |
 | `pnpm typecheck` | `tsc` across every package                              |
@@ -130,6 +130,7 @@ is already scoped to one school and none of them had to change.
 | `GET  /api/integration/scores`       | org      | Released results with per-section breakdown            |
 | `GET  /api/integration/events`       | org      | Catch up from `since=<seq>`                            |
 | `GET/POST /api/integration/webhooks` | org      | Manage signed push endpoints                           |
+| `POST /api/integration/teacher-sso`  | org      | Mint a one-time sign-in link for an existing teacher   |
 | `GET/POST /api/keys*`                | session  | Key dashboard — refuses a machine caller               |
 
 Design decisions worth knowing:
@@ -150,6 +151,60 @@ Design decisions worth knowing:
   material, exponential backoff, and `since=<seq>` to catch up on anything
   missed. Due times come from `ctx.now()`, not the database clock, matching this
   codebase's rule that all time comes from the context.
+
+### Teacher SSO
+
+A teacher who is already signed into the integrating platform should not have to
+prove it again to Scholis. The platform mints a link with its org credential and
+the teacher's browser follows it:
+
+```
+POST /api/integration/teacher-sso   { email, externalRef? }   <- org key, sso:write
+  -> { url: "https://web/sso?ticket=...", expiresAt }
+GET  /sso?ticket=...                  <- teacher's browser
+POST /api/auth/sso/exchange         { ticket }  -> session cookie, then /teacher
+```
+
+The ticket is stateful and single-use, stored beside `launch_tokens` and for the
+same reason: it is redeemed seconds after being minted, so a row costs nothing
+and a replayed link must not produce a second staff session. It resolves to a
+`user_id` when minted rather than carrying an email to be looked up later, so a
+live ticket follows the teacher it was made for whatever happens to the address
+in between. Five minutes to live.
+
+It **cannot create an account.** A teacher with no Scholis user is refused and
+has to be invited through the normal path — sign-in authenticates, it never
+provisions, and `lib/auth.ts` enforces that on the database write itself rather
+than trusting a plugin option. `externalRef` is the caller's own staff id,
+recorded for audit and never used to authorise anything.
+
+Refusals are deliberately indistinguishable. "No such teacher" and "a teacher at
+another school" produce the same message, because email is globally unique here
+and an org credential that could tell them apart could enumerate which addresses
+hold accounts at other schools. Likewise a spent, an expired and a never-issued
+ticket all fail identically at the exchange.
+
+Matching is case-insensitive but not whitespace-tolerant. The service lower-cases
+the address before looking it up — normalisation lives in the service rather than
+the schema, because chaining `.toLowerCase()` onto `z.email()` silently does
+nothing in zod 4 and once let one address become two accounts. But `z.email()`
+gates the shape first, so `" ada@x.test "` is refused with a 400 before any of
+that runs. An integrator importing addresses from a spreadsheet should trim them.
+Both halves are asserted, so the trim in the service is not mistaken for a
+promise the endpoint does not keep.
+
+The exchange is a Better Auth plugin rather than a Hono route, because Better
+Auth owns the session cookie's name, prefix, `sameSite` and `secure` attributes;
+minting one from a route would leave Scholis holding a second, silently drifting
+definition of them. It uses `formCsrfMiddleware` and not `originCheckMiddleware`:
+the latter only enforces when the request carries a cookie, and this is a
+first-login POST that by definition carries none.
+
+`sso:write` is a scope of its own rather than folded into `launch:write`. One
+admits a student to a paper, the other opens a staff session, and a key used only
+for sittings should not be able to sign a teacher in. Note that provisioning
+grants it by default — `provisioning.test.ts` spells the scope list out so that
+adding one is a deliberately taken decision rather than a silent widening.
 
 ---
 
@@ -210,7 +265,7 @@ built. Changing the target means a rebuild, not just a variable edit.
 | Browser journeys               | Playwright                 | 16 specs, authoring through release     |
 | Architecture                   | static                     | The table above                         |
 
-451 passing, 1 skipped (230 api, 80 engine, 52 web, 47 scoring, 33 schema, 9 db).
+475 passing, 1 skipped (254 api, 80 engine, 52 web, 47 scoring, 33 schema, 9 db).
 
 Integration tests default to PGlite for a fast local loop. CI additionally runs
 the identical suite against a real Postgres server, because "same engine" and
@@ -221,7 +276,7 @@ would be expensive.
 
 ## Data
 
-Drizzle ORM over Postgres: 24 tables, 6 enums, 9 migrations. Migrations run as a
+Drizzle ORM over Postgres: 25 tables, 6 enums, 10 migrations. Migrations run as a
 `preDeployCommand` on the API service, never at web boot.
 
 `0006` and `0007` were originally hand-written into the journal with no
@@ -274,6 +329,12 @@ broken with no error anywhere.
    characters so a teacher can read one aloud.
 3. **Retakes** — `maxAttempts` exists and is enforced, but takers self-declare
    their name, so it is an honesty mechanism rather than a control.
-4. **Teacher SSO** — a teacher arriving from an integrating platform still signs
-   in with a magic link. The `accounts` table that would store an external
-   identity already exists, so this is not a migration.
+4. **Teacher SSO scope by default** — `sso:write` is granted to every key minted
+   at provisioning, on the reasoning that the platform provisioning a school is
+   the platform that will send its teachers in. A school wanting narrower can
+   mint one from the dashboard, which takes an explicit scope list. Whether that
+   default is right for every future integrator is unproven.
+5. **Social sign-in** — Google and Microsoft are still absent. Adding either is a
+   `socialProviders` entry plus credentials; the `accounts` table that would
+   store the linkage already exists, so it is not a migration. Neither is what
+   an integrating platform needs, which is the case teacher SSO covers.
