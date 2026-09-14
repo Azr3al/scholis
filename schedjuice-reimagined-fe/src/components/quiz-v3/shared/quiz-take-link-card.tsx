@@ -74,7 +74,10 @@ export function QuizTakeLinkCard({
           className="shrink-0 size-8 p-0"
           aria-label="Copy link to clipboard"
           onClick={() => {
-            void navigator.clipboard.writeText(takeUrl).then(() => {
+            const toCopy = takeUrl.startsWith("http")
+              ? takeUrl
+              : `${window.location.origin}${takeUrl.startsWith("/") ? "" : "/"}${takeUrl}`;
+            void navigator.clipboard.writeText(toCopy).then(() => {
               setIsCopied(true);
               toast.add({ description: "Link copied." });
               setTimeout(() => setIsCopied(false), 1500);

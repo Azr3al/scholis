@@ -121,10 +121,7 @@ export default function QuizV3DetailPage() {
     );
   }
 
-  const takeUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/take/${quiz.code}`
-      : `/take/${quiz.code}`;
+  const takeUrl = `/take/${quiz.code}`;
 
   const subs = quiz.submission_count ?? 0;
   const unique = quiz.unique_respondent_count ?? 0;

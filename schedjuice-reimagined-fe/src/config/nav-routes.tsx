@@ -97,12 +97,14 @@ export const navLinks: navLinkType[] = [
         icon: ClipboardCheck,
         href: "/quizzes-v3",
         requiredPermissions: ["quiz.author", "quiz.view_responses"],
+        canShow: () => false,
       },
       {
         title: "Question Bank",
         icon: Library,
         href: "/quizzes-v3/question-bank",
         requiredPermissions: ["questionbank.manage"],
+        canShow: () => false,
       },
       {
         title: "Submission Tracker",

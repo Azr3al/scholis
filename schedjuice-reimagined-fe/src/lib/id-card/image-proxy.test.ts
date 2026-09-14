@@ -6,6 +6,9 @@ import {
 } from "./image-proxy";
 
 describe("isAllowedImageHost", () => {
+  it("allows regional DO Spaces path-style host", () => {
+    expect(isAllowedImageHost("sgp1.digitaloceanspaces.com")).toBe(true);
+  });
 
   it("rejects unknown hosts", () => {
     expect(isAllowedImageHost("evil.example.com")).toBe(false);

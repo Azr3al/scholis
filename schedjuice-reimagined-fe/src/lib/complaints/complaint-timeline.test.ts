@@ -12,14 +12,14 @@ describe("mapComplaintTimelineToBubbles", () => {
         body: "Hello",
         actor: { id: 42, name: "Student", email: "s@example.com" },
         created_at: "2026-01-01T00:00:00Z",
-        attachments: [{ attachment_id: 9, filename: "photo.jpg" }],
+        attachments: [{ attachment_id: 9, name: "photo.jpg", mime_type: "image/jpeg", size_bytes: 0 }],
       },
     ];
     const bubbles = mapComplaintTimelineToBubbles(items, 42);
     expect(bubbles).toHaveLength(1);
     expect(bubbles[0].isMe).toBe(true);
     expect(bubbles[0].attachments).toEqual([
-      { attachment_id: 9, filename: "photo.jpg" },
+      { attachment_id: 9, name: "photo.jpg", mime_type: "image/jpeg", size_bytes: 0 },
     ]);
   });
 

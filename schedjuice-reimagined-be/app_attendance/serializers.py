@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from rest_framework.serializers import IntegerField
 
+from app_attendance.attendance_scoping import acting_user
 from app_attendance.checkin_policy import validate_checkin_checkout_pair
 from app_attendance import models
 from app_attendance.models import UserEvent
+from app_rbac.resolution import effective_permissions
 from app_auth.models import User
 from app_auth.serializers import UserSerializer
 from utilitas.serializers import BaseModelSerializer
@@ -20,7 +22,9 @@ _CHECKIN_CHECKOUT_ERROR_MESSAGES = {
 
 
 class UserEventSerializer(BaseModelSerializer):
-    student_count = IntegerField(required=False, allow_null=True, write_only=True)
+    student_count = IntegerField(
+        required=False, allow_null=True, write_only=True, min_value=0
+    )
 
     class Meta(BaseModelSerializer.Meta):
         model = UserEvent
@@ -61,6 +65,13 @@ class UserEventSerializer(BaseModelSerializer):
     def update(self, instance, validated_data):
         request = self.context.get("request")
         tenant = getattr(request, "tenant", None) if request else None
+        actor = acting_user(request) if request else None
+        can_manage_all = actor is not None and "attendance.manage_all" in effective_permissions(
+            actor
+        )
+        admin_manual_student_count = (
+            can_manage_all and "student_count" in validated_data
+        )
 
         time_only = set(validated_data.keys()).issubset(
             {"checkin_time", "checkout_time", "today_activities", "is_extra_class"}
@@ -77,17 +88,24 @@ class UserEventSerializer(BaseModelSerializer):
             )
         )
 
+        if admin_manual_student_count:
+            validated_data["student_count_in_course_at_calculation"] = (
+                validated_data.pop("student_count")
+            )
+
         if should_freeze:
-            if "student_count" in validated_data:
-                validated_data["student_count_in_course_at_calculation"] = (
-                    validated_data.pop("student_count")
-                )
             snapshot_updates = freeze_teacher_payroll_snapshots(instance, tenant)
+            if admin_manual_student_count:
+                snapshot_updates.pop("student_count_in_course_at_calculation", None)
             validated_data.update(snapshot_updates)
         elif "student_count" in validated_data:
             validated_data.pop("student_count")
 
-        if self.context.get("refresh_student_count_on_update") and instance.user.is_teacher():
+        if (
+            self.context.get("refresh_student_count_on_update")
+            and instance.user.is_teacher()
+            and not admin_manual_student_count
+        ):
             validated_data.pop("student_count", None)
             validated_data["student_count_in_course_at_calculation"] = (
                 get_live_student_count_for_course(instance.event.course_id)

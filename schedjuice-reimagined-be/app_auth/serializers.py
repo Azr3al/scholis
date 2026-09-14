@@ -966,12 +966,15 @@ class UserDataVerificationRequestSerializer(BaseModelSerializer):
 
 
 def get_user_from_MS_token(ms_access: str):
+    from app_microsoft.graph_wrapper.base import IN_REQUEST_GRAPH_TIMEOUT
+
     res = requests.get(
         "https://graph.microsoft.com/v1.0/" + "me",
         headers={
             "Authorization": "Bearer " + ms_access,
             "Content-Type": "application/json",
         },
+        timeout=IN_REQUEST_GRAPH_TIMEOUT,
     )
     if res.status_code not in range(199, 300):
         raise ValidationError({"error_type": "MS ERROR", "details": {**res.json()}})

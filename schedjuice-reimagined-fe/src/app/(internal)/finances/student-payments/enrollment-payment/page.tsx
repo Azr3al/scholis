@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { getTenantDayBoundariesIso, getTenantTodayYmd } from "@/helpers/shortcuts-time";
 import { formatInTimeZone } from "date-fns-tz";
 import { isValidApiEntityIdParam } from "@/helpers/relation-fk";
+import { formatPaymentMethodDisplayName } from "@/helpers/payment-method-display";
 import { useTenant } from "@/hooks/useTenant";
 import { useTenantCurrencySymbol } from "@/hooks/useTenantCurrencySymbol";
 import { useUser } from "@/hooks/useUser";
@@ -770,11 +771,8 @@ function EnrollmentPaymentPageInner() {
                       ),
                     );
                   }}
-                  placeholder={
-                    isScreenshotOcrLoading
-                      ? OCR_FIELD_EXTRACTING_MESSAGE
-                      : undefined
-                  }
+                  loadingPlaceholder={OCR_FIELD_EXTRACTING_MESSAGE}
+                  loadingPlaceholderActive={isScreenshotOcrLoading}
                   disabled={isScreenshotOcrLoading}
                 />
                 <UploadFieldError message={partErrors.parsedAmount} />
@@ -802,9 +800,15 @@ function EnrollmentPaymentPageInner() {
                       ),
                     );
                   }}
+                  queryParams={{
+                    fields: ["name", "id", "is_retired"],
+                    sorts: ["name"],
+                  }}
                   label="Payment method"
                   hideLabel
-                  displayFunction={(m: { name?: string }) => m.name ?? "—"}
+                  displayFunction={(m: { id?: number; name?: string; is_retired?: boolean }) =>
+                    formatPaymentMethodDisplayName(m)
+                  }
                   loadingPlaceholder={OCR_FIELD_EXTRACTING_MESSAGE}
                   loadingPlaceholderActive={isScreenshotOcrLoading}
                   disabled={isScreenshotOcrLoading}

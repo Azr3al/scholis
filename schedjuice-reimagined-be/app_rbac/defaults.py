@@ -106,6 +106,9 @@ DEFAULT_MATRIX: dict[str, list[str]] = {
         "leave.view_all",
         "leave.manage_all",
         "organization.manage",
+        "mobile_device_policy.configure",
+        "mobile_device.view",
+        "mobile_device.revoke",
     ],
     "manager": [
         "course.view",
@@ -173,6 +176,9 @@ DEFAULT_MATRIX: dict[str, list[str]] = {
         "payment_info.manage_own",
         "leave.view_all",
         "leave.manage_all",
+        "mobile_device_policy.configure",
+        "mobile_device.view",
+        "mobile_device.revoke",
     ],
     "finance": [
         "payment.view_all",

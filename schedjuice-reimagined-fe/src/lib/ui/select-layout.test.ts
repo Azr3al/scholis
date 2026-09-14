@@ -7,6 +7,7 @@ import {
   selectPopupScrollArrowClassName,
   selectPopupItemTextClassName,
   comboboxPopupWidthClassName,
+  selectPositionerProps,
 } from "./select-layout";
 
 describe("selectValueClassName", () => {
@@ -70,5 +71,20 @@ describe("comboboxPopupWidthClassName", () => {
     const cls = comboboxPopupWidthClassName();
     expect(cls).toContain("w-[var(--anchor-width)]");
     expect(cls).toContain("max-w-[var(--available-width)]");
+  });
+});
+
+describe("selectPositionerProps", () => {
+  it("uses fixed positioning so overflow ancestors do not clip the popup", () => {
+    expect(selectPositionerProps().positionMethod).toBe("fixed");
+  });
+
+  it("measures collisions against an explicit viewport boundary", () => {
+    const viewport = { nodeName: "HTML" } as Element;
+    expect(selectPositionerProps(viewport).collisionBoundary).toBe(viewport);
+  });
+
+  it("omits collisionBoundary when no document or boundary is available", () => {
+    expect(selectPositionerProps().collisionBoundary).toBeUndefined();
   });
 });

@@ -219,7 +219,7 @@ describe("reducePointer", () => {
     expect(next).toBeTruthy();
     if (!next || next.type !== "text") return;
     expect(next.fontSize).toBeGreaterThan(24);
-    expect(next.height).toBeCloseTo(next.fontSize * 1.2);
+    expect(next.height).toBeCloseTo(next.fontSize! * 1.2);
     expect(next.x).toBe(10);
     expect(next.y).toBe(20);
   });

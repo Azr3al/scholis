@@ -7,8 +7,9 @@ import { useMemo, useState } from "react";
 import { DenyLeaveDialog } from "@/components/leave-requests/deny-leave-dialog";
 import { LeaveRequestAttachment as LeaveRequestAttachmentPreview } from "@/components/leave-requests/leave-request-attachment";
 import { PageContainer } from "@/components/layout/page-container";
-import { AlertDialog, Button } from "@/components/primitives";
+import { AlertDialog, Button, Skeleton } from "@/components/primitives";
 import { usePageHeader } from "@/components/shell/use-page-header";
+import { formatEnrolledCourses } from "@/lib/leave-requests/format-enrolled-courses";
 import {
   LeaveRequestStatus,
   type LeaveRequest,
@@ -53,6 +54,8 @@ export default function LeaveRequestDetailPage() {
   const row = detail.data;
   const isPending = row?.status === LeaveRequestStatus.Pending;
   const isBusy = approve.isPending || deny.isPending;
+  const showDetailSkeleton = detail.isLoading && !detail.data;
+  const coursesLabel = row ? formatEnrolledCourses(row.enrolled_courses) : null;
 
   const headerConfig = useMemo(
     () => ({
@@ -75,17 +78,39 @@ export default function LeaveRequestDetailPage() {
           Leave requests
         </Link>
 
-        {detail.isLoading ? (
-          <p className="text-sm text-muted-foreground" aria-busy="true">
-            Loading…
-          </p>
+        {showDetailSkeleton ? (
+          <div
+            className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5"
+            aria-busy="true"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-14" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-20" />
+            </div>
+          </div>
         ) : null}
 
-        {detail.isError || !row ? (
+        {!showDetailSkeleton && (detail.isError || !row) ? (
           <p className="text-sm text-destructive">Leave request not found.</p>
         ) : null}
 
-        {row ? (
+        {row && !showDetailSkeleton ? (
           <article className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-medium text-text-primary">
@@ -95,6 +120,15 @@ export default function LeaveRequestDetailPage() {
                 {row.status}
               </span>
             </div>
+
+            {coursesLabel ? (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Classes
+                </p>
+                <p className="text-sm text-text-primary">{coursesLabel}</p>
+              </div>
+            ) : null}
 
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

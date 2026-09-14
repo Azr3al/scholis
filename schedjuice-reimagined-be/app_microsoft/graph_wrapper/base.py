@@ -117,7 +117,9 @@ def _bearer_headers(access_token: str) -> dict:
 
 
 # Default (connect, read) timeouts so hung Graph calls do not block Django workers indefinitely.
+# Long read timeout is for django-q provisioning. In-request Graph must use the short pair.
 DEFAULT_GRAPH_TIMEOUT = (30, 180)
+IN_REQUEST_GRAPH_TIMEOUT = (5, 10)
 
 TRANSIENT_HTTP_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
 GRAPH_REQUEST_MAX_ATTEMPTS = 3

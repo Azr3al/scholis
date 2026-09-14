@@ -21,6 +21,8 @@ class UserEventSerializerUpdateTest(APITestCase):
     schema_name = "xschedjuice"
     admin_email = "admin@schedjuice.com"
     admin_password = "password123"
+    teacher_email = "teacher@schedjuice.com"
+    teacher_password = "password123"
 
     @classmethod
     def setUpTestData(cls):
@@ -35,11 +37,18 @@ class UserEventSerializerUpdateTest(APITestCase):
                 is_password_change_required=False,
                 is_active=True,
             )
+            User.objects.filter(email=cls.teacher_email).update(
+                is_password_change_required=False,
+                is_active=True,
+            )
 
-    def _token(self):
+    def _token(self, email=None, password=None):
         res = self.client.post(
             reverse("login"),
-            {"email": self.admin_email, "password": self.admin_password},
+            {
+                "email": email or self.admin_email,
+                "password": password or self.admin_password,
+            },
             HTTP_X_DTS_SCHEMA=self.schema_name,
         )
         self.assertEqual(res.status_code, 200)
@@ -202,9 +211,20 @@ class UserEventSerializerUpdateTest(APITestCase):
             self.assertEqual(ue.event_time_from_at_calculation, expected_from)
             self.assertEqual(ue.event_time_to_at_calculation, expected_to)
 
-    def _teacher_checkin_row(self, *, student_count_snapshot=2, student_user_count=2):
+    def _teacher_checkin_row(
+        self,
+        *,
+        student_count_snapshot=2,
+        student_user_count=2,
+        teacher_email=None,
+    ):
         with schema_context(self.schema_name):
-            teacher = User.objects.filter(roles__contains=[User.UserRole.TEACHER]).first()
+            if teacher_email:
+                teacher = User.objects.get(email=teacher_email)
+            else:
+                teacher = User.objects.filter(
+                    roles__contains=[User.UserRole.TEACHER]
+                ).first()
             students = list(
                 User.objects.filter(roles__contains=[User.UserRole.STUDENT])[:student_user_count]
             )
@@ -283,9 +303,10 @@ class UserEventSerializerUpdateTest(APITestCase):
         ue_id, _course_id, checkout = self._teacher_checkin_row(
             student_count_snapshot=2,
             student_user_count=2,
+            teacher_email=self.teacher_email,
         )
 
-        token = self._token()
+        token = self._token(self.teacher_email, self.teacher_password)
         resp = self.client.put(
             reverse("userevent-details", kwargs={"obj_id": ue_id}),
             {
@@ -301,6 +322,49 @@ class UserEventSerializerUpdateTest(APITestCase):
         with schema_context(self.schema_name):
             ue = UserEvent.objects.get(id=ue_id)
             self.assertEqual(ue.student_count_in_course_at_calculation, 2)
+
+    def test_userevent_put_admin_can_set_manual_student_count(self):
+        ue_id, _course_id, _checkout = self._teacher_checkin_row(
+            student_count_snapshot=2,
+            student_user_count=2,
+        )
+
+        token = self._token()
+        resp = self.client.put(
+            reverse("userevent-details", kwargs={"obj_id": ue_id}),
+            {"student_count": 99},
+            format="json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+            HTTP_X_DTS_SCHEMA=self.schema_name,
+        )
+        self.assertEqual(resp.status_code, 200, resp.data)
+
+        with schema_context(self.schema_name):
+            ue = UserEvent.objects.get(id=ue_id)
+            self.assertEqual(ue.student_count_in_course_at_calculation, 99)
+
+    def test_userevent_put_admin_explicit_count_wins_over_refresh(self):
+        ue_id, _course_id, checkout = self._teacher_checkin_row(
+            student_count_snapshot=2,
+            student_user_count=2,
+        )
+
+        token = self._token()
+        resp = self.client.put(
+            reverse("userevent-details", kwargs={"obj_id": ue_id}),
+            {
+                "checkout_time": checkout.isoformat(),
+                "student_count": 5,
+            },
+            format="json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+            HTTP_X_DTS_SCHEMA=self.schema_name,
+        )
+        self.assertEqual(resp.status_code, 200, resp.data)
+
+        with schema_context(self.schema_name):
+            ue = UserEvent.objects.get(id=ue_id)
+            self.assertEqual(ue.student_count_in_course_at_calculation, 5)
 
     def test_attendance_put_does_not_refresh_student_count(self):
         ue_id, course_id, checkout = self._teacher_checkin_row(

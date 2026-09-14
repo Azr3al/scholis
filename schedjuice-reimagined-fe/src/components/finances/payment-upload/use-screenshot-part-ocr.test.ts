@@ -59,6 +59,33 @@ describe("useScreenshotPartOcr", () => {
     expect(result.current.stateByKey.p1?.status).toBe("success");
   });
 
+  it("forwards courseId to runPaymentScreenshotOcr", async () => {
+    runPaymentScreenshotOcr.mockResolvedValueOnce({
+      ocrEventId: "evt",
+      transactionId: "txn",
+      parsedAmount: "100",
+      dateOnScreenshot: "",
+      duplicateWarningId: null,
+      bank: "KPAY",
+      suggestedPaymentMethodId: "1",
+      notesText: "",
+      suggestedStudentId: "",
+      studentMatchKind: "none",
+      studentMatchScore: null,
+      studentMatchCandidates: [],
+    });
+    const { result } = renderHook(() => useScreenshotPartOcr());
+
+    await act(async () => {
+      await result.current.runOcr("p1", file("a.png"), { courseId: "7" });
+    });
+
+    expect(runPaymentScreenshotOcr).toHaveBeenCalledWith({
+      file: expect.any(File),
+      courseId: "7",
+    });
+  });
+
   it("reports a readable error and stops blocking submit when OCR fails", async () => {
     runPaymentScreenshotOcr.mockRejectedValueOnce(new Error("boom"));
     const { result } = renderHook(() => useScreenshotPartOcr());
@@ -68,7 +95,7 @@ describe("useScreenshotPartOcr", () => {
     });
 
     expect(result.current.stateByKey.p1?.status).toBe("error");
-    expect(result.current.stateByKey.p1?.message).toMatch(/enter manually/i);
+    expect(result.current.stateByKey.p1?.message).toMatch(/auto-fill/i);
     expect(result.current.hasLoading).toBe(false);
   });
 });

@@ -391,6 +391,7 @@ function OrgRecordShellInner({
           form={form}
           objectFormSchema={objectFormSchema}
           fieldConfig={fieldConfig}
+          recordContext={orgRecordCtx}
           showPropagationNote={PROPAGATION_NOTE_SECTIONS.has(sectionId)}
           childrenBefore={
             sectionId === "profile" ? (

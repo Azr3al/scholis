@@ -55,7 +55,9 @@ def suggest_payment_method(bank: str | None, ocr_text: str | None) -> int | None
     if payment_bank is None:
         return None
 
-    candidates = list(PaymentMethod.objects.filter(payment_bank=payment_bank))
+    candidates = list(
+        PaymentMethod.objects.filter(payment_bank=payment_bank, is_retired=False)
+    )
     if not candidates:
         return None
     if len(candidates) == 1:

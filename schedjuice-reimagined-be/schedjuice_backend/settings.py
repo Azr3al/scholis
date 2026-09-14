@@ -349,6 +349,29 @@ DATABASES = {
     ),
 }
 
+# HTTP concurrency ceiling (ASGI). Each in-flight request holds one OS thread
+# and one Postgres connection (CONN_MAX_AGE=0, thread-per-request). Default 60
+# sits above projected peak at 1500 DAU (~10-30 concurrent) while leaving
+# headroom on typical Railway max_connections for broker + celery. Set to 0
+# to disable. /api/v1/health is exempt so a probe cannot consume a slot.
+ASGI_MAX_CONCURRENT_REQUESTS = config(
+    "ASGI_MAX_CONCURRENT_REQUESTS", default=60, cast=int
+)
+ASGI_CONCURRENCY_QUEUE_TIMEOUT = config(
+    "ASGI_CONCURRENCY_QUEUE_TIMEOUT", default=5.0, cast=float
+)
+ASGI_CONCURRENCY_MAX_QUEUE = config(
+    "ASGI_CONCURRENCY_MAX_QUEUE", default=120, cast=int
+)
+ASGI_CONCURRENCY_EXEMPT_PREFIXES = tuple(
+    p.strip()
+    for p in config(
+        "ASGI_CONCURRENCY_EXEMPT_PREFIXES",
+        default="/api/v1/health",
+    ).split(",")
+    if p.strip()
+)
+
 # Use the main database for tests (local Docker) instead of cloning test_*.
 if config("SCHEDJUICE_TEST_USE_MAIN_DB", default=False, cast=bool):
     DATABASES["default"]["TEST"] = {"NAME": DATABASES["default"]["NAME"]}
@@ -635,7 +658,7 @@ MEETING_RECORDINGS_SUBFOLDER = config(
 )
 # Optional Discord incoming webhook for ops alerts (cron failures, gap digest).
 RESEND_API_KEY = config("RESEND_API_KEY", default="")
-RESEND_FROM_EMAIL = config("RESEND_FROM_EMAIL", default="noreply@schedjuice.com")
+RESEND_FROM_EMAIL = config("RESEND_FROM_EMAIL", default="noreply@mail.schedjuice.com")
 RESEND_FROM_NAME = config("RESEND_FROM_NAME", default="Schedjuice")
 RESEND_REPLY_TO = config("RESEND_REPLY_TO", default="")
 RESEND_TIMEOUT = config("RESEND_TIMEOUT", default=15, cast=int)

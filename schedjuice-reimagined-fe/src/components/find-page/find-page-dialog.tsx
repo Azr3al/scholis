@@ -6,6 +6,8 @@ import { Command } from "cmdk";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   DURATION,
+  EASE,
+  FIND_PAGE_METABALL,
   findPageExtendTransition,
   transition,
 } from "@/lib/sj/motion";
@@ -16,6 +18,9 @@ import {
   FIND_PAGE_TITLE_ID,
   FindPageIsland,
   FindPageNotchSkirt,
+  NOTCH_WIDTH,
+  NOTCH_WIDTH_COMPACT,
+  TIPS_LINK_RESERVE,
 } from "./find-page-island";
 import {
   canUseWebGL,
@@ -33,6 +38,9 @@ import { isAdmissionsRecordRoute } from "@/lib/is-admissions-record-route";
 import { isFinanceRecordRoute } from "@/lib/is-finance-record-route";
 import { isStudioRecordRoute } from "@/lib/is-studio-record-route";
 import { useGlobalOverlayActive } from "@/lib/ui/global-overlay-registry";
+import { computeDockCenterX } from "@/lib/find-page/compute-dock-center-x";
+import { resolveFindPageAnchorX } from "@/lib/find-page/resolve-find-page-anchor-x";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const GROUP_LABEL: Record<FindPageItem["group"], string> = {
   pages: "Pages",
@@ -62,7 +70,11 @@ export function FindPageDialog() {
         isStudioRecordRoute(pathname) ||
         isAdmissionsRecordRoute(pathname))) ||
     overlayActive;
-  const { open, setOpen, items, panelRect, triggerRef } = useFindPage();
+  const { open, setOpen, items, panelRect, headerChrome, triggerRef } = useFindPage();
+  const isMobile = useIsMobile();
+  const compactDock = isMobile;
+  const idleNotchWidth = compactDock ? NOTCH_WIDTH_COMPACT : NOTCH_WIDTH;
+  const tipsReserve = compactDock ? 0 : TIPS_LINK_RESERVE;
   const reduced = useReducedMotion();
   // Once per session; false during SSR, re-evaluated on client hydration.
   const [webgl] = useState(() => canUseWebGL());
@@ -134,6 +146,36 @@ export function FindPageDialog() {
 
   if (!panelRect) return null;
   if (overlayActive) return null;
+
+  const dockCenterX =
+    compactDock && headerChrome != null
+      ? computeDockCenterX({
+          panelLeft: panelRect.left,
+          panelWidth: panelRect.width,
+          preferredCenterX: panelRect.centerX,
+          leftChromeRight: headerChrome.leftChromeRight,
+          rightChromeLeft: headerChrome.rightChromeLeft,
+          notchWidth: idleNotchWidth,
+          tipsReserve,
+        })
+      : panelRect.centerX;
+
+  const recenterOnOpen = compactDock;
+  const anchorX = resolveFindPageAnchorX({
+    phase,
+    dockCenterX,
+    panelCenterX: panelRect.centerX,
+    recenterOnOpen,
+  });
+
+  const anchorTransition =
+    skip || reduced || !recenterOnOpen
+      ? { duration: 0 }
+      : phase === "opening"
+        ? { duration: FIND_PAGE_METABALL.openSec, ease: EASE.outSoft }
+        : phase === "closing"
+          ? { duration: FIND_PAGE_METABALL.closeSec, ease: EASE.outSoft }
+          : { duration: 0 };
 
   // Mirrors the open island's `min-w-[min(448px,calc(100vw-48px))]`.
   const dialogWidth =
@@ -266,18 +308,22 @@ export function FindPageDialog() {
             exit={reduced ? undefined : { opacity: 0 }}
             transition={reduced ? { duration: 0 } : { duration: DURATION.fast }}
           >
-            <FindPageNotchSkirt panelRect={panelRect} />
+            <FindPageNotchSkirt
+              panelRect={panelRect}
+              dockCenterX={dockCenterX}
+              notchWidth={idleNotchWidth}
+            />
           </motion.div>
         ) : null}
       </AnimatePresence>
 
       {open || !hideDock ? (
-      <div
+      <motion.div
         className="fixed z-modal-content"
-        style={{
-          left: panelRect.centerX,
-          top: panelRect.top,
-        }}
+        initial={false}
+        animate={{ left: anchorX }}
+        transition={anchorTransition}
+        style={{ top: panelRect.top }}
       >
         <AnimatePresence initial={false}>
           {/* Liquid layer — painted below the notch so the DOM notch (text,
@@ -326,6 +372,7 @@ export function FindPageDialog() {
               <FindPageIsland
                 open={false}
                 layout={false}
+                compact={compactDock}
                 className={cn(
                   "transition-colors duration-150",
                   liquid &&
@@ -355,7 +402,7 @@ export function FindPageDialog() {
                     </span>
                     <kbd
                       className={cn(
-                        "shrink-0 rounded border border-[var(--find-page-ink-border)]",
+                        "hidden shrink-0 rounded border border-[var(--find-page-ink-border)] md:inline",
                         "bg-[color-mix(in_srgb,var(--find-page-ink-text)_10%,transparent)]",
                         "px-1.5 py-0.5 font-sans text-[10px] leading-none",
                         "text-[var(--find-page-ink-text)]/65",
@@ -369,7 +416,7 @@ export function FindPageDialog() {
               </FindPageIsland>
               <div
                 className={cn(
-                  "absolute left-full top-0 ml-2 flex h-[34px] items-center",
+                  "absolute left-full top-0 ml-2 hidden h-[34px] items-center md:flex",
                   "transition-opacity duration-150",
                   liquid && "pointer-events-none opacity-0",
                 )}
@@ -414,7 +461,7 @@ export function FindPageDialog() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-      </div>
+      </motion.div>
       ) : null}
     </>
   );

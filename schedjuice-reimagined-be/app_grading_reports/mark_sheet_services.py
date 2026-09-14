@@ -4,14 +4,13 @@ import re
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from django.conf import settings
 from django.db import transaction
-from rapidfuzz import fuzz
 
 from app_auth.import_resolve import USER_REF_FIELDS
 from app_auth.import_user_match import match_users
 from app_auth.models import User
 from app_course.models import UserCourse
+from app_course.roster_match import match_names_against_roster
 from app_grading_reports.models import CourseRubric, MarkSheet, MarkSheetCell
 from app_grading_reports.mark_sheet_inference import infer_import_columns, rubric_columns_for_commit
 
@@ -220,16 +219,9 @@ def roster_user_refs(course_id: int) -> list[dict]:
 
 
 def _none_match() -> dict:
-    return {
-        "kind": "none",
-        "user": None,
-        "field": None,
-        "score": None,
-        "candidates": [],
-    }
+    from app_course.roster_match import none_match
 
-
-MIN_FUZZY_NAME_LEN = 8
+    return none_match()
 
 
 def _match_roster_names(
@@ -239,79 +231,12 @@ def _match_roster_names(
     field: str,
     fuzzy: bool,
 ) -> dict[str, dict]:
-    out = {value: _none_match() for value in values}
-    if not roster_refs:
-        return out
-
-    def norm(text: str) -> str:
-        return re.sub(r"\s+", " ", (text or "").strip().lower())
-
-    for value in values:
-        nvalue = norm(value)
-        if not nvalue:
-            continue
-        exact_ref = None
-        matched_field = field
-        for ref in roster_refs:
-            for compare_field in ("name", "alternative_name"):
-                candidate = norm(ref.get(compare_field) or "")
-                if candidate and candidate == nvalue:
-                    exact_ref = ref
-                    matched_field = compare_field
-                    break
-            if exact_ref:
-                break
-        if exact_ref:
-            out[value] = {
-                "kind": "exact",
-                "user": {k: exact_ref[k] for k in USER_REF_FIELDS if k in exact_ref},
-                "field": matched_field,
-                "score": 100.0,
-                "candidates": [],
-            }
-            continue
-        if not fuzzy:
-            continue
-        if len(nvalue.replace(" ", "")) < MIN_FUZZY_NAME_LEN:
-            continue
-        floor = settings.IMPORT_USER_MATCH_FUZZY_MIN
-        limit = settings.IMPORT_USER_MATCH_CANDIDATE_LIMIT
-        scored: list[dict] = []
-        for ref in roster_refs:
-            for compare_field in (field, "name", "alternative_name"):
-                candidate = norm(ref.get(compare_field) or "")
-                if not candidate:
-                    continue
-                score = float(fuzz.WRatio(nvalue, candidate))
-                if score >= floor:
-                    scored.append(
-                        {
-                            "user": {k: ref[k] for k in USER_REF_FIELDS if k in ref},
-                            "score": round(score, 1),
-                            "field": compare_field,
-                        }
-                    )
-        if not scored:
-            continue
-        scored.sort(key=lambda item: item["score"], reverse=True)
-        top = scored[0]
-        if top["score"] >= 95:
-            out[value] = {
-                "kind": "exact",
-                "user": top["user"],
-                "field": top["field"],
-                "score": top["score"],
-                "candidates": [],
-            }
-        else:
-            out[value] = {
-                "kind": "fuzzy",
-                "user": None,
-                "field": None,
-                "score": top["score"],
-                "candidates": scored[:limit],
-            }
-    return out
+    return match_names_against_roster(
+        roster_refs,
+        values,
+        field=field,
+        fuzzy=fuzzy,
+    )
 
 
 def match_roster_students(course_id: int, specs: list[dict]) -> dict[str, dict[str, dict]]:

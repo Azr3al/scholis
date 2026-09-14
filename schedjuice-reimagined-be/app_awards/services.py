@@ -1,16 +1,12 @@
 from datetime import timedelta
 
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from app_awards.models import AwardGrant, AwardTitle, AwardTemplate
-from app_awards.document import (
-    EMPTY_AWARD_DOCUMENT,
-    next_untitled_name,
-    validate_award_document,
-)
+from app_awards.document import EMPTY_AWARD_DOCUMENT, validate_award_document
 from app_course.models import UserCourse
 from app_rbac.resolution import effective_permissions
 
@@ -24,15 +20,15 @@ def can_grade_awards(user) -> bool:
 def serialize_display_template(title: AwardTitle, request=None) -> dict | None:
     if title.course_id is not None:
         return None
-    templates = sorted(
-        title.templates.all(),
-        key=lambda item: (item.created_at, item.id),
-    )
-    if not templates:
-        return None
+    template = getattr(title, "template", None)
+    if template is None:
+        try:
+            template = title.template
+        except AwardTemplate.DoesNotExist:
+            return None
     from app_awards.serializers import AwardTemplateSerializer
 
-    data = AwardTemplateSerializer(templates[0], context={"request": request}).data
+    data = AwardTemplateSerializer(template, context={"request": request}).data
     return {
         "id": data["id"],
         "name": data["name"],
@@ -212,7 +208,7 @@ def course_awards_board(course, period_kind, year=None, month=None, request=None
     grants = (
         AwardGrant.objects.filter(course=course, **period_kwargs)
         .select_related("title")
-        .prefetch_related("title__templates")
+        .select_related("title__template")
         .order_by("id")
     )
     by_user: dict[int, list] = {}
@@ -371,28 +367,29 @@ def promote_local_title(course, title, actor) -> AwardTitle:
     return org
 
 
-def create_award_template(title: AwardTitle, name: str | None, actor) -> AwardTemplate:
+def create_award_certificate(title: AwardTitle, actor) -> AwardTemplate:
     if title.course_id is not None:
         raise ValidationError({"title": "Local titles cannot have templates."})
-    existing = list(
-        AwardTemplate.objects.filter(title=title).values_list("name", flat=True)
-    )
-    resolved = (name or "").strip() or next_untitled_name(existing)
-    if AwardTemplate.objects.filter(title=title, name__iexact=resolved).exists():
-        raise ValidationError({"name": "A template with this name already exists."})
+    if AwardTemplate.objects.filter(title=title).exists():
+        raise ValidationError(
+            {"certificate": "This title already has a certificate."}
+        )
     return AwardTemplate.objects.create(
         title=title,
-        name=resolved,
+        name=title.name,
         document=dict(EMPTY_AWARD_DOCUMENT),
         background=None,
         created_by=actor,
     )
 
 
-def save_award_template(
+def get_award_certificate(title: AwardTitle) -> AwardTemplate | None:
+    return AwardTemplate.objects.filter(title=title).first()
+
+
+def save_award_certificate(
     template: AwardTemplate,
     *,
-    name=None,
     document=None,
     background=None,
 ) -> AwardTemplate:
@@ -401,17 +398,7 @@ def save_award_template(
         if not template.background and background is None:
             raise ValidationError({"background": "Background image is required."})
         template.document = document
-    if name is not None:
-        trimmed = str(name).strip()
-        if not trimmed:
-            raise ValidationError({"name": "Name is required."})
-        template.name = trimmed
     if background is not None:
         template.background = background
-    try:
-        template.save()
-    except IntegrityError as exc:
-        raise ValidationError(
-            {"name": "A template with this name already exists."}
-        ) from exc
+    template.save()
     return template

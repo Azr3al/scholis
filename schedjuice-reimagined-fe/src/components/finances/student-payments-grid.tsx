@@ -63,6 +63,7 @@ import {
 import { getCourseOfUserFilterParams } from "@/helpers/course";
 import { transactionDuplicatesHref } from "@/helpers/student-payments-transaction-lookup";
 import { isValidApiEntityIdParam } from "@/helpers/relation-fk";
+import { formatPaymentMethodDisplayName } from "@/helpers/payment-method-display";
 import { useFullscreen } from "@/hooks/use-fullscreen";
 import { useTenant } from "@/hooks/useTenant";
 import { useTenantCurrencySymbol } from "@/hooks/useTenantCurrencySymbol";
@@ -529,7 +530,7 @@ function StudentPaymentsGridContent({
 
   const paymentMethodsListQuery = useGetAllEntitiesQuery(
     "payment-methods",
-    { fields: ["name", "id"], sorts: ["name"] },
+    { fields: ["name", "id", "is_retired"], sorts: ["name"] },
     undefined,
     {
       enabled:
@@ -541,14 +542,14 @@ function StudentPaymentsGridContent({
 
   const paymentMethodOptions = useMemo(() => {
     const list = paymentMethodsListQuery.data?.data?.data as
-      | { id: number; name?: string | null }[]
+      | { id: number; name?: string | null; is_retired?: boolean | null }[]
       | undefined;
     if (!Array.isArray(list)) return [];
     return list
       .filter((c) => c?.id != null && isValidApiEntityIdParam(String(c.id)))
       .map((c) => ({
         value: String(c.id),
-        label: c.name?.length ? c.name : `Account #${c.id}`,
+        label: formatPaymentMethodDisplayName(c),
       }));
   }, [paymentMethodsListQuery.data]);
 

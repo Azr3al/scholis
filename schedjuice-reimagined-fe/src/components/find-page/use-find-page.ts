@@ -14,6 +14,12 @@ export type FindPagePanelRect = {
   centerY: number;
 };
 
+/** Measured PanelHeader cluster edges in viewport coordinates. */
+export type FindPageHeaderChrome = {
+  leftChromeRight: number;
+  rightChromeLeft: number;
+};
+
 export type FindPageContextValue = {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -21,6 +27,8 @@ export type FindPageContextValue = {
   triggerRef: RefObject<HTMLButtonElement | null>;
   panelRef: RefObject<HTMLDivElement | null>;
   panelRect: FindPagePanelRect | null;
+  headerChrome: FindPageHeaderChrome | null;
+  setHeaderChrome: (chrome: FindPageHeaderChrome | null) => void;
   replayOnboarding: () => void;
   welcomeOpen: boolean;
   setWelcomeOpen: (open: boolean) => void;

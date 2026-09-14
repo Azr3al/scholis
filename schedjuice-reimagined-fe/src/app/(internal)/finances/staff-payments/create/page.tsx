@@ -263,7 +263,7 @@ const StaffPaymentCreatePage = () => {
           {isOcrLoading ? (
             <p className="mt-2 text-sm text-text-muted">Reading screenshot…</p>
           ) : ocrStatus === "error" ? (
-            <p className="mt-2 text-sm text-danger" role="alert">
+            <p className="mt-2 text-sm text-text-muted" role="status">
               {ocrError ?? OCR_READ_ERROR_MESSAGE}
             </p>
           ) : null}

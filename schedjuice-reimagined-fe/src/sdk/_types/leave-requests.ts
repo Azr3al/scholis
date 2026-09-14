@@ -26,6 +26,11 @@ export type LeaveRequestAttachment = {
   size?: number | null;
 };
 
+export type LeaveRequestCourse = {
+  id: number;
+  title: string;
+};
+
 export type LeaveRequest = {
   id: number;
   start_date: string;
@@ -38,4 +43,5 @@ export type LeaveRequest = {
   student?: LeaveRequestStudent | number;
   reviewed_by?: LeaveRequestReviewer | number | null;
   attachment?: LeaveRequestAttachment | number | null;
+  enrolled_courses?: LeaveRequestCourse[];
 };

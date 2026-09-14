@@ -11,6 +11,7 @@ import { useDropdownPositionerClassName } from "@/lib/ui/modal-overlay-context";
 import {
   selectPopupMaxHeightClassName,
   comboboxPopupWidthClassName,
+  selectPositionerProps,
 } from "@/lib/ui/select-layout";
 
 export type ComboboxItem = { label: string; value: string };
@@ -49,7 +50,11 @@ export function Combobox({
         </div>
       </BaseCombobox.InputGroup>
       <BaseCombobox.Portal>
-        <BaseCombobox.Positioner className={positionerClassName} sideOffset={4}>
+        <BaseCombobox.Positioner
+          {...selectPositionerProps()}
+          className={positionerClassName}
+          sideOffset={4}
+        >
           <BaseCombobox.Popup
             className={cn(
               comboboxPopupWidthClassName(),

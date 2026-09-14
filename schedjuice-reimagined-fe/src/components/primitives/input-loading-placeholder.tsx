@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /** Matches resting input placeholder typography (`inputClassName`). */
 export const inputLoadingPlaceholderClassName =
-  "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-text-muted";
+  "pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-base";
 
 export function InputLoadingPlaceholder({
   show,

@@ -1,16 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/primitives";
 import {
   UserCheckinPopup,
   type UserCheckinPopupStatus,
 } from "./user-checkin-popup";
 import { PendingCheckoutBeforeCheckinDialog } from "./pending-checkout-before-checkin-dialog";
-import { Camera, Clock, LogOut } from "iconoir-react";
+import { CancelCheckinDialog } from "./cancel-checkin-dialog";
+import { Camera, Clock, LogOut, XmarkCircle } from "iconoir-react";
 import { CheckinStatus, type OpenCheckinSession } from "@/types/attendance";
-import { useUserCheckin } from "@/hooks/useUserCheckin";
-import { useOpenCheckinSession } from "@/hooks/useOpenCheckinSession";
+import {
+  useUserCheckin,
+  userCheckinStatusQueryKey,
+} from "@/hooks/useUserCheckin";
+import {
+  useOpenCheckinSession,
+  openCheckinSessionQueryKey,
+} from "@/hooks/useOpenCheckinSession";
 import { useTenant } from "@/hooks/useTenant";
 import { formatCheckinOpensAt } from "@/helpers/checkin-window";
 import { resolveTimeDisplayFormat } from "@/helpers/time-format";
@@ -23,6 +31,16 @@ import {
   shouldShowCheckOut,
   type UserCheckinActionInput,
 } from "@/helpers/user-checkin-actions";
+import {
+  CancelCheckinReason,
+  canCancelTeacherCheckin,
+  normalizeCancelCheckinNote,
+} from "@/helpers/cancel-checkin";
+import { axiosClient } from "@/lib/api";
+import { queryClient } from "@/lib/query";
+import { assertSchedjuiceSuccess } from "@/lib/schedjuice-api-response";
+import { parseSchedjuiceApiError } from "@/helpers/schedjuice-api-error";
+import { useToast } from "@/components/primitives";
 
 interface UserCheckinButtonProps {
   courseId: string;
@@ -62,6 +80,7 @@ export const UserCheckinButton = ({
   enabled = true,
 }: UserCheckinButtonProps) => {
   const { tenant } = useTenant();
+  const toast = useToast();
   const timeFormat = resolveTimeDisplayFormat(tenant?.time_display_format);
   const {
     currentStatus,
@@ -86,6 +105,41 @@ export const UserCheckinButton = ({
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkinOpen, setCheckinOpen] = useState(false);
   const [pendingCheckoutOpen, setPendingCheckoutOpen] = useState(false);
+  const [cancelCheckinOpen, setCancelCheckinOpen] = useState(false);
+
+  const cancelCheckinMutation = useMutation({
+    mutationFn: async (payload: {
+      reasonCode: CancelCheckinReason;
+      note?: string;
+    }) => {
+      const response = await axiosClient.post(
+        `attendances/user-checkin/${courseId}/cancel`,
+        {
+          reason_code: payload.reasonCode,
+          note: payload.note ?? null,
+        },
+        {
+          headers: { "X-Schedjuice-Client": "web" },
+        },
+      );
+      return assertSchedjuiceSuccess(response);
+    },
+    onSuccess: () => {
+      toast.add({ title: "Check-in cancelled" });
+      setCancelCheckinOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: userCheckinStatusQueryKey(courseId),
+      });
+      queryClient.invalidateQueries({ queryKey: openCheckinSessionQueryKey });
+      queryClient.invalidateQueries({ queryKey: ["getCourse", courseId] });
+    },
+    onError: (error) => {
+      toast.add({
+        title: "Failed to cancel check-in",
+        description: parseSchedjuiceApiError(error),
+      });
+    },
+  });
 
   const resolvedOpenCheckinSession = useMemo(
     () =>
@@ -146,6 +200,8 @@ export const UserCheckinButton = ({
   const blockingOpenSession = getBlockingOpenSession(actionInput);
   const checkInDisabled = isCheckInDisabled(actionInput);
   const checkOutDisabled = isCheckOutDisabled(actionInput);
+  const showCancelCheckin =
+    showCheckOut && canCancelTeacherCheckin(tenant) && !checkOutDisabled;
   const isCrossCourseBlock =
     blockingOpenSession != null &&
     String(blockingOpenSession.course_id) !== String(courseId);
@@ -263,6 +319,17 @@ export const UserCheckinButton = ({
             <span>Check Out</span>
           </Button>
         ) : null}
+        {showCancelCheckin ? (
+          <Button
+            variant="danger"
+            disabled={checkOutDisabled || cancelCheckinMutation.isPending}
+            className="w-full gap-2 sm:w-auto sm:min-w-[8.5rem] active:scale-[0.98]"
+            onClick={() => setCancelCheckinOpen(true)}
+          >
+            <XmarkCircle className="md:mr-2 h-4 w-4" />
+            <span>Cancel check-in</span>
+          </Button>
+        ) : null}
         {showCheckIn ? (
           <Button
             variant={getCheckInVariant()}
@@ -283,6 +350,20 @@ export const UserCheckinButton = ({
           open={checkoutOpen}
           onOpenChange={setCheckoutOpen}
           status={popupStatus}
+        />
+      ) : null}
+
+      {showCancelCheckin ? (
+        <CancelCheckinDialog
+          open={cancelCheckinOpen}
+          onOpenChange={setCancelCheckinOpen}
+          isLoading={cancelCheckinMutation.isPending}
+          onConfirm={({ reasonCode, note }) =>
+            cancelCheckinMutation.mutate({
+              reasonCode,
+              note: normalizeCancelCheckinNote(note),
+            })
+          }
         />
       ) : null}
 

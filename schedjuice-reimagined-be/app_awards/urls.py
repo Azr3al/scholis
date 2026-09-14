@@ -45,13 +45,8 @@ urlpatterns = [
         name="course-award-display-template",
     ),
     path(
-        "award-titles/<int:obj_id>/templates",
-        views.AwardTitleTemplateListView.as_view(),
-        name="award-title-templates",
-    ),
-    path(
-        "award-templates/<int:obj_id>",
-        views.AwardTemplateDetailsView.as_view(),
-        name="award-template-detail",
+        "award-titles/<int:obj_id>/certificate",
+        views.AwardTitleCertificateView.as_view(),
+        name="award-title-certificate",
     ),
 ]

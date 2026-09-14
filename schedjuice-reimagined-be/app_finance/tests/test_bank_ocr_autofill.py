@@ -67,7 +67,7 @@ class DetectAndExtractBankTests(SimpleTestCase):
     def test_detect_kbz_from_internal_transfer(self):
         result = detect_and_extract(KBZ_OCR_RESPONSE)
         self.assertEqual(result["bank"], "KBZ")
-        self.assertIsNone(result["transaction_id"])
+        self.assertEqual(result["transaction_id"], "155259692209166")
         self.assertEqual(result["amount"], [165000.0])
 
     def test_detect_aya_from_receipt(self):
@@ -103,7 +103,7 @@ class PreviewAmountOnlyTests(SimpleTestCase):
         mock_filter.return_value.first.return_value = None
         result = preview_kpay_screenshot(b"fake", filename="kbz.jpg")
         self.assertTrue(result["ok"])
-        self.assertIsNone(result["transaction_id"])
+        self.assertEqual(result["transaction_id"], "155259692209166")
         self.assertEqual(result["parsed_amount"], 165000.0)
         self.assertEqual(result["bank"], "KBZ")
 
@@ -189,6 +189,16 @@ class SuggestPaymentMethodTests(TestCase):
     def test_unknown_bank_returns_none(self):
         self.assertIsNone(suggest_payment_method(None, "text"))
         self.assertIsNone(suggest_payment_method("YOMA", "text"))
+
+    def test_retired_method_is_not_suggested(self):
+        suffix = uuid4().hex[:6]
+        with schema_context(self.schema_name):
+            PaymentMethod.objects.create(
+                name=f"Retired only KBZ {suffix}",
+                payment_bank=PaymentBank.KBZ,
+                is_retired=True,
+            )
+            self.assertIsNone(suggest_payment_method("KBZ", "some unrelated text"))
 
 
 @unittest.skipUnless(_database_reachable(), "PostgreSQL not available")

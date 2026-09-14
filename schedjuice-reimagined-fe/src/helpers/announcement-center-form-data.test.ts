@@ -16,16 +16,17 @@ describe("buildAnnouncementCenterFormData", () => {
     expect(fd.get("post_type")).toBe("announcement");
   });
 
-  it("includes course for per-course scope", () => {
+  it("includes course_ids for per-course scope", () => {
     const fd = buildAnnouncementCenterFormData({
       scope: AnnouncementCenterScope.PerCourse,
-      courseId: 42,
+      courseIds: [42, 43],
       title: "Class note",
       dataHtml: "<p>Note</p>",
       createdById: 1,
       files: [],
     });
-    expect(fd.get("course")).toBe("42");
+    expect(fd.get("course_ids")).toBe("[42,43]");
+    expect(fd.get("course")).toBeNull();
   });
 
   it("appends Teams fields for org-wide broadcast", () => {

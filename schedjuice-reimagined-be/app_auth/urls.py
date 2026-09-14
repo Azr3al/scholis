@@ -4,8 +4,17 @@ from app_auth import certification_views, teaching_subject_views, views
 from app_auth import user_insights_views
 from app_auth.completeness_views import UserCompletenessView
 from app_auth.home_dashboard_views import HomeDashboardView
+from app_auth.home_facts_views import HomeFactsView
 from app_auth.id_photo_url_views import IdPhotoUrlsView
 from app_auth.field_change_views import UserFieldChangeListView
+from app_auth.mobile_device_views import (
+    MobileDeviceBulkRevokeView,
+    MobileDeviceDetailView,
+    MobileDeviceListView,
+    MobileDeviceRevokeStaleView,
+    MobileDeviceRevokeView,
+    UserMobileDeviceListView,
+)
 from app_auth.user_image_views import (
     UserImageListCreateView,
     UserImageResolveView,
@@ -141,6 +150,32 @@ urlpatterns = [
         name="user-field-changes",
     ),
     path(
+        "users/<int:user_id>/mobile-devices",
+        UserMobileDeviceListView.as_view(),
+        name="user-mobile-devices",
+    ),
+    path("mobile-devices", MobileDeviceListView.as_view(), name="mobile-devices"),
+    path(
+        "mobile-devices/bulk-revoke",
+        MobileDeviceBulkRevokeView.as_view(),
+        name="mobile-devices-bulk-revoke",
+    ),
+    path(
+        "mobile-devices/revoke-stale",
+        MobileDeviceRevokeStaleView.as_view(),
+        name="mobile-devices-revoke-stale",
+    ),
+    path(
+        "mobile-devices/<int:device_id>/revoke",
+        MobileDeviceRevokeView.as_view(),
+        name="mobile-device-revoke",
+    ),
+    path(
+        "mobile-devices/<int:device_id>",
+        MobileDeviceDetailView.as_view(),
+        name="mobile-device-detail",
+    ),
+    path(
         "users/<int:user_id>/user-images/resolve",
         UserImageResolveView.as_view(),
         name="user-images-resolve",
@@ -153,6 +188,7 @@ urlpatterns = [
     path("user-image-urls", UserImageUrlsView.as_view(), name="user-image-urls"),
     path("id-photo-urls", IdPhotoUrlsView.as_view(), name="id-photo-urls"),
     path("home/dashboard", HomeDashboardView.as_view(), name="home-dashboard"),
+    path("home/facts", HomeFactsView.as_view(), name="home-facts"),
     path("expo-token", views.ExpoTokenUpsertView.as_view(), name="expo-token-upsert"),
     path(
         "expo-token/deactivate",

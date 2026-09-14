@@ -20,10 +20,15 @@ def send_email_from_user_email(user_email: UserEmail, tenant):
 
 
 def detect_ai(text: str):
-    res = requests.post("https://api.gptzero.me/v2/predict/text", data=json.dumps({
-        "document": text
-    }), headers={
-        "Content-Type": "application/json",
-        "x-api-key": API_KEY
-    })
+    res = requests.post(
+        "https://api.gptzero.me/v2/predict/text",
+        data=json.dumps({
+            "document": text
+        }),
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY
+        },
+        timeout=(5, 30),
+    )
     return res

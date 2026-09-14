@@ -77,19 +77,24 @@ def resolve_anchor_for_enrollment(
             joined_at, django_timezone.get_current_timezone()
         )
 
-    course_id = user_course.course_id
-    first_for_student = resolve_first_session_date(course_id, joined_at, tz=tz)
-    if first_for_student is None:
-        return None
+    tz = tz or _tenant_tz()
+    enrollment_day = joined_at.astimezone(tz).date()
 
+    course_id = user_course.course_id
     course_first = resolve_course_first_session_date(course_id, tz=tz)
     if course_first is None:
         return None
 
-    if first_for_student <= course_first:
-        return None
+    first_for_student = resolve_first_session_date(course_id, joined_at, tz=tz)
+    if first_for_student is not None:
+        if first_for_student <= course_first:
+            return None
+        return first_for_student
 
-    return first_for_student
+    if enrollment_day > course_first:
+        return enrollment_day
+
+    return None
 
 
 def effective_invoice_start_date(

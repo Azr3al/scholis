@@ -72,6 +72,11 @@ class UserEvent(BaseModel):
         indexes = [
             models.Index(fields=["event", "user"], name="userevent_event_user_idx"),
             models.Index(fields=["attendance_status"], name="userevent_status_idx"),
+            models.Index(
+                fields=["event", "user"],
+                name="userevent_active_event_user",
+                condition=models.Q(is_deleted=False),
+            ),
         ]
 
 
@@ -85,6 +90,10 @@ class AttendanceChangeEvent(BaseModel):
         WEB_COURSE_CHECKIN_HISTORY = (
             "web_course_checkin_history",
             "web_course_checkin_history",
+        )
+        WEB_SESSION_CHECKIN = (
+            "web_session_checkin",
+            "web_session_checkin",
         )
         MOBILE_SESSION_CHECKIN = (
             "mobile_session_checkin",

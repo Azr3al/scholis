@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/date/date-picker";
 import { FilterToolbar, FilterToolbarField } from "@/components/filters/filter-toolbar";
 import { Button, Select, buttonVariants } from "@/components/primitives";
 import { FinanceHomepageStatCards } from "@/components/finances/finance-homepage-stat-cards";
+import { FeeLifecycleSection } from "@/components/finances/fee-lifecycle-section";
 import {
   FinanceHomepageInitialSkeleton,
   FinanceHomepageRefreshingShell,
@@ -434,6 +435,18 @@ export function FinanceHomepageContent() {
       <FinanceHomepageRefreshingShell isRefreshing={isRefreshing}>
         <FinanceHomepageStatCards summary={payload?.summary} currencySymbol={currencySymbol} />
       </FinanceHomepageRefreshingShell>
+
+      <div className="rounded-lg border bg-card p-4">
+        <FeeLifecycleSection
+          filterState={{
+            programId,
+            intakeId,
+            period: effectivePeriod,
+            dateFrom: dateFrom ?? null,
+            dateTo: dateTo ?? null,
+          }}
+        />
+      </div>
 
       <div className="grid min-w-0 gap-4 lg:grid-cols-2">
         <FinanceHomepageRefreshingShell

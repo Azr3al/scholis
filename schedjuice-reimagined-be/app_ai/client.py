@@ -121,7 +121,7 @@ class OpenAIClient:
     def _build_client(self):
         from openai import OpenAI
 
-        return OpenAI(api_key=self.api_key)
+        return OpenAI(api_key=self.api_key, timeout=30.0)
 
     def classify_prompt_scope(
         self,

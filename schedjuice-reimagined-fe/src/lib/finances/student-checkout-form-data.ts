@@ -17,6 +17,9 @@ export function buildStudentCheckoutFormData(args: {
       fd.append("date_on_screenshot", screenshot.dateOnScreenshot);
     }
     if (screenshot.ocrEventId) fd.append("ocr_event_id", screenshot.ocrEventId);
+    if (screenshot.paymentMethodId) {
+      fd.append("payment_method", screenshot.paymentMethodId);
+    }
     return fd;
   }
 
@@ -41,6 +44,9 @@ export function buildStudentCheckoutFormData(args: {
     }
     if (screenshot.ocrEventId) {
       fd.append(`${prefix}ocr_event_id`, screenshot.ocrEventId);
+    }
+    if (screenshot.paymentMethodId) {
+      fd.append(`${prefix}payment_method`, screenshot.paymentMethodId);
     }
   });
 

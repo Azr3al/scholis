@@ -6,6 +6,8 @@ import { dropdownPositionerClassName } from "@/lib/ui/overlay-classnames";
 import { buttonVariants, Popover } from "@/components/primitives";
 import { inputClassName } from "@/components/primitives/input";
 import { Calendar } from "@/components/date/calendar";
+import { ClearFieldButton } from "@/components/form/clear-field-button";
+import { isFieldClearable } from "@/components/form/is-field-clearable";
 import { forwardRef } from "react";
 import { controlSizeClassName } from "@/lib/ui/control-sizing";
 import type {
@@ -38,10 +40,14 @@ const DatePickerCmp = forwardRef<HTMLButtonElement, PopoverDatePickerProps>(
       popoverAlign,
       popoverSide,
       className,
+      required,
+      clearable,
       ...rest
     },
     ref,
   ) {
+    const showClear =
+      isFieldClearable({ clearable, required }) && Boolean(date);
     const selectedDate = date ? new Date(date) : undefined;
     const convertedFromDate = fromDate ? new Date(fromDate) : undefined;
     const convertedToDate = toDate ? new Date(toDate) : undefined;
@@ -64,24 +70,34 @@ const DatePickerCmp = forwardRef<HTMLButtonElement, PopoverDatePickerProps>(
         : undefined;
     return (
       <Popover.Root>
-        <Popover.Trigger
-          ref={ref}
-          type="button"
-          disabled={disabled}
-          className={cn(
-            buttonVariants({ variant: "secondary" }),
-            controlSizeClassName(size),
-            "justify-start text-left font-normal",
-            !date && "text-text-muted",
-            className,
-          )}
-          {...rest}
-        >
-          {showTriggerIcon ? (
-            <CalendarIcon className="mr-2 h-4 w-4" aria-hidden />
+        <div className={cn("relative", size === "full" && "w-full")}>
+          <Popover.Trigger
+            ref={ref}
+            type="button"
+            disabled={disabled}
+            className={cn(
+              buttonVariants({ variant: "secondary" }),
+              controlSizeClassName(size),
+              "justify-start text-left font-normal",
+              !date && "text-text-muted",
+              showClear && "pr-8",
+              className,
+            )}
+            {...rest}
+          >
+            {showTriggerIcon ? (
+              <CalendarIcon className="mr-2 h-4 w-4" aria-hidden />
+            ) : null}
+            {date ? format(new Date(date), "PPP") : <span>Pick a date</span>}
+          </Popover.Trigger>
+          {showClear ? (
+            <ClearFieldButton
+              label="Clear date"
+              disabled={disabled}
+              onClear={() => setDate(undefined)}
+            />
           ) : null}
-          {date ? format(new Date(date), "PPP") : <span>Pick a date</span>}
-        </Popover.Trigger>
+        </div>
         <Popover.Portal>
           <Popover.Positioner
             className={dropdownPositionerClassName}
@@ -124,6 +140,7 @@ export const NativeDatePicker = forwardRef<
     className,
     size = "full",
     defaultMonth: _defaultMonth,
+    clearable: _clearable,
     ...rest
   },
   ref,

@@ -532,115 +532,12 @@ def build_god_view_rows(
     *,
     hydrate: bool = True,
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
-    course_qs = _filter_courses(filters)
-    course_ids = list(course_qs.values_list("id", flat=True))
-    if not course_ids:
-        empty_summary = _empty_summary(filters)
-        return empty_summary, []
+    from app_attendance.god_view_sql import fetch_god_view_page
 
-    roster_pairs = _roster_student_course_pairs(filters, course_ids)
-    if not roster_pairs:
-        return _empty_summary(filters), []
-
-    student_ids = {user_id for user_id, _ in roster_pairs}
-
-    event_range = _event_date_range_q(filters)
-    events = list(
-        Event.objects.filter(course_id__in=course_ids)
-        .filter(event_range)
-        .only("id", "date", "course_id")
-        .order_by("course_id", "-date")
-    )
-    events_by_course: Dict[int, List[Event]] = defaultdict(list)
-    for ev in events:
-        events_by_course[ev.course_id].append(ev)
-
-    for course_events in events_by_course.values():
-        course_events.sort(key=lambda e: e.date, reverse=True)
-
-    scheduled_by_course = {
-        cid: len(evlist) for cid, evlist in events_by_course.items()
-    }
-
-    ue_qs = UserEvent.objects.filter(
-        user_id__in=student_ids,
-        event__course_id__in=course_ids,
-    ).filter(_user_event_date_range_q(filters))
-    ue_by_user_event: Dict[Tuple[int, int], UserEvent] = {
-        (ue.user_id, ue.event_id): ue
-        for ue in ue_qs.only("user_id", "event_id", "attendance_status")
-    }
-
-    today = timezone.localdate()
-    week_ago = today - timedelta(days=7)
-
-    rows: List[Dict[str, Any]] = []
-    for user_id, course_id in roster_pairs:
-        scheduled = scheduled_by_course.get(course_id, 0)
-        if scheduled == 0:
-            continue
-
-        course_events = events_by_course.get(course_id, [])
-        present = late = absent = unregistered = 0
-        absent_last_7 = 0
-
-        timeline: List[Tuple[int, datetime, str]] = []
-        for ev in course_events:
-            ue = ue_by_user_event.get((user_id, ev.id))
-            status = _session_status(ue)
-            if status == UserEvent.AttendanceStatus.PRESENT:
-                present += 1
-            elif status == UserEvent.AttendanceStatus.LATE:
-                late += 1
-            elif status in ABSENT_STATUSES:
-                absent += 1
-            elif status == UNREGISTERED_STATUS:
-                unregistered += 1
-            ev_local_date = ev.date.date() if hasattr(ev.date, "date") else ev.date
-            if week_ago <= ev_local_date <= today and (
-                status in ABSENT_STATUSES or status == UNREGISTERED_STATUS
-            ):
-                absent_last_7 += 1
-            timeline.append((ev.id, ev.date, status))
-
-        attended = present + late
-        attendance_rate = round((attended / scheduled) * 100, 2) if scheduled else 0.0
-        absence_rate = round((absent / scheduled) * 100, 2) if scheduled else 0.0
-        late_rate = round((late / scheduled) * 100, 2) if scheduled else 0.0
-
-        streak, last_attended, last_status = _compute_streak_and_last(timeline)
-
-        if filters.min_attendance_rate is not None and attendance_rate < filters.min_attendance_rate:
-            continue
-        if filters.max_attendance_rate is not None and attendance_rate > filters.max_attendance_rate:
-            continue
-
-        rows.append(
-            {
-                "student_id": user_id,
-                "course_id": course_id,
-                "attendance_rate": attendance_rate,
-                "absence_rate": absence_rate,
-                "late_rate": late_rate,
-                "present_count": present,
-                "late_count": late,
-                "absent_count": absent,
-                "unregistered_count": unregistered,
-                "scheduled_classes": scheduled,
-                "recent_absence_streak": streak,
-                "last_attended_date": last_attended,
-                "last_class_status": last_status,
-                "absent_last_7_days": absent_last_7,
-                "is_at_risk": attendance_rate < filters.at_risk_threshold,
-                "is_late_heavy": late_rate >= LATE_HEAVY_RATE_THRESHOLD,
-            }
-        )
-
-    summary = _build_summary(rows, filters)
-    if hydrate:
-        rows = hydrate_god_view_rows(rows)
-    sorted_rows = _sort_rows(rows, filters.sort)
-    return summary, sorted_rows
+    # `hydrate` is unused: SQL already joins student/course names.
+    _ = hydrate
+    summary, rows, _count = fetch_god_view_page(filters)
+    return summary, rows
 
 
 def _build_daily_summary(rows: List[Dict[str, Any]], filters: GodViewFilters) -> Dict[str, Any]:

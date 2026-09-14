@@ -14,7 +14,11 @@ import {
   markFindPageDialogSeen,
   replayFindPageOnboarding as clearOnboardingStorage,
 } from "@/lib/find-page-onboarding-storage";
-import { FindPageContext, type FindPagePanelRect } from "./use-find-page";
+import {
+  FindPageContext,
+  type FindPageHeaderChrome,
+  type FindPagePanelRect,
+} from "./use-find-page";
 import { FindPageDialog } from "./find-page-dialog";
 import { FindPageOnboarding } from "./find-page-onboarding";
 import { useGlobalOverlayActive } from "@/lib/ui/global-overlay-registry";
@@ -30,6 +34,9 @@ export function FindPageProvider({ children }: { children: ReactNode }) {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [coachmarkOpen, setCoachmarkOpen] = useState(false);
   const [panelRect, setPanelRect] = useState<FindPagePanelRect | null>(null);
+  const [headerChrome, setHeaderChrome] = useState<FindPageHeaderChrome | null>(
+    null,
+  );
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const coachmarkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -140,13 +147,15 @@ export function FindPageProvider({ children }: { children: ReactNode }) {
       triggerRef,
       panelRef,
       panelRect,
+      headerChrome,
+      setHeaderChrome,
       replayOnboarding,
       welcomeOpen,
       setWelcomeOpen,
       coachmarkOpen,
       setCoachmarkOpen,
     }),
-    [open, items, panelRect, replayOnboarding, welcomeOpen, coachmarkOpen],
+    [open, items, panelRect, headerChrome, replayOnboarding, welcomeOpen, coachmarkOpen],
   );
 
   return (

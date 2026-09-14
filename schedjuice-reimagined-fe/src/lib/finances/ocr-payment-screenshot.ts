@@ -5,6 +5,12 @@ export enum PaymentScreenshotKind {
   Staff = "staff",
 }
 
+export type OcrStudentMatchCandidate = {
+  id: number;
+  name: string;
+  score: number;
+};
+
 export type OcrPaymentScreenshotResult = {
   ocrEventId: string;
   transactionId: string;
@@ -13,12 +19,17 @@ export type OcrPaymentScreenshotResult = {
   duplicateWarningId: number | null;
   bank: string;
   suggestedPaymentMethodId: string;
+  notesText: string;
+  suggestedStudentId: string;
+  studentMatchKind: "auto" | "candidates" | "none";
+  studentMatchScore: number | null;
+  studentMatchCandidates: OcrStudentMatchCandidate[];
 };
 
 export type OcrPaymentScreenshotStatus = "idle" | "loading" | "success" | "error";
 
 export const OCR_READ_ERROR_MESSAGE =
-  "Couldn't read this screenshot — enter manually.";
+  "Auto-fill didn't catch every detail. Please review or complete the fields below.";
 
 export const OCR_FIELD_EXTRACTING_MESSAGE = "trying to extract...";
 
@@ -36,6 +47,34 @@ export function parseSuggestedPaymentMethodId(value: unknown): string {
   if (value == null || value === "") return "";
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? String(Math.trunc(n)) : "";
+}
+
+export function parseOcrStudentMatch(payload: Record<string, unknown>) {
+  const candidates = Array.isArray(payload.student_match_candidates)
+    ? payload.student_match_candidates
+    : [];
+  const kind = payload.student_match_kind;
+  const studentMatchKind: OcrPaymentScreenshotResult["studentMatchKind"] =
+    kind === "auto" || kind === "candidates" || kind === "none"
+      ? kind
+      : "none";
+
+  return {
+    notesText: parseOcrString(payload.notes_text),
+    suggestedStudentId: parseOcrString(payload.suggested_student_id),
+    studentMatchKind,
+    studentMatchScore:
+      payload.student_match_score == null
+        ? null
+        : Number(payload.student_match_score),
+    studentMatchCandidates: candidates
+      .filter((c): c is Record<string, unknown> => Boolean(c && typeof c === "object"))
+      .map((c) => ({
+        id: Number(c.id),
+        name: parseOcrString(c.name),
+        score: Number(c.score),
+      })),
+  };
 }
 
 type OcrPayload = {
@@ -73,11 +112,15 @@ function normalizeOcrPayload(body: unknown): OcrPayload {
 export async function runPaymentScreenshotOcr(args: {
   file: File;
   paymentKind?: PaymentScreenshotKind;
+  courseId?: string;
 }): Promise<OcrPaymentScreenshotResult> {
   const formData = new FormData();
   formData.append("screenshot", args.file);
   if (args.paymentKind === PaymentScreenshotKind.Staff) {
     formData.append("payment_kind", PaymentScreenshotKind.Staff);
+  }
+  if (args.courseId) {
+    formData.append("course_id", args.courseId);
   }
 
   const res = await makePostRequest(
@@ -99,6 +142,7 @@ export async function runPaymentScreenshotOcr(args: {
     suggestedPaymentMethodId: parseSuggestedPaymentMethodId(
       payload.suggested_payment_method_id,
     ),
+    ...parseOcrStudentMatch(payload as Record<string, unknown>),
   };
 }
 

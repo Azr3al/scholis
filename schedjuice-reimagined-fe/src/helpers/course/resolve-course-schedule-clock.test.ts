@@ -37,7 +37,10 @@ describe("resolveCourseScheduleClockDisplay", () => {
 
   it("returns null when no schedule source is available", () => {
     const result = resolveCourseScheduleClockDisplay(
-      {},
+      {
+        nearest_event_time_from: undefined,
+        nearest_event_time_to: undefined,
+      },
       undefined,
       false,
       "Asia/Yangon",

@@ -6,6 +6,7 @@ from uuid import uuid4
 from django.core.management import call_command
 from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APIClient
 from schedjuice_backend.test_tenant_helpers import ensure_public_schema
 from tenant_schemas.utils import get_public_schema_name, schema_context
@@ -436,3 +437,61 @@ class LeaveRequestViewTests(TestCase):
             )
             self.assertEqual(res.status_code, 200, res.content)
             self.assertEqual(res.json()["data"]["id"], leave.id)
+
+    @patch("app_attendance.leave_request_validation.tenant_today")
+    def test_admin_list_includes_enrolled_courses(self, mock_tenant_today):
+        mock_tenant_today.return_value = self.tenant_today
+        with schema_context(self.schema_name):
+            leave = self._create_leave(student=self.student_a)
+            res = self._client(self.admin).get(f"{self.api_prefix}/leave-requests")
+            self.assertEqual(res.status_code, 200, res.content)
+            row = next(item for item in res.json()["data"] if item["id"] == leave.id)
+            self.assertEqual(
+                row["enrolled_courses"],
+                [{"id": self.course.id, "title": self.course.title}],
+            )
+
+    @patch("app_attendance.leave_request_validation.tenant_today")
+    def test_admin_list_enrolled_courses_empty_when_not_enrolled(self, mock_tenant_today):
+        mock_tenant_today.return_value = self.tenant_today
+        with schema_context(self.schema_name):
+            unenrolled = self._make_student("leave-api-student-unenrolled")
+            leave = self._create_leave(student=unenrolled)
+            res = self._client(self.admin).get(f"{self.api_prefix}/leave-requests")
+            self.assertEqual(res.status_code, 200, res.content)
+            row = next(item for item in res.json()["data"] if item["id"] == leave.id)
+            self.assertEqual(row["enrolled_courses"], [])
+
+    @patch("app_attendance.leave_request_validation.tenant_today")
+    def test_admin_list_batches_enrolled_courses_lookup(self, mock_tenant_today):
+        mock_tenant_today.return_value = self.tenant_today
+        with schema_context(self.schema_name):
+            self._create_leave(student=self.student_a)
+            self._create_leave(
+                student=self.student_b,
+                start_date=self.leave_day + timedelta(days=1),
+                end_date=self.leave_day + timedelta(days=1),
+            )
+            with CaptureQueriesContext(connection) as captured:
+                res = self._client(self.admin).get(f"{self.api_prefix}/leave-requests")
+            self.assertEqual(res.status_code, 200, res.content)
+            user_course_queries = [
+                query["sql"]
+                for query in captured.captured_queries
+                if "app_course_usercourse" in query["sql"].lower()
+            ]
+            self.assertEqual(len(user_course_queries), 1)
+
+    @patch("app_attendance.leave_request_validation.tenant_today")
+    def test_admin_detail_includes_enrolled_courses(self, mock_tenant_today):
+        mock_tenant_today.return_value = self.tenant_today
+        with schema_context(self.schema_name):
+            leave = self._create_leave(student=self.student_a)
+            res = self._client(self.admin).get(
+                f"{self.api_prefix}/leave-requests/{leave.id}"
+            )
+            self.assertEqual(res.status_code, 200, res.content)
+            self.assertEqual(
+                res.json()["data"]["enrolled_courses"],
+                [{"id": self.course.id, "title": self.course.title}],
+            )

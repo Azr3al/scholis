@@ -1,6 +1,10 @@
 "use client";
 
-import { getRegistryEntry } from "@/config/org-settings-registry";
+import {
+  getRegistryEntry,
+  visibleOrgSubGroups,
+  type OrgRecordContext,
+} from "@/config/org-settings-registry";
 import {
   AutoFormGroupSection,
   getObjectFormSchema,
@@ -17,6 +21,7 @@ export function OrgSchemaSectionPanel({
   form,
   objectFormSchema,
   fieldConfig,
+  recordContext,
   showPropagationNote,
   childrenBefore,
   childrenAfter,
@@ -25,13 +30,19 @@ export function OrgSchemaSectionPanel({
   form: UseFormReturn<Record<string, unknown>>;
   objectFormSchema: ReturnType<typeof getObjectFormSchema>;
   fieldConfig: Record<string, FieldConfigItem>;
+  recordContext?: OrgRecordContext | null;
   showPropagationNote?: boolean;
   childrenBefore?: React.ReactNode;
   childrenAfter?: React.ReactNode;
 }) {
   const entry = getRegistryEntry(sectionId);
-  const subGroups = entry?.subGroups;
-  if (!entry || !subGroups?.length) return null;
+  const allSubGroups = entry?.subGroups;
+  if (!entry || !allSubGroups?.length) return null;
+
+  const subGroups = recordContext
+    ? visibleOrgSubGroups(allSubGroups, recordContext)
+    : [...allSubGroups];
+  if (!subGroups.length) return null;
 
   const hideInnerHeaders = subGroups.length === 1;
 

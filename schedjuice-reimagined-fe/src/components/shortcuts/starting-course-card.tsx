@@ -15,6 +15,7 @@ import {
 import { resolveTimeDisplayFormat } from "@/helpers/time-format";
 import { useTenant } from "@/hooks/useTenant";
 import { formatRepeatEverySummary } from "@/helpers/course-repeat";
+import { coursePrimaryTeacherForDisplay } from "@/helpers/course-primary-teacher-display";
 import type { categoryType, courseType } from "@/types/course";
 import { differenceInCalendarDays, differenceInWeeks } from "date-fns";
 import { Calendar as CalendarRange, Clock, OpenNewWindow as ExternalLink, GraduationCap, Group as Users } from "iconoir-react";
@@ -50,7 +51,10 @@ export function StartingCourseCard({
     Boolean(course.first_event_time_from) &&
     Boolean(course.first_event_time_to);
   const repeatSummary = formatRepeatEverySummary(course.repeat_every);
-  const primary = course.primary_teacher as PrimaryTeacherDisplay | null | undefined;
+  const primary = coursePrimaryTeacherForDisplay(
+    course.primary_teacher as PrimaryTeacherDisplay | null | undefined,
+    course.main_teacher_count,
+  );
   const span = formatCourseSpan(start, end);
 
   return (

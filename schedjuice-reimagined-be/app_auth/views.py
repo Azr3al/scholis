@@ -24,6 +24,14 @@ from app_auth.refresh_sessions import (
     revoke_all_refresh_sessions_for_user,
     revoke_refresh_session,
 )
+from app_auth.session_revoked import (
+    REVOKED_REASON_LOGOUT_ALL,
+    REVOKED_REASON_PASSWORD_RESET,
+    REVOKED_REASON_USER_LOGOUT,
+    SESSION_REVOKED_CODE,
+    SESSION_REVOKED_DETAIL,
+    SessionRevokedAuthenticationFailed,
+)
 
 from app_auth import models, serializers
 from app_auth.field_stewardship import (
@@ -788,6 +796,15 @@ class TokenRefreshView(RBACView):
         session_id = request.data.get("session_id")
         try:
             data = refresh_auth_tokens(refresh, session_id, request)
+        except SessionRevokedAuthenticationFailed as exc:
+            return Response(
+                {
+                    "detail": SESSION_REVOKED_DETAIL,
+                    "code": SESSION_REVOKED_CODE,
+                    "reason": exc.reason,
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         except AuthenticationFailed as exc:
             return self.send_response(
                 True,
@@ -810,6 +827,7 @@ class LogoutView(RBACView):
             session_id=request.data.get("session_id"),
             refresh_token=request.data.get("refresh"),
             request=request,
+            reason=REVOKED_REASON_USER_LOGOUT,
         )
         return self.send_response(
             False,
@@ -829,7 +847,9 @@ class LogoutAllView(RBACView):
         user = models.User.objects.filter(email=request.user.id).first()
         if not user:
             return self.not_found("User not found.")
-        count = revoke_all_refresh_sessions_for_user(user, request)
+        count = revoke_all_refresh_sessions_for_user(
+            user, request, reason=REVOKED_REASON_LOGOUT_ALL
+        )
         return self.send_response(
             False,
             "success",
@@ -880,7 +900,9 @@ class PasswordResetView(RBACView):
                 user.set_password(request.data["password"])
                 user.is_password_change_required = False
                 user.save()
-                revoke_all_refresh_sessions_for_user(user, request)
+                revoke_all_refresh_sessions_for_user(
+                    user, request, reason=REVOKED_REASON_PASSWORD_RESET
+                )
                 tokens = models.VerificationCode.objects.filter(
                     email=user.email, is_used=False
                 ).all()

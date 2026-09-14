@@ -17,6 +17,9 @@ from tenant_schemas.utils import get_public_schema_name, schema_context
 
 from app_course.models import Course, PaymentAssignment
 from app_microsoft.graph_wrapper.education import MSEducation
+from app_microsoft.payment_assignment_instructions import (
+    build_payment_assignment_instructions,
+)
 from app_organization.models import Organization
 from app_utils.ops_discord import notify_discord_ops
 from utilitas.async_tasks import django_q_task, tenant_async
@@ -759,10 +762,7 @@ def create_payment_assignment_for_course_month(
         return None
 
     display_name = get_assignment_display_name(course, year, month_index)
-    instructions = (
-        "Please upload your payment screenshot for this month. "
-        "This assignment is for students to submit proof of payment."
-    )
+    instructions = build_payment_assignment_instructions()
     due_dt = ensure_graph_due_datetime_in_future(
         get_due_date_for_month(target_date, tenant, course),
         tenant,
@@ -776,6 +776,7 @@ def create_payment_assignment_for_course_month(
             display_name=display_name,
             instructions=instructions,
             due_datetime=due_dt,
+            instructions_content_type="html",
         )
         if res.status_code not in range(199, 300):
             logger.error(

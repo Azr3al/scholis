@@ -28,6 +28,10 @@ from app_finance.payment_coverage import (
     resolve_suggested_payment_month,
     sync_user_payment_covered_months,
 )
+from app_finance.fee_lifecycle_services import (
+    VALID_BREAKDOWNS,
+    build_fee_lifecycle_payload,
+)
 from app_finance.homepage_services import (
     VALID_PERIODS,
     VALID_PIE_GROUP_BY,
@@ -76,6 +80,7 @@ from app_auth.models import User
 from app_finance.payment_scoping import (
     acting_user,
     check_payment_object_read,
+    restrict_retired_payment_methods,
     check_payment_read,
     check_payment_record,
     check_payment_record_for_enrollment,
@@ -115,6 +120,7 @@ from app_finance.services import (
     extract_receiver_ss_text_data,
     mark_receiver_side_screenshots_matched,
     preview_kpay_screenshot,
+    schedule_user_payment_ocr_after_submit,
 )
 from app_finance.student_checkout import (
     StudentCheckoutError,
@@ -1285,10 +1291,13 @@ class StudentMakePaymentView(RBACView):
             with transaction.atomic():
                 saved = user_payment.save()
                 if saved and saved.transaction_id:
-                    mark_receiver_side_screenshots_matched(saved.transaction_id, saved)
-                extract_receiver_ss_text_data.delay(
-                    saved.id,
+                    mark_receiver_side_screenshots_matched(
+                        saved.transaction_id, saved, actor=user
+                    )
+                schedule_user_payment_ocr_after_submit(
+                    saved,
                     request.tenant.schema_name,
+                    ocr_event_id=request.data.get("ocr_event_id"),
                 )
 
             response_serializer = serializers.UserPaymentSerializer(
@@ -2448,6 +2457,18 @@ class OcrPaymentScreenshotView(RBACView):
         if payment_kind not in ("student", "staff"):
             return self.bad_request("payment_kind must be student or staff.")
 
+        course_id_raw = request.data.get("course_id")
+        course_id = None
+        if course_id_raw not in (None, ""):
+            try:
+                course_id = int(course_id_raw)
+            except (TypeError, ValueError):
+                return self.bad_request("course_id must be an integer.")
+            from app_course.models import Course
+
+            if not Course.objects.filter(id=course_id).exists():
+                return self.bad_request("course_id is invalid.")
+
         event_id = str(uuid4())
         result = preview_kpay_screenshot(
             screenshot,
@@ -2455,6 +2476,7 @@ class OcrPaymentScreenshotView(RBACView):
             payment_kind=payment_kind,
             ocr_event_id=event_id,
             schema_name=request.tenant.schema_name,
+            course_id=course_id,
         )
         result["ocr_event_id"] = event_id
         if not result.get("ok"):
@@ -2525,6 +2547,10 @@ class PaymentMethodListView(RBACListView):
     authentication_classes = [TenantBoundJWTStatelessAuthentication]
     required_permissions = {"GET": "payment.view_all", "POST": "payment.configure"}
 
+    def get_queryset(self, request, filter_params=None, *args, **kwargs):
+        filter_params = restrict_retired_payment_methods(request, filter_params)
+        return super().get_queryset(request, filter_params, *args, **kwargs)
+
     def check_permissions(self, request):
         if request.method == "POST":
             super().check_permissions(request)
@@ -2563,6 +2589,10 @@ class PaymentMethodSearchView(RBACSearchView):
     serializer = serializers.PaymentMethodSerializer
     authentication_classes = [TenantBoundJWTStatelessAuthentication]
     required_permissions = {"POST": "payment.view_all"}
+
+    def get_queryset(self, request, filter_params=None, *args, **kwargs):
+        filter_params = restrict_retired_payment_methods(request, filter_params)
+        return super().get_queryset(request, filter_params, *args, **kwargs)
 
     def check_permissions(self, request):
         user = acting_user(request)
@@ -3617,6 +3647,89 @@ class FinanceHomepageView(RBACView):
                 status=status_code,
             )
 
+        return self.send_response(False, "success", {"data": payload})
+
+
+_FEE_LIFECYCLE_PERMS = frozenset({"payment.view_all", "analytics.view"})
+
+
+class FeeLifecycleView(RBACView):
+    authentication_classes = [TenantBoundJWTStatelessAuthentication]
+
+    def check_permissions(self, request):
+        user = acting_user(request)
+        if user is None:
+            raise PermissionDenied("Authentication credentials were not provided.")
+        held = set(effective_permissions(user))
+        if not held.intersection(_FEE_LIFECYCLE_PERMS):
+            raise PermissionDenied("You don't have permission to perform this action.")
+
+    def post(self, request: Request):
+        user = acting_user(request)
+        if user is None:
+            return self.forbidden("Authentication required.")
+        del user
+
+        program_id = request.data.get("program_id")
+        if program_id in (None, ""):
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": "program_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        period = request.data.get("period") or "single_month"
+        if period not in VALID_PERIODS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": f"period must be one of: {', '.join(sorted(VALID_PERIODS))}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        breakdown = request.data.get("breakdown") or "none"
+        if breakdown not in VALID_BREAKDOWNS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {
+                    "details": (
+                        "breakdown must be one of: "
+                        f"{', '.join(sorted(VALID_BREAKDOWNS))}"
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        intake_raw = request.data.get("intake_id")
+        intake_id = int(intake_raw) if intake_raw not in (None, "") else None
+        date_from = _parse_finance_homepage_date(request.data.get("date_from"))
+        date_to = _parse_finance_homepage_date(request.data.get("date_to"))
+
+        try:
+            payload = build_fee_lifecycle_payload(
+                program_id=int(program_id),
+                intake_id=intake_id,
+                period=period,
+                date_from=date_from,
+                date_to=date_to,
+                breakdown=breakdown,
+                org=request.tenant,
+            )
+        except ValueError as exc:
+            msg = str(exc)
+            status_code = (
+                status.HTTP_404_NOT_FOUND
+                if "not found" in msg.lower()
+                else status.HTTP_400_BAD_REQUEST
+            )
+            return self.send_response(
+                True,
+                "validation_error" if status_code == 400 else "not_found",
+                {"details": msg},
+                status=status_code,
+            )
         return self.send_response(False, "success", {"data": payload})
 
 

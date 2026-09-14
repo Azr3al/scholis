@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from app_microsoft.graph_wrapper.base import BaseMSRequest, DEFAULT_GRAPH_TIMEOUT
+from app_microsoft.graph_wrapper.base import BaseMSRequest, IN_REQUEST_GRAPH_TIMEOUT
 from app_microsoft.graph_wrapper.retry import graph_call_with_retry
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class MSUser(BaseMSRequest):
         return requests.get(
             f"{self.URL}users?{params}",
             headers=headers,
-            timeout=DEFAULT_GRAPH_TIMEOUT,
+            timeout=IN_REQUEST_GRAPH_TIMEOUT,
         )
 
     def _generate_password(self):

@@ -15,17 +15,10 @@ import {
   useAdmissionsCourses,
   type AdmissionsCourseRow,
 } from "@/hooks/admissions/use-admissions-courses";
-import { formatSessionClock } from "@/helpers/date";
-import {
-  convertTimePatternToUserTimezone,
-  convertWeekdayPatternToUserTimezone,
-} from "@/helpers/timeslot";
+import { formatAdmissionsCourseSchedule } from "@/helpers/admissions/format-course-schedule";
 import { formatCurrentUnitDisplay } from "@/lib/data-sheets/format-current-unit-display";
 import { useTenant } from "@/hooks/useTenant";
-import {
-  orgTimeDateFnsPattern,
-  resolveTimeDisplayFormat,
-} from "@/helpers/time-format";
+import { resolveTimeDisplayFormat } from "@/helpers/time-format";
 
 function headerLabel(label: string) {
   return (
@@ -33,27 +26,6 @@ function headerLabel(label: string) {
       {label}
     </span>
   );
-}
-
-function formatCourseTime(
-  row: AdmissionsCourseRow,
-  timezone: string | undefined,
-  timeFormat: ReturnType<typeof resolveTimeDisplayFormat>,
-): string {
-  const weekday = row.weekday_pattern
-    ? convertWeekdayPatternToUserTimezone(row.weekday_pattern, timezone)
-    : "";
-  const clock =
-    row.first_event_time_from && row.first_event_time_to
-      ? `${formatSessionClock(row.first_event_time_from, timeFormat)} – ${formatSessionClock(row.first_event_time_to, timeFormat)}`
-      : row.time_pattern
-        ? convertTimePatternToUserTimezone(
-            row.time_pattern,
-            timezone,
-            orgTimeDateFnsPattern(timeFormat),
-          )
-        : "";
-  return [weekday, clock].filter(Boolean).join(" ") || "—";
 }
 
 function AdmissionsCoursesPageInner() {
@@ -100,7 +72,7 @@ function AdmissionsCoursesPageInner() {
         id: "time",
         header: headerLabel("Time"),
         accessor: (row) =>
-          formatCourseTime(row, tenant?.timezone, timeFormat),
+          formatAdmissionsCourseSchedule(row, tenant?.timezone, timeFormat),
         sizing: { role: "date", tabular: true },
         enableSorting: false,
       }),

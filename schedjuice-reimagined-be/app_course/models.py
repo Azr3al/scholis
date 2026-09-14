@@ -691,6 +691,13 @@ class UserCourse(BaseModel):
                 name="usercourse_one_open_per_user_course",
             )
         ]
+        indexes = [
+            models.Index(
+                fields=["course", "assigned_as"],
+                name="usercourse_open_course_role",
+                condition=Q(left_at__isnull=True),
+            ),
+        ]
 
 
 class CourseMembershipEvent(BaseModel):

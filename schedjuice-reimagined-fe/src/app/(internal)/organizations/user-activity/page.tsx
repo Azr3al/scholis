@@ -2,24 +2,36 @@
 
 import { PageContainer } from "@/components/layout/page-container";
 import { usePageHeader } from "@/components/shell/use-page-header";
-import { canAccessUserActivity } from "@/helpers/authorization";
+import {
+  canAccessUserActivity,
+  canViewMobileDevices,
+} from "@/helpers/authorization";
 import { crossfade } from "@/lib/sj/motion";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
-import { GraphUp } from "iconoir-react";
+import { GraphUp, Phone } from "iconoir-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useMemo } from "react";
 
-const tiles = [
+const baseTiles = [
   {
     title: "Login activity",
     description:
-      "Sign-in trends from your school’s records and a list of accounts that have not signed in recently.",
+      "Sign-in trends from your school's records and a list of accounts that have not signed in recently.",
     href: "/organizations/user-activity/login-activity",
     icon: GraphUp,
+    visible: () => true,
+  },
+  {
+    title: "Mobile devices",
+    description:
+      "Mobile app sign-ins — view devices, last activity, and sign people out remotely.",
+    href: "/organizations/user-activity/devices",
+    icon: Phone,
+    visible: canViewMobileDevices,
   },
 ] as const;
 
@@ -59,6 +71,8 @@ export default function UserActivityHubPage() {
   if (!user || !canAccessUserActivity(user)) {
     return null;
   }
+
+  const tiles = baseTiles.filter((tile) => tile.visible(user));
 
   return (
     <PageContainer width="wide" className="space-y-6">

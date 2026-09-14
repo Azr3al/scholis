@@ -10,6 +10,9 @@ export type SharedDatePickerProps = {
   toDate?: Date | string;
   defaultMonth?: Date | string;
   size?: ControlSize;
+  required?: boolean;
+  /** Defaults to true when `required === false`. Omitted `required` stays uncleared. */
+  clearable?: boolean;
 };
 
 export type PopoverDatePickerProps = SharedDatePickerProps & {

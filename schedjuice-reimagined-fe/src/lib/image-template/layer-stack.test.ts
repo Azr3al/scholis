@@ -91,7 +91,7 @@ describe("delete hotkeys", () => {
   });
 
   it("does not steal keys from a textarea", () => {
-    expect(isEditorTypingTarget({ target: { tagName: "TEXTAREA" } })).toBe(true);
-    expect(isEditorTypingTarget({ target: { tagName: "DIV" } })).toBe(false);
+    expect(isEditorTypingTarget({ target: { tagName: "TEXTAREA" } as HTMLElement })).toBe(true);
+    expect(isEditorTypingTarget({ target: { tagName: "DIV" } as HTMLElement })).toBe(false);
   });
 });

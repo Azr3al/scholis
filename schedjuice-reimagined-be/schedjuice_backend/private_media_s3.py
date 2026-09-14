@@ -112,7 +112,11 @@ def build_private_presign_s3_client():
     region = getattr(
         settings, "AWS_S3_REGION_NAME", os.environ.get("AWS_REGION", "us-east-1")
     )
-    boto_config_kwargs: dict = {"signature_version": "s3v4"}
+    boto_config_kwargs: dict = {
+        "signature_version": "s3v4",
+        "connect_timeout": 5,
+        "read_timeout": 30,
+    }
 
     addressing_style = getattr(
         settings, "AWS_S3_PRIVATE_PRESIGN_ADDRESSING_STYLE", "virtual"

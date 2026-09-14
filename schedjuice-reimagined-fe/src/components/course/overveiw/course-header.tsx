@@ -15,6 +15,7 @@ import {
   formatRepeatEverySummary,
   getCourseListWeekCount,
 } from "@/helpers/course-repeat";
+import { coursePrimaryTeacherForDisplay } from "@/helpers/course-primary-teacher-display";
 import Link from "next/link";
 import { Separator } from "@/components/primitives";
 import { CourseDataCard } from "../course-data-card";
@@ -683,8 +684,10 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
   const endD = new Date(course.end_date as string | Date);
   const totalWeeks = getCourseListWeekCount(startD, endD);
   const repeatSummary = formatRepeatEverySummary(course.repeat_every);
-  const primaryTeacher =
-    course.primary_teacher as PrimaryTeacherDisplay | null | undefined;
+  const primaryTeacher = coursePrimaryTeacherForDisplay(
+    course.primary_teacher as PrimaryTeacherDisplay | null | undefined,
+    course.main_teacher_count,
+  );
   const createdBy =
     course.created_by &&
     typeof course.created_by === "object" &&

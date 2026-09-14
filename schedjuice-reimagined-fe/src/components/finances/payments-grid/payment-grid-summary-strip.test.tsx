@@ -91,7 +91,7 @@ describe("PaymentGridSummaryStrip monthApplicable", () => {
         id: 2,
         permissions: [],
         roles: ["teacher"],
-      } as accountType,
+      } as unknown as accountType,
     });
     renderStrip(
       <PaymentGridSummaryStrip

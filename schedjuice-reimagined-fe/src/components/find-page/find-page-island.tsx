@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { FindPagePanelRect } from "./use-find-page";
 
 export const NOTCH_WIDTH = 208;
+export const NOTCH_WIDTH_COMPACT = 160;
 export const NOTCH_HEIGHT = 34;
 export const SKIRT_SIZE = 28;
 
@@ -22,6 +23,7 @@ export const FIND_PAGE_DESC_ID = "find-page-desc";
 type FindPageIslandProps = {
   open: boolean;
   layout: boolean;
+  compact?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -32,6 +34,7 @@ type FindPageIslandProps = {
 export function FindPageIsland({
   open,
   layout,
+  compact = false,
   className,
   children,
 }: FindPageIslandProps) {
@@ -52,7 +55,8 @@ export function FindPageIsland({
               "shadow-[0_8px_24px_-8px_rgb(16_44_36/0.45)]",
             )
           : cn(
-              "min-h-[34px] w-[208px] items-center justify-center",
+              "min-h-[34px] items-center justify-center",
+              compact ? "w-[160px]" : "w-[208px]",
               "rounded-t-none rounded-b-[20px] border-t-0",
               "shadow-[0_4px_14px_-6px_color-mix(in_srgb,var(--text-primary)_22%,transparent)]",
             ),
@@ -71,6 +75,8 @@ export function FindPageIsland({
 
 type FindPageNotchSkirtProps = {
   panelRect: FindPagePanelRect;
+  dockCenterX: number;
+  notchWidth: number;
 };
 
 /**
@@ -82,9 +88,13 @@ type FindPageNotchSkirtProps = {
  * `--text-primary` at low opacity: it reads as a shadow on the cream panel
  * (light) and as a highlight on the ink panel (dark), staying visible in both.
  */
-export function FindPageNotchSkirt({ panelRect }: FindPageNotchSkirtProps) {
-  const notchLeft = panelRect.centerX - NOTCH_WIDTH / 2;
-  const notchRight = panelRect.centerX + NOTCH_WIDTH / 2;
+export function FindPageNotchSkirt({
+  panelRect,
+  dockCenterX,
+  notchWidth,
+}: FindPageNotchSkirtProps) {
+  const notchLeft = dockCenterX - notchWidth / 2;
+  const notchRight = dockCenterX + notchWidth / 2;
   const shoulderTop = panelRect.top;
   const size = SKIRT_SIZE;
 

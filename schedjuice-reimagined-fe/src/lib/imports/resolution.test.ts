@@ -700,7 +700,14 @@ describe("buildUserMatches", () => {
         name: {
           "Hla Hla": {
             kind: "exact",
-            user: { id: 1, name: "Hla Hla", email: "hlahla@hlahla.com" },
+            user: {
+              id: 1,
+              name: "Hla Hla",
+              email: "hlahla@hlahla.com",
+              code: null,
+              profile_image: null,
+              roles: [],
+            },
             field: "name",
             score: 100,
             candidates: [],

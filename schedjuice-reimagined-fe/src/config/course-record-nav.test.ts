@@ -43,6 +43,18 @@ describe("visibleCourseRecordNavSections", () => {
     ]);
     expect(groups.find((group) => group.id === "roster")?.entries).toHaveLength(4);
   });
+
+  it("shows attendance for students with attendance.view_own", () => {
+    const student = {
+      id: 1,
+      roles: [role.student],
+      permissions: ["attendance.view_own"],
+    } as accountType;
+    const { groups } = visibleCourseRecordNavSections(student, course, tenant);
+
+    const academic = groups.find((group) => group.id === "academic");
+    expect(academic?.entries.map((entry) => entry.id)).toContain("attendance");
+  });
 });
 
 describe("isCourseHubRoute", () => {

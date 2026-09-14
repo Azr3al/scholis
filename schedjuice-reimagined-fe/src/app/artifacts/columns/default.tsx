@@ -1,5 +1,6 @@
 import StatusBadge from "@/components/course/status-badge";
 import { PrimaryTeacherLine } from "@/components/course/primary-teacher-line";
+import { coursePrimaryTeacherForDisplay } from "@/helpers/course-primary-teacher-display";
 import { GradingStatusBadge } from "@/components/misc/grading-status-badge";
 import InlineInput from "@/components/datatable/inline-input";
 
@@ -84,7 +85,10 @@ const baseColumns: { [key: string]: customColumnDef<any, any>[] } = {
       accessorKey: "primary_teacher",
       header: "Primary teacher",
       cell: ({ row }) => {
-        const pt = row.original.primary_teacher;
+        const pt = coursePrimaryTeacherForDisplay(
+          row.original.primary_teacher,
+          row.original.main_teacher_count,
+        );
         if (!pt?.name) {
           return (
             <span className="text-muted-foreground text-sm">—</span>
@@ -93,7 +97,10 @@ const baseColumns: { [key: string]: customColumnDef<any, any>[] } = {
         return <PrimaryTeacherLine teacher={pt} />;
       },
       accessorFn: (row) => {
-        const pt = row.primary_teacher;
+        const pt = coursePrimaryTeacherForDisplay(
+          row.primary_teacher,
+          row.main_teacher_count,
+        );
         if (!pt?.name) return "—";
         return pt.name;
       },

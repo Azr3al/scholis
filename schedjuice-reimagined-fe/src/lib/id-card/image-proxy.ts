@@ -8,6 +8,7 @@ const ALLOWED_IMAGE_HOSTS = new Set([
   "suconnect.s3.ap-southeast-1.amazonaws.com",
   "suconnect.s3.amazonaws.com",
   "schedjuice-dev.sgp1.digitaloceanspaces.com",
+  "sgp1.digitaloceanspaces.com",
   "schedjuice-dev.sgp1.cdn.digitaloceanspaces.com",
 ]);
 

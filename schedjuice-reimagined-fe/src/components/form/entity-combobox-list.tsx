@@ -104,6 +104,9 @@ export function EntityComboboxList({
       (value === "" || value === undefined),
   );
   const triggerDisabled = disabled || isSaving || loadingPlaceholderActive;
+  // Native `disabled` on the trigger button inherits UA GrayText / -webkit-text-fill-color
+  // and `disabled:opacity-50`, which kills TextShimmer's bg-clip-text animation.
+  const nativeTriggerDisabled = triggerDisabled && !showLoadingPlaceholder;
   const isSearchVariant = variant === "search";
   const resolvedPlaceholder = placeholder ?? `Select ${label}`;
   const savingLabel = isSearchVariant ? "Adding…" : "Saving…";
@@ -184,9 +187,14 @@ export function EntityComboboxList({
             aria-expanded={open}
             aria-controls={listboxId}
             aria-busy={isSaving || loadingPlaceholderActive || undefined}
+            aria-disabled={triggerDisabled || undefined}
             aria-label={triggerAriaLabel}
-            disabled={triggerDisabled}
-            className={triggerButtonClassName}
+            disabled={nativeTriggerDisabled}
+            tabIndex={showLoadingPlaceholder ? -1 : undefined}
+            className={cn(
+              triggerButtonClassName,
+              showLoadingPlaceholder && "pointer-events-none opacity-100",
+            )}
           />
         }
       >

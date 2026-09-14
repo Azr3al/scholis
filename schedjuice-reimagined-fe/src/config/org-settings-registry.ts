@@ -1,5 +1,6 @@
 import {
   canAccessPlatformOrganizations,
+  canConfigureMobileDevicePolicy,
   hasAdminCredentials,
 } from "@/helpers/authorization";
 import { canViewOrgAiSection } from "@/lib/org/org-ai-visibility";
@@ -58,6 +59,7 @@ export type OrgSettingsSubGroup = {
   title: string;
   description?: string;
   keys: readonly string[];
+  visible?: (ctx: OrgRecordContext) => boolean;
 };
 
 export type OrgOverviewChipGroup = "integrations" | "feature-toggles" | "intelligence";
@@ -196,6 +198,14 @@ export const ORG_SETTINGS_REGISTRY: readonly OrgSettingsRegistryEntry[] = [
         title: "Email domains",
         description: "New accounts must use an email address at one of these domains.",
         keys: ["available_domains"],
+      },
+      {
+        id: "mobile-sign-in",
+        title: "Mobile sign-in",
+        description:
+          "When on, each person can stay signed in on one phone or tablet app at a time. People already signed in are not signed out until they sign in again on another device.",
+        keys: ["is_single_mobile_device_enabled"],
+        visible: (ctx) => canConfigureMobileDevicePolicy(ctx.viewer),
       },
     ],
     visible: adminOnly,
@@ -639,6 +649,13 @@ export function isOrgSectionId(value: string): value is OrgSectionId {
 
 export function getRegistryEntry(sectionId: string): OrgSettingsRegistryEntry | undefined {
   return ORG_SETTINGS_REGISTRY.find((e) => e.id === sectionId);
+}
+
+export function visibleOrgSubGroups(
+  subGroups: readonly OrgSettingsSubGroup[],
+  ctx: OrgRecordContext,
+): OrgSettingsSubGroup[] {
+  return subGroups.filter((g) => (g.visible ?? (() => true))(ctx));
 }
 
 export function getRegistryFlatKeys(sectionId: string): readonly string[] {

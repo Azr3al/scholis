@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { dropdownPositionerClassName } from "@/lib/ui/overlay-classnames";
 import { buttonVariants, Popover, Select } from "@/components/primitives";
 import { Calendar } from "@/components/date/calendar";
+import { ClearFieldButton } from "@/components/form/clear-field-button";
+import { isFieldClearable } from "@/components/form/is-field-clearable";
 import {
   resolveTimeDisplayFormat,
   type TimeDisplayFormatValue,
@@ -21,6 +23,8 @@ type DateTimePickerProps = {
   /** Shown on the trigger when no date is selected */
   emptyPlaceholder?: string;
   timeDisplayFormat?: TimeDisplayFormatValue;
+  required?: boolean;
+  clearable?: boolean;
 } & Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "value" | "onChange" | "type"
@@ -42,6 +46,8 @@ const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>(
       timeDisplayFormat,
       disabled,
       className,
+      required,
+      clearable,
       ...rest
     },
     ref,
@@ -88,6 +94,8 @@ const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>(
       [],
     );
 
+    const showClear = isFieldClearable({ clearable, required }) && Boolean(date);
+
     const handleDateSelect = (selectedDate: Date | undefined) => {
       if (selectedDate) {
         setDate(selectedDate);
@@ -122,30 +130,40 @@ const DateTimePicker = forwardRef<HTMLButtonElement, DateTimePickerProps>(
 
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
-        <Popover.Trigger
-          ref={ref}
-          type="button"
-          disabled={disabled}
-          className={cn(
-            buttonVariants({ variant: "secondary" }),
-            "h-10 w-full justify-start px-3 text-left font-normal",
-            !date && "text-muted-foreground",
-            className,
-          )}
-          {...rest}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-          {date ? (
-            <span className="truncate">
-              {format(
-                date,
-                is24h ? "MM/dd/yyyy HH:mm" : "MM/dd/yyyy hh:mm aa",
-              )}
-            </span>
-          ) : (
-            <span>{placeholder}</span>
-          )}
-        </Popover.Trigger>
+        <div className="relative w-full">
+          <Popover.Trigger
+            ref={ref}
+            type="button"
+            disabled={disabled}
+            className={cn(
+              buttonVariants({ variant: "secondary" }),
+              "h-10 w-full justify-start px-3 text-left font-normal",
+              !date && "text-muted-foreground",
+              showClear && "pr-8",
+              className,
+            )}
+            {...rest}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+            {date ? (
+              <span className="truncate">
+                {format(
+                  date,
+                  is24h ? "MM/dd/yyyy HH:mm" : "MM/dd/yyyy hh:mm aa",
+                )}
+              </span>
+            ) : (
+              <span>{placeholder}</span>
+            )}
+          </Popover.Trigger>
+          {showClear ? (
+            <ClearFieldButton
+              label="Clear date"
+              disabled={disabled}
+              onClear={() => setDate(null)}
+            />
+          ) : null}
+        </div>
         <Popover.Portal>
           <Popover.Positioner className={dropdownPositionerClassName}>
             <Popover.Popup className="w-auto p-0">

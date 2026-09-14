@@ -68,7 +68,6 @@ class XHeaderTenantMiddleware(BaseTenantMiddleware):
                 )
             normalized = normalize_domain_for_tenant_lookup(domain_name)
             cache_key = domain_cache_key(normalized)
-            print(normalized)
             return load_with_cache(
                 model,
                 cache_key,

@@ -1,7 +1,10 @@
 import {
+  canAccessCourseAttendance,
   canConfigurePaymentInfo,
   canManagePaymentInfoForUser,
+  canMarkAttendance,
   canVerifyPayments,
+  canViewOwnAttendance,
   canViewPaymentScreenshots,
   resolvePaymentInfoRoutes,
   isProfileScopedPaymentInfoRoutes,
@@ -126,5 +129,35 @@ describe("canVerifyPayments", () => {
         userWithPermissions(["payment.view_all", "payment.record"]),
       ),
     ).toBe(false);
+  });
+});
+
+describe("course attendance access", () => {
+  it("allows students with attendance.view_own", () => {
+    const student = {
+      id: 1,
+      roles: [role.student],
+      permissions: ["attendance.view_own"],
+    } as accountType;
+
+    expect(canViewOwnAttendance(student)).toBe(true);
+    expect(canMarkAttendance(student)).toBe(false);
+    expect(canAccessCourseAttendance(student)).toBe(true);
+  });
+
+  it("allows teachers with attendance.mark", () => {
+    const teacher = userWithPermissions(["attendance.mark"]);
+
+    expect(canMarkAttendance(teacher)).toBe(true);
+    expect(canViewOwnAttendance(teacher)).toBe(false);
+    expect(canAccessCourseAttendance(teacher)).toBe(true);
+  });
+
+  it("denies users without attendance permissions", () => {
+    const user = userWithPermissions(["course.view"]);
+
+    expect(canMarkAttendance(user)).toBe(false);
+    expect(canViewOwnAttendance(user)).toBe(false);
+    expect(canAccessCourseAttendance(user)).toBe(false);
   });
 });

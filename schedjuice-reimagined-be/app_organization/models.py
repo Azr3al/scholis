@@ -146,6 +146,18 @@ class Organization(BaseModel, TenantMixin):
             "organization's generated ID card instead of a plain QR code."
         ),
     )
+    is_single_mobile_device_enabled = models.BooleanField(
+        default=False,
+        help_text=(
+            "When True, each user may have at most one active native mobile "
+            "app session; a new mobile login revokes other mobile sessions."
+        ),
+    )
+    single_mobile_device_enabled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When single mobile device policy was last enabled.",
+    )
     # microsoft integration
     is_microsoft_on = models.BooleanField(default=False)
     is_teams_creation_enabled = models.BooleanField(

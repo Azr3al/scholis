@@ -14,6 +14,11 @@ urlpatterns = [
         name="announcement-public-details",
     ),
     path(
+        "announcements/batch",
+        views.AnnouncementBatchCreateView.as_view(),
+        name="announcement-batch-create",
+    ),
+    path(
         "announcements", views.AnnouncementListView.as_view(), name="announcement-list"
     ),
     path(

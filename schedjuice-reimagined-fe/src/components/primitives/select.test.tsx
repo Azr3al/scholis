@@ -1,10 +1,12 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/ui/modal-overlay-context", () => ({
   useDropdownPositionerClassName: () => "",
 }));
 
+import { selectPositionerProps } from "@/lib/ui/select-layout";
 import {
   resolveControlledSelectValue,
   Select,
@@ -32,6 +34,14 @@ describe("resolveControlledSelectValue", () => {
   });
 });
 
+describe("selectPositionerProps in jsdom", () => {
+  it("defaults collisionBoundary to the viewport root", () => {
+    expect(selectPositionerProps().collisionBoundary).toBe(
+      document.documentElement,
+    );
+  });
+});
+
 describe("Select", () => {
   it("renders placeholder when controlled value is not in items", () => {
     render(
@@ -43,5 +53,46 @@ describe("Select", () => {
     );
 
     expect(screen.getByText("Select a country")).toBeTruthy();
+  });
+
+  it("hides clear when required", () => {
+    render(
+      <Select
+        required
+        value="MM"
+        items={[{ value: "MM", label: "Myanmar" }]}
+        onValueChange={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Clear selection" })).toBeNull();
+  });
+
+  it("hides clear when no value is set", () => {
+    render(
+      <Select
+        required={false}
+        value=""
+        items={[{ value: "MM", label: "Myanmar" }]}
+        onValueChange={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Clear selection" })).toBeNull();
+  });
+
+  it("clears an optional selected value to empty string", async () => {
+    const onValueChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <Select
+        required={false}
+        value="MM"
+        items={[{ value: "MM", label: "Myanmar" }]}
+        onValueChange={onValueChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Clear selection" }));
+
+    expect(onValueChange).toHaveBeenCalledWith("");
   });
 });

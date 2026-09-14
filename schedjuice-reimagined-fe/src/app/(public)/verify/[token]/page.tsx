@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getCookie } from "cookies-next";
 import { BadgeCheck, ShieldXmark } from "iconoir-react";
 import Image from "next/image";
 import { buttonVariants } from "@/components/primitives";
@@ -27,11 +26,6 @@ export default function VerifyPage() {
   const { token } = useParams<{ token: string }>();
   const [status, setStatus] = useState<Status>("loading");
   const [identity, setIdentity] = useState<VerifiedIdentity | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(getCookie("access") || getCookie("refresh")));
-  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -53,7 +47,7 @@ export default function VerifyPage() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-surface p-6">
       <div className="w-full max-w-sm">
-        <VerifyBody status={status} identity={identity} isLoggedIn={isLoggedIn} />
+        <VerifyBody status={status} identity={identity} />
       </div>
     </div>
   );
@@ -62,10 +56,9 @@ export default function VerifyPage() {
 type BodyProps = {
   status: Status;
   identity: VerifiedIdentity | null;
-  isLoggedIn: boolean;
 };
 
-function VerifyBody({ status, identity, isLoggedIn }: BodyProps) {
+function VerifyBody({ status, identity }: BodyProps) {
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center gap-3 py-10" aria-busy>
@@ -115,14 +108,12 @@ function VerifyBody({ status, identity, isLoggedIn }: BodyProps) {
         <span className="text-xs font-medium">Verified</span>
       </div>
 
-      {isLoggedIn ? (
-        <Link
-          href={`/users/${identity.user_id}`}
-          className={cn(buttonVariants({ variant: "secondary", size: "sm"  }), "mt-1")}
-        >
-          View full profile
-        </Link>
-      ) : null}
+      <Link
+        href={`/users/${identity.user_id}`}
+        className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "mt-1")}
+      >
+        Go to Profile
+      </Link>
     </div>
   );
 }

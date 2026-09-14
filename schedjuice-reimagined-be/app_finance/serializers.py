@@ -489,12 +489,20 @@ class StudentPaymentSubmitSerializer(BaseModelSerializer):
         )
 
     def update(self, instance, validated_data):
+        from app_finance.payment_group import _initial_status_for_part
         from app_finance.payment_upload_date import stamp_payment_upload_date
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         stamp_payment_upload_date(instance)
-        instance.status = models.UserPayment.Status.AWAITING_EXTRACTION
+        instance.status = _initial_status_for_part(
+            {
+                "screenshot": instance.screenshot,
+                "parsed_amount": instance.parsed_amount,
+                "transaction_id": instance.transaction_id,
+            },
+            group=instance.group,
+        )
         instance.save()
         return instance
 

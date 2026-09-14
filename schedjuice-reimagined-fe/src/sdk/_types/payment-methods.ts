@@ -8,4 +8,5 @@ export type PaymentMethod = {
   payment_bank?: string | null;
   bank_account_number?: string | null;
   description?: string | null;
+  is_retired?: boolean | null;
 };

@@ -2,9 +2,7 @@
 import { Avatar } from "@/components/primitives";
 
 import type { ChatThread } from "@/types/chat";
-import { isAudioOnlyChatAttachmentMessage } from "@/lib/chat/chat-attachment-contracts";
-import { emojify } from "@/lib/emoji";
-import { chatComposerCopy } from "@/messages/chat-composer";
+import { threadListPreviewText } from "@/lib/chat/thread-list-preview";
 import { dmChatCopy } from "@/messages/dm-chat";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,29 +16,6 @@ import {
   chatThreadMessagesQueryKey,
   fetchThreadMessages,
 } from "@/lib/chat-threads/chat-messages-query";
-
-function dmPreviewText(thread: ChatThread): string {
-  const last = thread.last_message;
-  if (!last) return dmChatCopy.threadPreviewFallback;
-  const raw =
-    typeof last.content?.text === "string" ? last.content.text.trim() : "";
-  const hasAttachments =
-    Array.isArray(last.content?.attachments) &&
-    last.content.attachments!.length > 0;
-  if ((!raw || raw.length === 0) && hasAttachments) {
-    if (isAudioOnlyChatAttachmentMessage(last.content)) {
-      return chatComposerCopy.voiceMessagePreview;
-    }
-    return dmChatCopy.threadPreviewAttachment;
-  }
-  if (!raw) return dmChatCopy.threadPreviewAttachment;
-  const text = emojify(raw.length > 120 ? `${raw.slice(0, 120)}…` : raw);
-  const author =
-    typeof last.user?.name === "string" && last.user.name.trim().length > 0
-      ? last.user.name.trim()
-      : dmChatCopy.unknownUserLabel;
-  return `${author}: ${text}`;
-}
 
 const rowClassName = (active: boolean) =>
   cn(
@@ -107,7 +82,7 @@ export default function DmListItem({
       <div className="flex flex-col justify-center items-start gap-0.5 min-w-0 flex-1 overflow-hidden">
         <p className="font-medium truncate w-full text-sm">{title}</p>
         <p className="w-full truncate text-xs text-text-muted">
-          {dmPreviewText(thread)}
+          {threadListPreviewText(thread.last_message)}
         </p>
       </div>
       {unread > 0 ? (

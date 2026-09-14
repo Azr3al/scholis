@@ -63,3 +63,21 @@ export function selectPopupItemTextClassName(): string {
 export function comboboxPopupWidthClassName(): string {
   return "w-[var(--anchor-width)] max-w-[var(--available-width)]";
 }
+
+/**
+ * Positioner contract for Select/Combobox.
+ * `absolute` + clipping-ancestors sizes `--available-height` to overflow parents
+ * (e.g. the import mapping table), which collapses the list into an empty overlay.
+ */
+export function selectPositionerProps(boundary?: Element): {
+  positionMethod: "fixed";
+  collisionBoundary?: Element;
+} {
+  const collisionBoundary =
+    boundary ??
+    (typeof document !== "undefined" ? document.documentElement : undefined);
+  return {
+    positionMethod: "fixed",
+    ...(collisionBoundary ? { collisionBoundary } : {}),
+  };
+}

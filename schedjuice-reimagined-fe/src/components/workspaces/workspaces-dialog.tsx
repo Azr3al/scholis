@@ -82,7 +82,7 @@ export function WorkspacesDialog() {
                 </>
               );
               const cardClass = cn(
-                "flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center",
+                "sj-workspace-tile flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center",
                 "transition-colors duration-[var(--duration-fast)]",
                 comingSoon
                   ? "cursor-default opacity-50"

@@ -1,14 +1,20 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
 
+const mockRetryTenant = vi.fn();
+
 const tenantHook = {
   tenant: null as { id?: number; name?: string; domain_url?: string } | null,
   isLoading: true,
   isFetching: true,
+  isError: false,
+  isTenantMissing: false,
+  retryTenant: mockRetryTenant,
   refetchTenant: vi.fn(),
 };
 
@@ -53,9 +59,12 @@ describe("LoginForm missing tenant", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockReplace.mockReset();
+    mockRetryTenant.mockReset();
     tenantHook.tenant = null;
     tenantHook.isLoading = true;
     tenantHook.isFetching = true;
+    tenantHook.isError = false;
+    tenantHook.isTenantMissing = false;
   });
 
   afterEach(() => {
@@ -69,13 +78,29 @@ describe("LoginForm missing tenant", () => {
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it("redirects to /notfound only after the public tenant query has settled empty", () => {
+  it("redirects to /notfound only when the backend says the host has no tenant", () => {
     tenantHook.isLoading = false;
     tenantHook.isFetching = false;
-    tenantHook.tenant = null;
+    tenantHook.isError = true;
+    tenantHook.isTenantMissing = true;
 
     render(<LoginForm />);
 
     expect(mockPush).toHaveBeenCalledWith("/notfound?error=tenant");
+  });
+
+  it("offers a retry instead of /notfound when the tenant lookup fails transiently", async () => {
+    tenantHook.isLoading = false;
+    tenantHook.isFetching = false;
+    tenantHook.isError = true;
+    tenantHook.isTenantMissing = false;
+
+    render(<LoginForm />);
+
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(screen.getByTestId("login-tenant-error")).toBeTruthy();
+
+    await userEvent.click(screen.getByRole("button", { name: /try again/i }));
+    expect(mockRetryTenant).toHaveBeenCalled();
   });
 });

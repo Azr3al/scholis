@@ -60,6 +60,6 @@ describe("award download helpers", () => {
       composite,
     );
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.files).toBeUndefined();
+    expect(result).toEqual({ ok: false });
   });
 });

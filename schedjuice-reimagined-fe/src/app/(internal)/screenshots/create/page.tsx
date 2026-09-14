@@ -2,17 +2,18 @@
 
 import { PageContainer } from "@/components/layout/page-container";
 import { usePageHeader } from "@/components/shell/use-page-header";
-import { makePostRequest, searchEntities } from "@/app/client-api/utils";
+import { searchEntities } from "@/app/client-api/utils";
 import EntityCombobox from "@/components/form/entity-combobox";
-import FileDragAndDrop, {
-  extendedFileType,
-  localFileType,
-} from "@/components/form/file-drag-and-drop";
+import FileDragAndDrop, { extendedFileType } from "@/components/form/file-drag-and-drop";
 import YearMonthSelector from "@/components/form/selectors/year-month-selector";
 import FullScreenImageViewer from "@/components/images/full-screen-image-viewer";
-import { Button, Input, Separator } from "@/components/primitives";
-import { EntityComboboxList as Combobox } from "@/components/form/entity-combobox-list";
+import { Button, Separator } from "@/components/primitives";
 import { useToast } from "@/components/primitives";
+import {
+  BatchScreenshotPartRow,
+  type BatchScreenshotPart,
+} from "@/components/finances/payment-upload/batch-screenshot-part-row";
+import { useScreenshotPartOcr } from "@/components/finances/payment-upload/use-screenshot-part-ocr";
 import { getCourseStudentFilterParams } from "@/helpers/course";
 import {
   getActiveCourseFilterParams,
@@ -20,33 +21,44 @@ import {
   getCourseMonthType,
 } from "@/helpers/date";
 import { useUser } from "@/hooks/useUser";
-import { operatorEnum } from "@/types/api";
-import { courseStatus } from "@/types/course";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import Image from "next/image";
+import { submitBatchScreenshots } from "@/lib/finances/batch-screenshot-submit";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { v4 as uuid } from "uuid";
+
+function createEmptyPart(file: File, previewUrl: string): BatchScreenshotPart {
+  return {
+    key: uuid(),
+    file,
+    previewUrl,
+    studentId: "",
+    paymentMethodId: "",
+    transactionId: "",
+    parsedAmount: "",
+    dateOnScreenshot: "",
+    description: "",
+    remarks: "",
+    duplicateWarningId: null,
+    studentMatchKind: "none",
+    studentMatchCandidates: [],
+  };
+}
 
 const ScreenshotCreatePage = () => {
   const [viewImageUrl, setViewImageUrl] = useState<string | null>(null);
-
   const [files, setFiles] = useState<extendedFileType[]>([]);
-  // this will have exactly the same number of items as files array.
-  // the items' indexes will be used to associate these two arrays.
-  const [studentIds, setStudentIds] = useState<string[]>([]);
-  const [paymentIds, setPaymentIds] = useState<string[]>([]);
-  const [amounts, setAmounts] = useState<number[]>([]);
-  const [descriptions, setDescriptions] = useState<string[]>([]);
-  const [remarks, setRemarks] = useState<string[]>([]);
-  const [dates, setDates] = useState<string[]>([]);
-  const [transactionIds, setTransactionIds] = useState<string[]>([]);
-  const [objUrls, setObjUrls] = useState<string[]>([]);
+  const [parts, setParts] = useState<BatchScreenshotPart[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-  const { user } = useUser()
+  const { user } = useUser();
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [date, setDate] = useState<Date>(new Date());
-  const [selectedCourse, setSelectedCourse] = useState<{ start_date?: string } | null>(null);
-
+  const [selectedCourse, setSelectedCourse] = useState<{ start_date?: string } | null>(
+    null,
+  );
+  const previewUrlsRef = useRef<Set<string>>(new Set());
+  const { runOcr, stateByKey, hasLoading } = useScreenshotPartOcr();
   const router = useRouter();
 
   usePageHeader(
@@ -71,7 +83,7 @@ const ScreenshotCreatePage = () => {
         { size: -1, fields: ["name", "id"], sorts: ["name"] },
         {
           filter_params: getCourseStudentFilterParams(courseId!).filter_params,
-        }
+        },
       ),
   });
 
@@ -94,85 +106,123 @@ const ScreenshotCreatePage = () => {
     }
   }, [getCourseStudent.isError, toast]);
 
-  // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      objUrls.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
+  const revokeAllPreviewUrls = useCallback(() => {
+    previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    previewUrlsRef.current.clear();
   }, []);
 
-  const submitMutation = useMutation({
-    mutationKey: ["submitScreenshots"],
-    mutationFn: (data: any) => {
-      return makePostRequest(
-        "scan-transaction-screenshots",
-        data,
-        {},
-        {
-          "Content-Type": "multipart/form-data",
-        }
+  useEffect(() => {
+    return () => {
+      revokeAllPreviewUrls();
+    };
+  }, [revokeAllPreviewUrls]);
+
+  const resetBatch = useCallback(() => {
+    revokeAllPreviewUrls();
+    setFiles([]);
+    setParts([]);
+  }, [revokeAllPreviewUrls]);
+
+  const handleCourseChange = (nextCourseId: string | undefined) => {
+    if (parts.length > 0) {
+      const confirmed = window.confirm(
+        "Changing course clears uploaded screenshots and entered data.",
+      );
+      if (!confirmed) return;
+      resetBatch();
+    }
+    setCourseId(nextCourseId);
+  };
+
+  const updatePart = useCallback(
+    (key: string, patch: Partial<BatchScreenshotPart>) => {
+      setParts((prev) =>
+        prev.map((part) => (part.key === key ? { ...part, ...patch } : part)),
       );
     },
-    onSuccess: (data) => {
-      toast.add({
-        description: data.data.data[0],
+    [],
+  );
+
+  const runOcrForPart = useCallback(
+    async (part: BatchScreenshotPart, file: File) => {
+      if (!courseId) return;
+      const data = await runOcr(part.key, file, { courseId });
+      if (!data) return;
+      updatePart(part.key, {
+        transactionId: data.transactionId,
+        parsedAmount: data.parsedAmount,
+        paymentMethodId: data.suggestedPaymentMethodId,
+        dateOnScreenshot: data.dateOnScreenshot,
+        description: data.notesText,
+        ocrEventId: data.ocrEventId || undefined,
+        duplicateWarningId: data.duplicateWarningId,
+        studentId:
+          data.studentMatchKind === "auto" ? data.suggestedStudentId : "",
+        studentMatchKind: data.studentMatchKind,
+        studentMatchCandidates: data.studentMatchCandidates,
       });
-      router.push("/finances/student-payments");
     },
-  });
-  const onSubmit = () => {
-    if (files.length === 0) {
-      return;
-    }
-    if (studentIds.includes("")) {
+    [courseId, runOcr, updatePart],
+  );
+
+  const onSubmit = async () => {
+    if (!courseId || parts.length === 0) return;
+    if (parts.some((part) => !part.studentId)) {
       toast.add({
         description: "Please attach a student to all screenshots.",
       });
       return;
     }
-    const issuedBounds = getCalendarMonthUtcFilterBounds(date);
-    files.forEach((file, i) => {
-      if ("file" in file) {
-        const formData = new FormData();
-        formData.append("course", courseId!);
-        formData.append("issued_at", issuedBounds.start.toISOString());
-        formData.append("user", studentIds[i]);
-        formData.append(`screenshot`, file.file);
-        formData.append("transaction_id", transactionIds[i]);
-        if (user && user.id) {
-          formData.append("created_by", String(user.id))
-        }
-        if (amounts[i]) {
-          formData.append("parsed_amount", String(amounts[i]));
-        }
-        if (paymentIds[i]) {
-          formData.append("payment_method", paymentIds[i]);
-        }
-        if (descriptions[i]) {
-          formData.append("description", descriptions[i]);
-        }
-        if (remarks[i]) {
-          formData.append("remarks", remarks[i]);
-        }
-        if (dates[i]) {
-          formData.append("date_on_screenshot", dates[i]);
-        }
+    if (hasLoading) return;
 
-        submitMutation.mutate(formData);
+    setIsSubmitting(true);
+    const issuedBounds = getCalendarMonthUtcFilterBounds(date);
+    try {
+      const result = await submitBatchScreenshots(
+        parts.map((part) => ({
+          file: part.file,
+          studentId: part.studentId,
+          courseId,
+          issuedAtIso: issuedBounds.start.toISOString(),
+          transactionId: part.transactionId,
+          parsedAmount: part.parsedAmount,
+          paymentMethodId: part.paymentMethodId,
+          dateOnScreenshot: part.dateOnScreenshot,
+          description: part.description,
+          remarks: part.remarks,
+          ocrEventId: part.ocrEventId,
+          createdById: user?.id ? String(user.id) : undefined,
+        })),
+      );
+
+      if (result.failed.length === 0) {
+        toast.add({
+          description: `${result.succeeded} payments recorded`,
+        });
+        router.push("/finances/student-payments");
+      } else {
+        toast.add({
+          type: "error",
+          description: `${result.succeeded}/${parts.length} succeeded. Row ${result.failed[0].index + 1}: ${result.failed[0].message}`,
+        });
       }
-    });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return  (
-<PageContainer width="narrow" className="space-y-6">
+  return (
+    <PageContainer width="narrow" className="space-y-6">
       <div className="flex flex-col gap-4">
         <YearMonthSelector
           label="Select a month"
           date={date}
           setDate={setDate}
-          monthType={selectedCourse?.start_date ? getCourseMonthType(selectedCourse.start_date) : null}
+          monthType={
+            selectedCourse?.start_date
+              ? getCourseMonthType(selectedCourse.start_date)
+              : null
+          }
         />
         <EntityCombobox
           filterParams={{
@@ -182,221 +232,101 @@ const ScreenshotCreatePage = () => {
           displayFunction={(e) => e.title}
           entity="courses"
           value={courseId}
-          onChange={(v) => setCourseId(v)}
+          onChange={handleCourseChange}
           label="Select a course"
           onSelectedEntityChange={setSelectedCourse}
         />
       </div>
+
+      {!courseId ? (
+        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-text-muted">
+          Select a course above to upload screenshots and enable auto-fill.
+        </p>
+      ) : null}
+
       <FileDragAndDrop
         label="Upload screenshots"
         files={files}
+        disabled={!courseId}
         setFiles={(newFiles) => {
-          // Create maps of existing data indexed by file id
-          const existingDataMap = new Map<string, {
-            studentId: string;
-            paymentId: string;
-            amount: number;
-            description: string;
-            remark: string;
-            date: string;
-            transactionId: string;
-            objUrl: string;
-          }>();
-
-          files.forEach((f, i) => {
-            if ("file" in f) {
-              existingDataMap.set(f.id, {
-                studentId: studentIds[i] || "",
-                paymentId: paymentIds[i] || "",
-                amount: amounts[i] || 0,
-                description: descriptions[i] || "",
-                remark: remarks[i] || "",
-                date: dates[i] || "",
-                transactionId: transactionIds[i] || "",
-                objUrl: objUrls[i] || "",
-              });
+          const existingByFileId = new Map<string, BatchScreenshotPart>();
+          files.forEach((f, index) => {
+            if ("file" in f && parts[index]) {
+              existingByFileId.set(f.id, parts[index]);
             }
           });
 
-          // Clean up object URLs for removed files
-          const newFileIds = new Set(newFiles.map(f => f.id));
-          objUrls.forEach((url, i) => {
-            if (files[i] && !newFileIds.has(files[i].id)) {
-              URL.revokeObjectURL(url);
+          const keptFileIds = new Set(newFiles.map((f) => f.id));
+          files.forEach((f, index) => {
+            if ("file" in f && !keptFileIds.has(f.id) && parts[index]) {
+              URL.revokeObjectURL(parts[index].previewUrl);
+              previewUrlsRef.current.delete(parts[index].previewUrl);
             }
           });
 
-          // Build new arrays preserving existing data and initializing new entries
-          const newObjUrls: string[] = [];
-          const newStudentIds: string[] = [];
-          const newPaymentIds: string[] = [];
-          const newAmounts: number[] = [];
-          const newDescriptions: string[] = [];
-          const newRemarks: string[] = [];
-          const newDates: string[] = [];
-          const newTransactionIds: string[] = [];
+          const nextParts: BatchScreenshotPart[] = [];
+          const addedParts: BatchScreenshotPart[] = [];
 
           newFiles.forEach((f) => {
-            if ("file" in f) {
-              const existingData = existingDataMap.get(f.id);
-              if (existingData) {
-                // Preserve existing data
-                newObjUrls.push(existingData.objUrl || URL.createObjectURL(f.file));
-                newStudentIds.push(existingData.studentId);
-                newPaymentIds.push(existingData.paymentId);
-                newAmounts.push(existingData.amount);
-                newDescriptions.push(existingData.description);
-                newRemarks.push(existingData.remark);
-                newDates.push(existingData.date);
-                newTransactionIds.push(existingData.transactionId);
-              } else {
-                // Initialize new file with empty data
-                newObjUrls.push(URL.createObjectURL(f.file));
-                newStudentIds.push("");
-                newPaymentIds.push("");
-                newAmounts.push(0);
-                newDescriptions.push("");
-                newRemarks.push("");
-                newDates.push("");
-                newTransactionIds.push("");
-              }
+            if (!("file" in f)) return;
+            const existing = existingByFileId.get(f.id);
+            if (existing) {
+              nextParts.push(existing);
+              return;
             }
+            const previewUrl = URL.createObjectURL(f.file);
+            previewUrlsRef.current.add(previewUrl);
+            const part = createEmptyPart(f.file, previewUrl);
+            nextParts.push(part);
+            addedParts.push(part);
           });
 
           setFiles(newFiles);
-          setObjUrls(newObjUrls);
-          setStudentIds(newStudentIds);
-          setPaymentIds(newPaymentIds);
-          setAmounts(newAmounts);
-          setDescriptions(newDescriptions);
-          setRemarks(newRemarks);
-          setDates(newDates);
-          setTransactionIds(newTransactionIds);
+          setParts(nextParts);
+          addedParts.forEach((part) => {
+            void runOcrForPart(part, part.file);
+          });
         }}
         maxFiles={999}
         showCarousel={false}
       />
+
       <div>
-        {files.map((f, i) => {
-          if ("file" in f) {
-            return (
-              <div key={f.id}>
-                <Separator className="my-1"></Separator>
-                <div className="flex gap-5 items-center">
-                  <Image
-                    onClick={() => setViewImageUrl(objUrls[i])}
-                    className=" object-cover cursor-pointer"
-                    width={200}
-                    height={300}
-                    alt="screenshot"
-                    src={objUrls[i]}
-                  ></Image>
-                  <div className="flex w-full min-w-0 flex-col gap-3">
-                    <p className="text-sm text-text-muted">
-                      Student name
-                    </p>
-                    <Combobox
-                      value={studentIds[i] || undefined}
-                      setValue={(v) => {
-                        setStudentIds((prev) => {
-                          const next = [...prev];
-                          next[i] = v;
-                          return next;
-                        });
-                      }}
-                      disabled={!courseId}
-                      isLoading={getCourseStudent.isLoading}
-                      options={studentOptions}
-                      label="Student name"
-                    ></Combobox>
-                    <EntityCombobox
-                      queryParams={{
-                        fields: ["name", "id"],
-                        sorts: ["name"],
-                      }}
-                      label="Payment Method"
-                      displayFunction={(e) => e.name}
-                      entity="payment-methods"
-                      value={paymentIds[i]}
-                      onChange={(v) => {
-                        setPaymentIds((prev) => {
-                          const next = [...prev];
-                          next[i] = v;
-                          return next;
-                        });
-                      }}
-                    ></EntityCombobox>
-                    <Input
-                      value={transactionIds[i] || undefined}
-                      onChange={(e) => {
-                        setTransactionIds((prev) => {
-                          const next = [...prev];
-                          next[i] = e.target.value;
-                          return next;
-                        });
-                      }}
-                      placeholder="Transactin ID"
-                    ></Input>
-                    <div className="relative">
-                      <Input
-                        value={String(amounts[i]) || undefined}
-                        onChange={(e) => {
-                          setAmounts((prev) => {
-                            const next = [...prev];
-                            next[i] = parseFloat(e.target.value);
-                            return next;
-                          });
-                        }}
-                        type="number"
-                        placeholder="Amount"
-                        className="pr-14"
-                      />
-                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
-                        MMK
-                      </span>
-                    </div>
-                    <Input
-                      value={descriptions[i] || undefined}
-                      onChange={(e) => {
-                        setDescriptions((prev) => {
-                          const next = [...prev];
-                          next[i] = e.target.value;
-                          return next;
-                        });
-                      }}
-                      placeholder="Description"
-                    ></Input>
-                    <Input
-                      value={remarks[i] || undefined}
-                      onChange={(e) => {
-                        setRemarks((prev) => {
-                          const next = [...prev];
-                          next[i] = e.target.value;
-                          return next;
-                        });
-                      }}
-                      placeholder="Remarks"
-                    ></Input>
-                    <Input
-                      value={dates[i] || undefined}
-                      onChange={(e) => {
-                        setDates((prev) => {
-                          const next = [...prev];
-                          next[i] = e.target.value;
-                          return next;
-                        });
-                      }}
-                      placeholder="Date"
-                    ></Input>
-                  </div>
-                </div>
-              </div>
-            );
-          } else {
-            return null;
-          }
-        })}
+        {parts.map((part, index) => (
+          <div key={part.key}>
+            {index > 0 ? <Separator className="my-1" /> : null}
+            <BatchScreenshotPartRow
+              part={part}
+              ocrState={stateByKey[part.key] ?? {
+                status: "idle",
+                message: null,
+                duplicatePaymentId: null,
+              }}
+              studentOptions={studentOptions}
+              rosterLoading={Boolean(courseId && getCourseStudent.isLoading)}
+              onPreviewClick={() => setViewImageUrl(part.previewUrl)}
+              onStudentChange={(studentId) => updatePart(part.key, { studentId })}
+              onPaymentMethodChange={(paymentMethodId) =>
+                updatePart(part.key, { paymentMethodId })
+              }
+              onTransactionIdChange={(transactionId) =>
+                updatePart(part.key, { transactionId })
+              }
+              onParsedAmountChange={(parsedAmount) =>
+                updatePart(part.key, { parsedAmount })
+              }
+              onDescriptionChange={(description) =>
+                updatePart(part.key, { description })
+              }
+              onRemarksChange={(remarks) => updatePart(part.key, { remarks })}
+              onDateOnScreenshotChange={(dateOnScreenshot) =>
+                updatePart(part.key, { dateOnScreenshot })
+              }
+            />
+          </div>
+        ))}
       </div>
+
       <FullScreenImageViewer
         imageUrl={viewImageUrl}
         title="Screenshot"
@@ -405,14 +335,16 @@ const ScreenshotCreatePage = () => {
 
       <Button
         className="w-full sm:w-auto"
-        disabled={!courseId || !date}
-        isLoading={submitMutation.isLoading}
-        onClick={onSubmit}
+        disabled={
+          !courseId || !date || parts.length === 0 || hasLoading || isSubmitting
+        }
+        isLoading={isSubmitting}
+        onClick={() => void onSubmit()}
       >
         Submit for scanning
       </Button>
     </PageContainer>
-);
+  );
 };
 
 export default ScreenshotCreatePage;

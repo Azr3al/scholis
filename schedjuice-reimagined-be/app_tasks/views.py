@@ -44,6 +44,7 @@ MS_TEAMS_COMMANDS = frozenset({
     "backfill-user-codes",
     "reset-payment-receipt-numbering",
     "backfill-multi-course-payment-coverage",
+    "backfill-late-joiner-billing",
     "backfill_teams_announcements",
 })
 

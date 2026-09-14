@@ -272,7 +272,13 @@ function AutoFormSelectControl({
         items={items}
         size="default"
         value={value == null || value === "" ? null : String(value)}
+        required={isRequired}
         onValueChange={(next) => {
+          if (next === "") {
+            onChange(null);
+            onBlur();
+            return;
+          }
           const match = options.find((o) => o.valueStr === next);
           onChange(match ? match.rawValue : next);
           onBlur();
@@ -363,6 +369,7 @@ function AutoFormDateControl({
       </Field.Label>
       <DatePicker
         date={date && !Number.isNaN(date.getTime()) ? date : undefined}
+        required={isRequired}
         setDate={(next) => {
           onChange(next ?? null);
           onBlur?.();

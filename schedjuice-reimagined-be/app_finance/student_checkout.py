@@ -11,8 +11,8 @@ from app_finance.payment_group import _initial_status_for_part
 from app_finance.payment_upload_date import stamp_payment_upload_date
 from app_finance.serializers import StudentPaymentSubmitSerializer
 from app_finance.services import (
-    extract_receiver_ss_text_data,
     mark_receiver_side_screenshots_matched,
+    schedule_user_payment_ocr_after_submit,
 )
 from app_finance.student_checkout_allocation import infer_checkout_allocations
 
@@ -100,7 +100,7 @@ def _resolve_payment_method(suggested_id: Any) -> models.PaymentMethod | None:
         return None
     if method_id <= 0:
         return None
-    return models.PaymentMethod.objects.filter(id=method_id).first()
+    return models.PaymentMethod.objects.filter(id=method_id, is_retired=False).first()
 
 
 def _apply_screenshot_fields(
@@ -168,8 +168,14 @@ def _submit_single_legacy(
         )
     saved = serializer.save()
     if saved.transaction_id:
-        mark_receiver_side_screenshots_matched(saved.transaction_id, saved)
-    extract_receiver_ss_text_data.delay(saved.id, tenant_schema)
+        mark_receiver_side_screenshots_matched(
+            saved.transaction_id, saved, actor=actor
+        )
+    schedule_user_payment_ocr_after_submit(
+        saved,
+        tenant_schema,
+        ocr_event_id=shot.get("ocr_event_id"),
+    )
     return [saved]
 
 
@@ -342,6 +348,10 @@ def submit_student_checkout(
             mark_receiver_side_screenshots_matched(tid, target, actor=actor)
 
     for part in saved_parts:
-        extract_receiver_ss_text_data.delay(part.id, tenant_schema)
+        schedule_user_payment_ocr_after_submit(
+            part,
+            tenant_schema,
+            ocr_event_id=part.ocr_event_id,
+        )
 
     return saved_parts

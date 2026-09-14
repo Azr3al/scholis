@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import BooleanField, ExpressionWrapper
 from django.db.models.expressions import RawSQL
+from django.utils import timezone
 
 from app_custom_fields.models import CustomDataMixin
 from app_auth.managers import CustomUserManager
@@ -727,6 +728,46 @@ class WebPushSubscription(BaseModel):
         return f"WebPushSubscription: {self.user.email} - {self.endpoint}"
 
 
+class ClientType(models.TextChoices):
+    WEB = "web", "Web"
+    MOBILE_NATIVE = "mobile_native", "Mobile native"
+
+
+class MobileDevice(BaseModel):
+    """
+    Registry of native mobile app installations per user.
+    Linked to RefreshSession for single-device enforcement (when enabled).
+    """
+
+    user = models.ForeignKey(
+        "app_auth.User",
+        on_delete=models.CASCADE,
+        related_name="mobile_devices",
+    )
+    installation_id = models.UUIDField(db_index=True)
+    display_name = models.CharField(max_length=256)
+    device_model = models.CharField(max_length=128, null=True, blank=True)
+    os_name = models.CharField(max_length=64, null=True, blank=True)
+    os_version = models.CharField(max_length=64, null=True, blank=True)
+    app_version = models.CharField(max_length=32, null=True, blank=True)
+    first_seen_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-last_seen_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "installation_id"],
+                name="unique_user_mobile_installation",
+            ),
+        ]
+
+    def __str__(self):
+        return f"MobileDevice: {self.user_id} - {self.display_name}"
+
+
 class RefreshSession(BaseModel):
     """
     Server-backed refresh session for rotation, expiry, and per-device revocation.
@@ -745,6 +786,20 @@ class RefreshSession(BaseModel):
     revoked_at = models.DateTimeField(null=True, blank=True)
     user_agent = models.TextField(null=True, blank=True)
     device_name = models.CharField(max_length=256, null=True, blank=True)
+    client_type = models.CharField(
+        max_length=32,
+        choices=ClientType.choices,
+        default=ClientType.WEB,
+    )
+    mobile_device = models.ForeignKey(
+        "MobileDevice",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="sessions",
+    )
+    revoked_reason = models.CharField(max_length=64, null=True, blank=True)
+    last_seen_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ("-created_at",)

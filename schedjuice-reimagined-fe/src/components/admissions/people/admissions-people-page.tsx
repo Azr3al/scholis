@@ -102,11 +102,18 @@ function AdmissionsPeoplePageInner() {
       column.status({
         id: "status",
         header: headerLabel("Status"),
-        accessor: (row) => (row.is_active ? "Active" : "Inactive"),
+        accessor: (row) =>
+          state.tab === "students"
+            ? row.is_attending
+              ? "Active"
+              : "Alumni"
+            : row.is_active
+              ? "Active"
+              : "Inactive",
         sizing: { role: "status" },
       }),
     ],
-    [personId, setPersonId],
+    [personId, setPersonId, state.tab],
   );
 
   const isListPending = list.isLoading || list.isFetching;
@@ -174,7 +181,7 @@ function AdmissionsPeoplePageInner() {
               </div>
             )}
           </div>
-          <aside className="min-w-0 rounded-md border border-border-subtle p-4">
+          <aside className="min-w-0 self-start rounded-md border border-border-subtle p-4 lg:sticky lg:top-4">
             <PersonAttendingPanel
               personId={personId}
               onNotFound={onNotFound}

@@ -17,7 +17,7 @@ export interface IssueStatus {
 }
 
 export interface IssueUserMini {
-  id: number;
+  id: number | null;
   name: string;
   email: string;
 }

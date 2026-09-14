@@ -47,6 +47,9 @@ export const makeSearchParams = (queryParams: queryParamOptions) => {
   if (queryParams.include_inactive) {
     data.include_inactive = "true";
   }
+  if (queryParams.include_alumni) {
+    data.include_alumni = "true";
+  }
   if (queryParams.teacher_roster_order) {
     data.teacher_roster_order = "true";
   }

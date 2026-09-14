@@ -68,7 +68,7 @@ function renderPage() {
 describe("AnnouncementCenterPage", () => {
   beforeEach(() => {
     mockReplace.mockReset();
-    for (const key of [...mockSearchParams.keys()]) {
+    for (const key of Array.from(mockSearchParams.keys())) {
       mockSearchParams.delete(key);
     }
   });

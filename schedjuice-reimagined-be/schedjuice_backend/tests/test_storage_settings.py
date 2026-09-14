@@ -128,7 +128,15 @@ class DoPublicUrlBucketPrefixTests(SimpleTestCase):
 class PublicMediaStorageMultiBucketUrlTests(SimpleTestCase):
     """Separate physical buckets sharing one CDN hostname."""
 
-    def test_public_logo_url_includes_bucket_on_shared_cdn_host(self):
+    @patch(
+        "schedjuice_backend.storages.resolve_existing_private_media_s3_key",
+        return_value=(
+            "schedjuice-prod/media-prod/public/"
+            "xexcellentchoiceschedjuicecom/logos/"
+            "326744163_857166358886230_4313807981391918603_n.png"
+        ),
+    )
+    def test_public_logo_url_includes_bucket_on_shared_cdn_host(self, _resolve_key):
         storage = PublicMediaStorage()
         url = storage.url(
             "xexcellentchoiceschedjuicecom/logos/"
@@ -152,7 +160,14 @@ class PublicMediaStorageMultiBucketUrlTests(SimpleTestCase):
 class PublicMediaStorageSingleSpaceUrlTests(SimpleTestCase):
     """One DO Space; env prefix lives in AWS_PUBLIC_MEDIA_LOCATION."""
 
-    def test_public_logo_url_without_duplicate_env_prefix(self):
+    @patch(
+        "schedjuice_backend.storages.resolve_existing_private_media_s3_key",
+        return_value=(
+            "schedjuice-prod/media-prod/public/xschedjuice/logos/"
+            "326744163_857166358886230_4313807981391918603_n.png"
+        ),
+    )
+    def test_public_logo_url_without_duplicate_env_prefix(self, _resolve_key):
         storage = PublicMediaStorage()
         url = storage.url(
             "xschedjuice/logos/"
@@ -163,6 +178,31 @@ class PublicMediaStorageSingleSpaceUrlTests(SimpleTestCase):
             "https://schedjuice-dev.sgp1.cdn.digitaloceanspaces.com/"
             "schedjuice-prod/media-prod/public/xschedjuice/logos/"
             "326744163_857166358886230_4313807981391918603_n.png",
+        )
+
+
+@override_settings(
+    AWS_S3_CUSTOM_DOMAIN="schedjuice-dev.sgp1.cdn.digitaloceanspaces.com",
+    AWS_STORAGE_BUCKET_NAME="schedjuice-dev",
+    AWS_PUBLIC_MEDIA_LOCATION="schedjuice-dev/media-dev/public",
+    AWS_S3_ENDPOINT_URL="https://sgp1.digitaloceanspaces.com",
+    AWS_ACCESS_KEY_ID="test-key",
+    AWS_SECRET_ACCESS_KEY="test-secret",
+)
+class PublicMediaStorageLegacyKeyUrlTests(SimpleTestCase):
+    @patch("schedjuice_backend.private_media_s3.s3_object_exists")
+    def test_public_logo_url_falls_back_to_legacy_key_without_env_prefix(self, exists):
+        def _exists(*, bucket, key, client):
+            return key == "media-dev/public/xschedjuice/logos/logo.png"
+
+        exists.side_effect = _exists
+
+        storage = PublicMediaStorage()
+        url = storage.url("xschedjuice/logos/logo.png")
+        self.assertEqual(
+            url,
+            "https://schedjuice-dev.sgp1.cdn.digitaloceanspaces.com/"
+            "media-dev/public/xschedjuice/logos/logo.png",
         )
 
 

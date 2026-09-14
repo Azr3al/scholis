@@ -9,8 +9,9 @@ describe("isStudioRecordRoute", () => {
     expect(isStudioRecordRoute("/award-titles/3/edit")).toBe(true);
   });
 
-  it("rejects the fullscreen document editor and unrelated routes", () => {
+  it("rejects the fullscreen document editor, award template editor, and unrelated routes", () => {
     expect(isStudioRecordRoute("/templates/document/1")).toBe(false);
+    expect(isStudioRecordRoute("/award-titles/3/certificate")).toBe(false);
     expect(isStudioRecordRoute("/documents")).toBe(false);
     expect(isStudioRecordRoute("/finances")).toBe(false);
     expect(isStudioRecordRoute("/studiox")).toBe(false);

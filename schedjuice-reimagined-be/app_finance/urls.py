@@ -180,4 +180,9 @@ urlpatterns = [
         views.FinanceHomepageView.as_view(),
         name="finance-homepage",
     ),
+    path(
+        "finance/fee-lifecycle",
+        views.FeeLifecycleView.as_view(),
+        name="finance-fee-lifecycle",
+    ),
 ]

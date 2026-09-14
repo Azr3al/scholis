@@ -1,6 +1,8 @@
 /** Copy for DM chat surfaces (keys grouped for eventual i18n wiring). */
 export const dmChatCopy = {
   messagesTitle: "Messages",
+  searchConversationsPlaceholder: "Search conversations",
+  noConversationsMatch: "No conversations match your search.",
   directMessagesHeading: "Direct messages",
   classChatsHeading: "Class chats",
   newMessageAria: "Start a direct message",
