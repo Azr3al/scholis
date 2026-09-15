@@ -193,6 +193,23 @@ that runs. An integrator importing addresses from a spreadsheet should trim them
 Both halves are asserted, so the trim in the service is not mistaken for a
 promise the endpoint does not keep.
 
+Both browser-side calls above go to the **web** origin and reach the API through
+the rewrite in `next.config.ts`. That is load-bearing, not incidental. Web and
+API sit on separate `*.up.railway.app` subdomains and `up.railway.app` is on the
+Public Suffix List, so browsers treat them as different sites and a
+`SameSite=Lax` cookie set by the API is never sent back from the web origin.
+`lib/api.ts` and `lib/auth-client.ts` therefore use a relative base in the
+browser; `NEXT_PUBLIC_API_URL` stays the API's public origin and is only used
+server-side, where there is no origin to be relative to.
+
+Getting this wrong fails in a way that looks like the ticket is broken when it
+is not: the exchange returns `200`, Better Auth sets a perfectly valid
+`better-auth.session_token`, and the browser stores it host-only against the API
+origin. The redirect to `/teacher` then reads no session and the teacher is
+bounced to sign-in having done everything right. `lib/api-origin.test.ts`
+asserts the URL actually fetched rather than the constant, because the constant
+is an implementation detail and the request is what broke.
+
 The exchange is a Better Auth plugin rather than a Hono route, because Better
 Auth owns the session cookie's name, prefix, `sameSite` and `secure` attributes;
 minting one from a route would leave Scholis holding a second, silently drifting
