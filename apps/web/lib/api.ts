@@ -29,7 +29,32 @@ export type {
   UploadedFile,
 };
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+/**
+ * Where this client sends requests.
+ *
+ * Empty in the browser, on purpose. A relative `/api/...` goes to the web
+ * origin and is forwarded to the API by the rewrite in `next.config.ts`, which
+ * is the entire reason that rewrite exists: web and API sit on separate
+ * *.up.railway.app subdomains, up.railway.app is on the Public Suffix List, so
+ * browsers treat them as different sites and a SameSite=Lax session cookie set
+ * by the API is never sent back from the web origin.
+ *
+ * This used to be `NEXT_PUBLIC_API_URL` unconditionally, which meant the
+ * browser bundle called the API origin directly and skipped the proxy
+ * altogether — the `/sso` chunk shipped with `https://api.<host>` inlined into
+ * it. The teacher SSO exchange then set `better-auth.session_token` as a
+ * host-only cookie on the API origin, the redirect to `/teacher` read no
+ * session, and the teacher landed back on sign-in. Every call in this file has
+ * the same shape, so the same silent failure applied to all of them; SSO is
+ * just where it is unmissable, because it is the one flow whose entire purpose
+ * is to arrive already authenticated.
+ *
+ * Server-side there is no origin to be relative to, so the absolute URL is
+ * still used. `NEXT_PUBLIC_API_URL` therefore remains the API's public origin
+ * and is not repurposed.
+ */
+const BASE =
+  typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001') : '';
 
 export class ApiError extends Error {
   constructor(

@@ -220,3 +220,42 @@ class ScholisClientTest(SimpleTestCase):
         result = self.client.provision_org(external_ref="org-7", name="Test School")
         self.assertFalse(result["created"])
         self.assertIsNone(result["key"])
+
+    # -- the collection envelope ---------------------------------------------
+    #
+    # Scholis answers its collection endpoints with a single-key object, not a
+    # bare array: `c.json({ scores: ... })` and `c.json({ endpoints: ... })` in
+    # apps/api/http/app.ts. This client used to test `isinstance(result, list)`
+    # and return [] when that failed, so every real response became an empty
+    # list -- no exception, no log line. `pull_scores` reported `fetched=0` and
+    # was indistinguishable from a school with nothing released yet.
+
+    def test_scores_are_unwrapped_from_the_envelope_scholis_actually_sends(self):
+        row = {"attemptId": "a1", "testId": "t1", "score": 10, "maxScore": 20}
+        self._call(_response(200, {"scores": [row]}))
+
+        self.assertEqual(self.client.list_scores(), [row])
+
+    def test_an_empty_envelope_is_an_empty_list_not_an_error(self):
+        self._call(_response(200, {"scores": []}))
+        self.assertEqual(self.client.list_scores(), [])
+
+    def test_a_bare_list_of_scores_is_still_accepted(self):
+        # Liberal on purpose: a mocked transport or an older deployment may send
+        # one, and being strict here would buy nothing.
+        row = {"attemptId": "a1", "testId": "t1"}
+        self._call(_response(200, [row]))
+        self.assertEqual(self.client.list_scores(), [row])
+
+    def test_webhooks_are_unwrapped_from_their_own_envelope(self):
+        endpoint = {"id": "e1", "url": "https://x.test/hook", "active": True}
+        self._call(_response(200, {"endpoints": [endpoint]}))
+
+        self.assertEqual(self.client.list_webhooks(), [endpoint])
+
+    def test_an_unrecognised_body_is_an_empty_list_rather_than_a_crash(self):
+        # A proxy or an error page can answer instead of Scholis. Returning []
+        # keeps a scheduled pull from raising, which is what the caller's report
+        # counts are for.
+        self._call(_response(200, {"unexpected": "shape"}))
+        self.assertEqual(self.client.list_scores(), [])

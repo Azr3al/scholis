@@ -193,6 +193,23 @@ that runs. An integrator importing addresses from a spreadsheet should trim them
 Both halves are asserted, so the trim in the service is not mistaken for a
 promise the endpoint does not keep.
 
+Both browser-side calls above go to the **web** origin and reach the API through
+the rewrite in `next.config.ts`. That is load-bearing, not incidental. Web and
+API sit on separate `*.up.railway.app` subdomains and `up.railway.app` is on the
+Public Suffix List, so browsers treat them as different sites and a
+`SameSite=Lax` cookie set by the API is never sent back from the web origin.
+`lib/api.ts` and `lib/auth-client.ts` therefore use a relative base in the
+browser; `NEXT_PUBLIC_API_URL` stays the API's public origin and is only used
+server-side, where there is no origin to be relative to.
+
+Getting this wrong fails in a way that looks like the ticket is broken when it
+is not: the exchange returns `200`, Better Auth sets a perfectly valid
+`better-auth.session_token`, and the browser stores it host-only against the API
+origin. The redirect to `/teacher` then reads no session and the teacher is
+bounced to sign-in having done everything right. `lib/api-origin.test.ts`
+asserts the URL actually fetched rather than the constant, because the constant
+is an implementation detail and the request is what broke.
+
 The exchange is a Better Auth plugin rather than a Hono route, because Better
 Auth owns the session cookie's name, prefix, `sameSite` and `secure` attributes;
 minting one from a route would leave Scholis holding a second, silently drifting
@@ -205,6 +222,18 @@ admits a student to a paper, the other opens a staff session, and a key used onl
 for sittings should not be able to sign a teacher in. Note that provisioning
 grants it by default — `provisioning.test.ts` spells the scope list out so that
 adding one is a deliberately taken decision rather than a silent widening.
+
+Adding it to `ORG_SCOPES` only affected schools provisioned afterwards, which is
+worth spelling out because it is the kind of gap that does not show up in a test
+suite. `provisionOrg` writes the scope list as it stands the moment it runs, and
+a retry deliberately amends nothing — it returns `key: null` and leaves the
+existing credential alone. The scopes column is written on insert and never
+again, so every school already connected kept its four-scope key and got "This
+key cannot sign teachers in." from an otherwise perfectly valid credential.
+Migration `0010_backfill_sso_scope.sql` grants the scope to live org keys,
+skipping platform keys and revoked ones, and is idempotent. `sso-scope-backfill.test.ts`
+seeds the key an existing school actually holds rather than a freshly provisioned
+one, which is the assumption that hid the problem.
 
 ---
 
