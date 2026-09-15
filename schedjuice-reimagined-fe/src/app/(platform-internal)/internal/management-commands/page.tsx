@@ -390,6 +390,80 @@ const COMMANDS: CommandDef[] = [
     ],
   },
   {
+    name: "backfill-late-joiner-billing",
+    category: "Finance",
+    description:
+      "Set billing_cycle_anchor_date for late-joining students and delete pending invoices issued before their anchor. Tenant-wide; dry run first.",
+    params: [
+      {
+        key: "schema_name",
+        type: "string",
+        required: true,
+        description: "Tenant schema name",
+      },
+      {
+        key: "dry_run",
+        type: "boolean",
+        default: "true",
+        description: "Preview only; no database writes",
+      },
+      {
+        key: "apply",
+        type: "boolean",
+        default: "false",
+        description: "Persist anchors and delete pre-anchor pending invoices",
+      },
+      {
+        key: "course_id",
+        type: "number",
+        description: "Limit to one course (optional)",
+      },
+      {
+        key: "force",
+        type: "boolean",
+        default: "false",
+        description: "Recompute anchors even when already set",
+      },
+    ],
+  },
+  {
+    name: "backfill-late-joiner-billing",
+    category: "Finance",
+    description:
+      "Set billing_cycle_anchor_date for late-joining students and delete pending invoices issued before their anchor. Tenant-wide; dry run first.",
+    params: [
+      {
+        key: "schema_name",
+        type: "string",
+        required: true,
+        description: "Tenant schema name",
+      },
+      {
+        key: "dry_run",
+        type: "boolean",
+        default: "true",
+        description: "Preview only; no database writes",
+      },
+      {
+        key: "apply",
+        type: "boolean",
+        default: "false",
+        description: "Persist anchors and delete pre-anchor pending invoices",
+      },
+      {
+        key: "course_id",
+        type: "number",
+        description: "Limit to one course (optional)",
+      },
+      {
+        key: "force",
+        type: "boolean",
+        default: "false",
+        description: "Recompute anchors even when already set",
+      },
+    ],
+  },
+  {
     name: "backfill-user-codes",
     category: "Users",
     description:

@@ -1,0 +1,9 @@
+diff a/schedjuice-reimagined-fe/src/lib/id-card/image-proxy.ts b/schedjuice-reimagined-fe/src/lib/id-card/image-proxy.ts	(rejected hunks)
+@@ -8,6 +8,7 @@ const ALLOWED_IMAGE_HOSTS = new Set([
+   "suconnect.s3.ap-southeast-1.amazonaws.com",
+   "suconnect.s3.amazonaws.com",
+   "schedjuice-dev.sgp1.digitaloceanspaces.com",
++  "sgp1.digitaloceanspaces.com",
+   "schedjuice-dev.sgp1.cdn.digitaloceanspaces.com",
+ ]);
+ 

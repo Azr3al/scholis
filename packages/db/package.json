@@ -5,42 +5,25 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-<<<<<<< HEAD
-    "./testing": "./src/testing/index.ts"
-=======
     "./testing": "./src/testing/index.ts",
     "./migrate": "./src/migrate.ts"
->>>>>>> master
   },
   "scripts": {
     "typecheck": "tsc",
     "lint": "eslint src",
     "test": "vitest run",
-<<<<<<< HEAD
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
-  },
-  "dependencies": {
-    "@scholis/schema": "workspace:*",
-    "drizzle-orm": "^0.38.3",
-=======
     "db:generate": "dotenv -e ../../.env -- drizzle-kit generate",
     "db:migrate": "dotenv -e ../../.env -- drizzle-kit migrate"
   },
   "dependencies": {
     "@scholis/schema": "workspace:*",
     "drizzle-orm": "^0.45.2",
->>>>>>> master
     "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.17",
     "@scholis/config": "workspace:*",
-<<<<<<< HEAD
-    "drizzle-kit": "^0.30.1",
-=======
     "drizzle-kit": "^0.31.10",
->>>>>>> master
     "eslint": "^9.17.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

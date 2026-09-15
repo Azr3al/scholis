@@ -1,0 +1,19 @@
+diff a/schedjuice-reimagined-fe/src/app/(internal)/courses/page.tsx b/schedjuice-reimagined-fe/src/app/(internal)/courses/page.tsx	(rejected hunks)
+@@ -9,7 +9,7 @@ import { JoinCodeEntryDialog } from "@/components/academic-hub/join-code-entry-d
+ import { useAcademicHubPageHeader } from "@/components/academic-hub/use-academic-hub-page-header";
+ import { PageContainer } from "@/components/layout/page-container";
+ import { Suspense } from "react";
+-import { CardGridSkeleton } from "@/components/loading/structured-skeletons";
++import { AcademicHubCourseGridSkeleton } from "@/components/academic-hub/course-grid-skeleton";
+ 
+ function CoursesRouteContent() {
+   return (
+@@ -43,7 +43,7 @@ export default function CoursesRoute() {
+             className="space-y-4 px-4 pb-20 pt-4 sm:px-6 lg:px-8"
+             aria-busy="true"
+           >
+-            <CardGridSkeleton count={6} cardClassName="min-h-52" />
++            <AcademicHubCourseGridSkeleton />
+           </div>
+         }
+       >

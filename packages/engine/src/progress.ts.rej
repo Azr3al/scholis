@@ -1,0 +1,43 @@
+diff a/packages/engine/src/progress.ts b/packages/engine/src/progress.ts	(rejected hunks)
+@@ -6,8 +6,6 @@ export interface Progress {
+   /** Question ids with no answer, in test order. Drives the submit warning. */
+   unanswered: string[];
+   markedForReview: number;
+-<<<<<<< HEAD
+-=======
+ 
+   /**
+    * Answered questions the taker is no longer sitting on — what the take screen
+@@ -27,7 +25,6 @@ export interface Progress {
+    * hand. `answered` is unaffected and stays the honest total.
+    */
+   settled: number;
+->>>>>>> master
+ }
+ 
+ /**
+@@ -46,8 +43,6 @@ export const progress = (pkg: TestPackage, state: AttemptState): Progress => {
+     })
+     .map((question) => question.id);
+ 
+-<<<<<<< HEAD
+-=======
+   const last = pkg.questions.length - 1;
+   const settled = pkg.questions.filter((question, index) => {
+     const value = state.responses[question.id];
+@@ -55,15 +50,11 @@ export const progress = (pkg: TestPackage, state: AttemptState): Progress => {
+     return index !== state.cursor || index === last;
+   }).length;
+ 
+->>>>>>> master
+   return {
+     answered: pkg.questions.length - unanswered.length,
+     total: pkg.questions.length,
+     unanswered,
+     markedForReview: state.markedForReview.length,
+-<<<<<<< HEAD
+-=======
+     settled,
+->>>>>>> master
+   };
+ };

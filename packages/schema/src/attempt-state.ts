@@ -1,26 +1,6 @@
 import { z } from 'zod';
 import { responseValueSchema } from './response';
 
-<<<<<<< HEAD
-/**
- * Everything the take UI needs to render an in-progress attempt.
- *
- * Deliberately plain JSON: ISO strings rather than `Date`, a record rather than
- * a `Map`, an array rather than a `Set`. This value is written to IndexedDB on
- * every keystroke and read back after a reload, so it has to survive
- * `structuredClone` and `JSON.parse` unchanged. A `Set` here would silently
- * become `{}` on the way back and lose every marked question.
- *
- * The engine converts to `Date` internally where it needs to; the stored shape
- * stays boring.
- */
-export const attemptStateSchema = z.object({
-  attemptId: z.string().min(1),
-  startedAt: z.string().datetime(),
-
-  /** Server-issued. `null` means the test is untimed. */
-  deadlineAt: z.string().datetime().nullable(),
-=======
 // Everything the take UI needs to render an in-progress attempt.
 //
 // Plain JSON on purpose — ISO strings not Date, record not Map, array not Set.
@@ -32,7 +12,6 @@ export const attemptStateSchema = z.object({
 
   /** Server-issued. `null` means the test is untimed. */
   deadlineAt: z.iso.datetime().nullable(),
->>>>>>> master
 
   /** Index into the test package's question array. */
   cursor: z.number().int().nonnegative(),
@@ -42,19 +21,9 @@ export const attemptStateSchema = z.object({
 
   markedForReview: z.array(z.string()),
 
-<<<<<<< HEAD
-  submittedAt: z.string().datetime().nullable(),
-
-  /**
-   * Monotonic counter for this attempt on this device. Stamped onto every
-   * mutation so the server can resolve last-write-wins per (attempt, question)
-   * without trusting wall-clock time from the client.
-   */
-=======
   submittedAt: z.iso.datetime().nullable(),
 
   /** Monotonic per attempt per device. Server resolves LWW with it. */
->>>>>>> master
   clientSeq: z.number().int().nonnegative(),
 });
 

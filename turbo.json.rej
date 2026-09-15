@@ -1,0 +1,10 @@
+diff a/turbo.json b/turbo.json	(rejected hunks)
+@@ -4,7 +4,7 @@
+   "tasks": {
+     "build": {
+       "dependsOn": ["^build"],
+-      "outputs": [".next/**", "!.next/cache/**"]
++      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+     },
+     "typecheck": {},
+     "lint": {},

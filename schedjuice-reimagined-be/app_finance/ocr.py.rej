@@ -1,0 +1,154 @@
+diff a/schedjuice-reimagined-be/app_finance/ocr.py b/schedjuice-reimagined-be/app_finance/ocr.py	(rejected hunks)
+@@ -231,9 +231,27 @@ def looks_like_kbz(text: str) -> bool:
+     return bool(text) and bool(KBZ_REFERENCE_PATTERN.search(text))
+ 
+ 
++def extract_kbz_reference_number(parsed_text: str) -> str | None:
++    if not parsed_text:
++        return None
++    labeled = re.search(
++        r"reference\s+number\s+(?<!\d)(\d{15})(?!\d)",
++        parsed_text,
++        re.IGNORECASE,
++    )
++    if labeled:
++        return labeled.group(1)
++    match = KBZ_REFERENCE_PATTERN.search(parsed_text)
++    return match.group(0) if match else None
++
++
+ def extract_kbz(parsed_text: str) -> dict:
+     amount = extract_kbz_amount(parsed_text)
+-    return {"transaction_id": None, "amount": [amount] if amount is not None else []}
++    transaction_id = extract_kbz_reference_number(parsed_text)
++    return {
++        "transaction_id": transaction_id,
++        "amount": [amount] if amount is not None else [],
++    }
+ 
+ 
+ def extract_aya(parsed_text: str) -> dict:
+@@ -241,6 +259,123 @@ def extract_aya(parsed_text: str) -> dict:
+     return {"transaction_id": None, "amount": [amount] if amount is not None else []}
+ 
+ 
++NOTE_LABELS_BY_BANK = {
++    "KPAY": ("Notes", "မှတ်ချက်"),
++    "KBZ": ("Purpose of Transaction",),
++    "CB": ("Reason", "အကြောင်းအရာ"),
++    "AYA": ("Description", "မှတ်ချက်"),
++}
++
++ALL_NOTE_LABELS = tuple(
++    dict.fromkeys(label for labels in NOTE_LABELS_BY_BANK.values() for label in labels)
++)
++
++_KPAY_NOTE_FALLBACK = re.compile(
++    r"[A-Za-z][A-Za-z .'-]{2,}(?:\s+ko)?\s+(?:PET|KET|FLYERS)\b",
++    re.IGNORECASE,
++)
++
++
++def _ocr_line_texts(ocr_lines: list | None) -> list[str]:
++    texts: list[str] = []
++    for row in ocr_lines or []:
++        if isinstance(row, dict):
++            raw = row.get("LineText") or ""
++        else:
++            raw = str(row)
++        text = raw.strip()
++        if text:
++            texts.append(text)
++    return texts
++
++
++def _value_after_label_in_line(line: str, label: str) -> str | None:
++    if label.isascii():
++        idx = line.lower().find(label.lower())
++    else:
++        idx = line.find(label)
++    if idx < 0:
++        return None
++    rest = line[idx + len(label) :].strip().lstrip(":").strip()
++    return rest or None
++
++
++def _line_after_label(parsed_text: str, labels: tuple[str, ...]) -> str | None:
++    if not parsed_text:
++        return None
++    for label in labels:
++        match = re.search(
++            rf"{re.escape(label)}\s*:?\s*(?:\n\s*)?(.+)",
++            parsed_text,
++            re.IGNORECASE,
++        )
++        if match:
++            value = match.group(1).strip().splitlines()[0].strip()
++            if value and value.lower() not in {l.lower() for l in labels if l.isascii()}:
++                return value
++    return None
++
++
++def _line_after_label_in_lines(
++    ocr_lines: list | None,
++    labels: tuple[str, ...],
++) -> str | None:
++    texts = _ocr_line_texts(ocr_lines)
++    for index, line in enumerate(texts):
++        for label in labels:
++            rest = _value_after_label_in_line(line, label)
++            if rest:
++                return rest.splitlines()[0].strip()
++            is_label_line = (
++                line.lower() == label.lower()
++                if label.isascii()
++                else line == label
++            )
++            if is_label_line and index + 1 < len(texts):
++                return texts[index + 1]
++    return None
++
++
++def _kpay_note_fallback(parsed_text: str, ocr_lines: list | None) -> str | None:
++    texts = _ocr_line_texts(ocr_lines)
++    if not texts and parsed_text:
++        texts = [line.strip() for line in parsed_text.splitlines() if line.strip()]
++    for line in reversed(texts):
++        if re.search(r"\d{20}", line) or "******" in line:
++            continue
++        if re.match(r"^(daw|u)\s", line, re.IGNORECASE):
++            continue
++        if _KPAY_NOTE_FALLBACK.search(line):
++            return line
++    return None
++
++
++def extract_payment_notes_text(
++    bank: str,
++    parsed_text: str,
++    *,
++    ocr_lines: list | None = None,
++) -> str | None:
++    bank_key = (bank or "").upper()
++    labels = NOTE_LABELS_BY_BANK.get(bank_key) or ALL_NOTE_LABELS
++    found = _line_after_label(parsed_text or "", labels)
++    if found:
++        return found
++    found = _line_after_label_in_lines(ocr_lines, labels)
++    if found:
++        return found
++    if labels is not ALL_NOTE_LABELS:
++        found = _line_after_label(parsed_text or "", ALL_NOTE_LABELS)
++        if found:
++            return found
++        found = _line_after_label_in_lines(ocr_lines, ALL_NOTE_LABELS)
++        if found:
++            return found
++    if bank_key == "KPAY":
++        return _kpay_note_fallback(parsed_text or "", ocr_lines)
++    return None
++
++
+ def extract_metadata_using_regex(up, schema):
+     with schema_context(schema):
+         kpay_matches = re.findall(r"\b\d{20}\b", up.text_ocr_data)

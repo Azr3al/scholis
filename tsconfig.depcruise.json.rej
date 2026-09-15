@@ -1,0 +1,31 @@
+diff a/tsconfig.depcruise.json b/tsconfig.depcruise.json	(rejected hunks)
+@@ -4,29 +4,16 @@
+     "Path aliases only, for dependency-cruiser's module resolution.",
+     "Not used to compile anything.",
+     "",
+-<<<<<<< HEAD
+-    "apps/web/tsconfig.json cannot be used directly: depcruise resolves it from",
+-    "the repo root, where that file's `include` globs match nothing and tsc",
+-    "errors with TS18003. This config restates the same aliases with root-",
+-    "relative targets. It must be kept in step with the `paths` in",
+-    "apps/web/tsconfig.json — there is no way to share them across differing",
+-    "base directories."
+-=======
+     "Both apps use @/* for their own root. Listing both targets works because",
+     "their top-level folders are disjoint — api has server/data/http/lib, web",
+     "has app/components. If that ever overlaps, split this into two runs.",
+     "",
+     "Keep in step with the paths in each app's tsconfig.json."
+->>>>>>> master
+   ],
+   "compilerOptions": {
+     "baseUrl": ".",
+     "paths": {
+-<<<<<<< HEAD
+-      "@/*": ["apps/web/*"]
+-=======
+       "@/*": ["apps/api/*", "apps/web/*"]
+->>>>>>> master
+     }
+   }
+ }

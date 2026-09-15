@@ -1,0 +1,99 @@
+diff a/schedjuice-reimagined-be/app_attendance/views.py b/schedjuice-reimagined-be/app_attendance/views.py	(rejected hunks)
+@@ -46,7 +46,7 @@ from app_attendance.self_correction import (
+     apply_self_checkin_correction,
+     can_view_attendance_corrections,
+ )
+-from app_attendance.cancel_checkin import cancel_open_checkin
++from app_attendance.cancel_checkin import cancel_open_checkin, resolve_cancel_checkin_source
+ from app_attendance.attendance_summary import (
+     build_course_attendance_summary,
+     build_monthly_attendance_matrix,
+@@ -74,19 +74,17 @@ from app_attendance.god_view_services import (
+     build_course_marking_gap_rows,
+     build_daily_absence_rows,
+     build_god_view_detail,
+-    build_god_view_rows,
+     build_monthly_student_detail,
+     build_monthly_student_rows,
+-    hydrate_god_view_rows,
+     god_view_course_marking_gap_detail_csv_response,
+     god_view_csv_response,
+     god_view_detail_csv_response,
+-    god_view_summary_csv_response,
+     god_view_date_range_filename_suffix,
+     paginate_rows,
+     parse_god_view_filters,
+     _parse_problem_status,
+ )
++from app_attendance.god_view_sql import fetch_god_view_page
+ 
+ 
+ class CheckinStatus:
+@@ -1051,6 +1049,7 @@ class UserCheckinCancelView(UserCheckinView):
+                 tenant=getattr(request, "tenant", None),
+                 reason_code=data["reason_code"],
+                 note=data.get("note"),
++                source=resolve_cancel_checkin_source(request),
+             )
+         except PermissionDenied as exc:
+             return self.forbidden(str(exc))
+@@ -1103,14 +1102,12 @@ class AttendanceGodViewSearchView(RBACView):
+             summary, rows = build_daily_absence_rows(filters)
+             csv_headers = DAILY_ABSENCE_CSV_HEADERS
+             csv_filename = f"attendance-daily-absences-{filters.date_from.isoformat()}.csv"
+-            hydrate_rows = False
+         elif mode == "monthly_students":
+             summary, rows = build_monthly_student_rows(filters)
+             csv_headers = MONTHLY_STUDENT_CSV_HEADERS
+             csv_filename = (
+                 f"attendance-monthly-summary-{filters.date_from.strftime('%Y-%m')}.csv"
+             )
+-            hydrate_rows = False
+         elif mode == "course_marking_gaps":
+             summary, rows = build_course_marking_gap_rows(filters)
+             csv_headers = COURSE_MARKING_GAP_CSV_HEADERS
+@@ -1118,21 +1115,37 @@ class AttendanceGodViewSearchView(RBACView):
+                 f"attendance-course-marking-gaps-"
+                 f"{god_view_date_range_filename_suffix(filters.date_from, filters.date_to)}.csv"
+             )
+-            hydrate_rows = False
+         else:
+-            summary, rows = build_god_view_rows(filters, hydrate=False)
+             csv_headers = SUMMARY_CSV_HEADERS
+             csv_filename = "attendance-god-view-summary.csv"
+-            hydrate_rows = True
++            if request.query_params.get("csv") == "true":
++                _summary, rows, _count = fetch_god_view_page(filters)
++                return god_view_csv_response(rows, csv_headers, filename=csv_filename)
++            offset = max(0, (filters.page - 1) * filters.size)
++            summary, page_rows, count = fetch_god_view_page(
++                filters,
++                limit=filters.size,
++                offset=offset,
++            )
++            return self.send_response(
++                False,
++                "success",
++                {
++                    "data": {
++                        "summary": summary,
++                        "results": page_rows,
++                    },
++                    "page": filters.page,
++                    "size": filters.size,
++                    "count": count,
++                },
++                status=200,
++            )
+ 
+         if request.query_params.get("csv") == "true":
+-            if hydrate_rows:
+-                rows = hydrate_god_view_rows(rows)
+             return god_view_csv_response(rows, csv_headers, filename=csv_filename)
+ 
+         page_rows, count = paginate_rows(rows, filters.page, filters.size)
+-        if hydrate_rows:
+-            page_rows = hydrate_god_view_rows(page_rows)
+         return self.send_response(
+             False,
+             "success",

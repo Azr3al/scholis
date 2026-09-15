@@ -104,6 +104,10 @@ TENANT_APPS = (
     "app_userlog",
     "app_points",
     "app_grading_reports",
+    # Scholis assessment integration. Tenant-scoped: one tenant is one school is
+    # one Scholis organisation, so a leaked row exposes one school and nothing
+    # here belongs in the public schema.
+    "app_scholis",
     "app_finance",
     "app_wiki",
     "app_tools",
@@ -164,6 +168,7 @@ INSTALLED_APPS = [
     "app_userlog",
     "app_points",
     "app_grading_reports",
+    "app_scholis",
     "app_finance",
     "app_wiki",
     "app_tools",
@@ -866,3 +871,28 @@ AI_CAPABILITY_GAP_REASONING_EFFORT = config(
 )
 AI_TOOL_RESULT_MAX_ITEMS = config("AI_TOOL_RESULT_MAX_ITEMS", default=50, cast=int)
 AI_TOOL_RESULT_MAX_CHARS = config("AI_TOOL_RESULT_MAX_CHARS", default=8000, cast=int)
+
+
+# ---------------------------------------------------------------------------
+# Scholis assessment integration (app_scholis)
+# ---------------------------------------------------------------------------
+# Scholis is the external marking engine: papers are authored and marked there,
+# released marks come back and land in app_grading_reports. Grade boundaries stay
+# here -- Scholis returns raw marks and deliberately will not compute a letter
+# grade, because it cannot know a school's bands.
+#
+# SCHOLIS_PLATFORM_KEY is the platform-tier credential. It can create an
+# organisation and mint that organisation's key, and it cannot read a paper or a
+# mark. That is why it is deployment-wide configuration rather than a per-tenant
+# row: holding it does not by itself expose anybody's results.
+SCHOLIS_API_BASE = config("SCHOLIS_API_BASE", default="")
+SCHOLIS_PLATFORM_KEY = config("SCHOLIS_PLATFORM_KEY", default="")
+# Where Scholis should deliver webhooks, up to and including /api/v1. Must be
+# publicly reachable over https -- Scholis refuses to register an http endpoint.
+# Taken from configuration rather than from the request that registers it,
+# because that request may arrive through a proxy whose host is not the one
+# Scholis can reach.
+SCHOLIS_WEBHOOK_PUBLIC_BASE = config("SCHOLIS_WEBHOOK_PUBLIC_BASE", default="")
+# Fernet key for the org API secret and the webhook signing secret at rest.
+SCHOLIS_TOKEN_ENCRYPTION_KEY = config("SCHOLIS_TOKEN_ENCRYPTION_KEY", default="")
+SCHOLIS_REQUEST_TIMEOUT = config("SCHOLIS_REQUEST_TIMEOUT", default=15.0, cast=float)

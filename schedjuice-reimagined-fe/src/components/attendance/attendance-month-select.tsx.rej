@@ -1,0 +1,54 @@
+diff a/schedjuice-reimagined-fe/src/components/attendance/attendance-month-select.tsx b/schedjuice-reimagined-fe/src/components/attendance/attendance-month-select.tsx	(rejected hunks)
+@@ -34,11 +34,13 @@ export function AttendanceMonthSelect({
+   onValueChange,
+   months,
+   disabled,
++  allowAllMonths = true,
+ }: {
+   value: string;
+   onValueChange: (value: string) => void;
+   months: MonthOption[];
+   disabled?: boolean;
++  allowAllMonths?: boolean;
+ }) {
+   const yearOptions = useMemo(() => buildCourseYearOptions(months), [months]);
+   const showYearSelect = yearOptions.length > 1;
+@@ -46,24 +48,25 @@ export function AttendanceMonthSelect({
+ 
+   const monthItems = useMemo(() => {
+     const yearMonths = monthsForYear(months, selectedYear);
+-    return [
+-      { value: ALL_MONTHS_VALUE, label: "All months" },
+-      ...yearMonths.map((m) => {
+-        const parsed = parseMonthAnchor(m.value);
+-        return {
+-          value: m.value,
+-          label: parsed ? formatMonthName(parsed.monthIndex) : m.label,
+-        };
+-      }),
+-    ];
+-  }, [months, selectedYear]);
++    const monthOptions = yearMonths.map((m) => {
++      const parsed = parseMonthAnchor(m.value);
++      return {
++        value: m.value,
++        label: parsed ? formatMonthName(parsed.monthIndex) : m.label,
++      };
++    });
++    if (!allowAllMonths) {
++      return monthOptions;
++    }
++    return [{ value: ALL_MONTHS_VALUE, label: "All months" }, ...monthOptions];
++  }, [allowAllMonths, months, selectedYear]);
+ 
+   const monthValue =
+-    value === ALL_MONTHS_VALUE
++    value === ALL_MONTHS_VALUE && allowAllMonths
+       ? ALL_MONTHS_VALUE
+       : months.some((m) => m.value === value)
+         ? value
+-        : (monthItems[1]?.value ?? ALL_MONTHS_VALUE);
++        : (monthItems[0]?.value ?? ALL_MONTHS_VALUE);
+ 
+   return (
+     <div className="flex flex-wrap items-end gap-2">

@@ -57,7 +57,13 @@ class XHeaderTenantMiddleware(BaseTenantMiddleware):
         if dev_tenant_domain:
             domain_name = dev_tenant_domain
         elif config("IS_DEV", False, cast=bool):
-            domain_name = config("DEV_TENANT_DOMAIN", "schedjuice.thiha.net")
+            # Reuse the normalized value rather than re-reading the variable.
+            # python-decouple applies a default only when a variable is absent,
+            # so config("DEV_TENANT_DOMAIN", "schedjuice.thiha.net") returns ""
+            # when it is set but empty -- and an empty domain_name falls through
+            # to the public schema, silently resolving every headerless request
+            # to the wrong tenant instead of the dev one.
+            domain_name = dev_tenant_domain or "schedjuice.thiha.net"
         if domain_name:
             if domain_name == "public":
                 return load_with_cache(

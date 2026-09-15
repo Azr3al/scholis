@@ -1,0 +1,235 @@
+diff a/schedjuice-reimagined-be/app_awards/tests/test_award_templates.py b/schedjuice-reimagined-be/app_awards/tests/test_award_templates.py	(rejected hunks)
+@@ -48,7 +48,7 @@ class AwardTemplateModelTests(TestCase):
+         call_command("migrate_schemas", shared=True, verbosity=0)
+         call_command("migrate_schemas", verbosity=0)
+ 
+-    def test_duplicate_name_on_title_raises(self):
++    def test_second_certificate_on_title_raises(self):
+         suffix = uuid4().hex[:6]
+         with schema_context(self.schema_name):
+             title = AwardTitle.objects.create(
+@@ -58,13 +58,13 @@ class AwardTemplateModelTests(TestCase):
+             )
+             AwardTemplate.objects.create(
+                 title=title,
+-                name="May",
++                name=title.name,
+                 document=dict(EMPTY_AWARD_DOCUMENT),
+             )
+             with self.assertRaises(IntegrityError):
+                 AwardTemplate.objects.create(
+                     title=title,
+-                    name="may",
++                    name="Other",
+                     document=dict(EMPTY_AWARD_DOCUMENT),
+                 )
+ 
+@@ -247,53 +247,72 @@ class AwardTemplateApiTests(TestCase):
+         client.credentials(HTTP_TENANT=self.schema_name)
+         return client
+ 
+-    def test_teacher_cannot_create_template(self):
++    def _certificate_url(self, title_id):
++        return f"{self.api_prefix}/award-titles/{title_id}/certificate"
++
++    def test_teacher_cannot_create_certificate(self):
+         with schema_context(self.schema_name):
+             resp = self._client(self.teacher).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+         self.assertEqual(resp.status_code, 403, resp.content)
+ 
+-    def test_student_cannot_list_templates(self):
++    def test_student_cannot_get_certificate(self):
+         with schema_context(self.schema_name):
+             resp = self._client(self.student).get(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++                self._certificate_url(self.org_title.id),
+             )
+         self.assertEqual(resp.status_code, 403, resp.content)
+ 
+     def test_local_title_post_400(self):
+         with schema_context(self.schema_name):
+             resp = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.local.id}/templates",
++                self._certificate_url(self.local.id),
+                 {},
+                 format="json",
+             )
+         self.assertEqual(resp.status_code, 400, resp.content)
+ 
+-    def test_post_draft_null_background_201(self):
++    def test_post_certificate_null_background_201(self):
+         with schema_context(self.schema_name):
+             resp = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+         self.assertEqual(resp.status_code, 201, resp.content)
+         body = resp.json()["data"]
+-        self.assertEqual(body["name"], "Untitled")
++        self.assertEqual(body["name"], self.org_title.name)
+         self.assertIsNone(body.get("background_url") or body.get("background"))
+ 
++    def test_post_certificate_twice_returns_409(self):
++        with schema_context(self.schema_name):
++            client = self._client(self.admin)
++            url = self._certificate_url(self.org_title.id)
++            resp1 = client.post(url, {}, format="json")
++            self.assertEqual(resp1.status_code, 201, resp1.content)
++            resp2 = client.post(url, {}, format="json")
++        self.assertEqual(resp2.status_code, 409, resp2.content)
++        self.assertIn("certificate", resp2.json().get("details", resp2.json()))
++
++    def test_get_certificate_404_when_missing(self):
++        with schema_context(self.schema_name):
++            resp = self._client(self.admin).get(
++                self._certificate_url(self.org_title.id),
++            )
++        self.assertEqual(resp.status_code, 404, resp.content)
++
+     def test_patch_document_without_background_400(self):
+         with schema_context(self.schema_name):
+-            created = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++            self._client(self.admin).post(
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+-            tid = created.json()["data"]["id"]
+             resp = self._client(self.admin).patch(
+-                f"{self.api_prefix}/award-templates/{tid}",
++                self._certificate_url(self.org_title.id),
+                 {"document": {**EMPTY_AWARD_DOCUMENT, "layers": []}},
+                 format="json",
+             )
+@@ -302,12 +321,11 @@ class AwardTemplateApiTests(TestCase):
+ 
+     def test_unknown_layer_type_400(self):
+         with schema_context(self.schema_name):
+-            created = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++            self._client(self.admin).post(
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+-            tid = created.json()["data"]["id"]
+             doc = dict(EMPTY_AWARD_DOCUMENT)
+             doc["layers"] = [
+                 {
+@@ -321,8 +339,8 @@ class AwardTemplateApiTests(TestCase):
+                 }
+             ]
+             resp = self._client(self.admin).patch(
+-                f"{self.api_prefix}/award-templates/{tid}",
+-                {"name": "May", "document": doc},
++                self._certificate_url(self.org_title.id),
++                {"document": doc},
+                 format="json",
+             )
+         self.assertEqual(resp.status_code, 400, resp.content)
+@@ -330,12 +348,11 @@ class AwardTemplateApiTests(TestCase):
+     def test_named_person_persists_user_id_not_bytes(self):
+         png = _png_file()
+         with schema_context(self.schema_name):
+-            created = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++            self._client(self.admin).post(
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+-            tid = created.json()["data"]["id"]
+             doc = dict(EMPTY_AWARD_DOCUMENT)
+             doc["layers"] = [
+                 {
+@@ -350,8 +367,8 @@ class AwardTemplateApiTests(TestCase):
+                 }
+             ]
+             resp = self._client(self.admin).patch(
+-                f"{self.api_prefix}/award-templates/{tid}",
+-                {"name": "May", "document": json.dumps(doc), "background": png},
++                self._certificate_url(self.org_title.id),
++                {"document": json.dumps(doc), "background": png},
+                 format="multipart",
+             )
+         self.assertEqual(resp.status_code, 200, resp.content)
+@@ -362,16 +379,14 @@ class AwardTemplateApiTests(TestCase):
+     def test_patch_multipart_background_returns_url(self):
+         png = _png_file()
+         with schema_context(self.schema_name):
+-            created = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
++            self._client(self.admin).post(
++                self._certificate_url(self.org_title.id),
+                 {},
+                 format="json",
+             )
+-            tid = created.json()["data"]["id"]
+             resp = self._client(self.admin).patch(
+-                f"{self.api_prefix}/award-templates/{tid}",
++                self._certificate_url(self.org_title.id),
+                 {
+-                    "name": "May",
+                     "document": json.dumps(EMPTY_AWARD_DOCUMENT),
+                     "background": png,
+                 },
+@@ -381,43 +396,20 @@ class AwardTemplateApiTests(TestCase):
+         body = resp.json()["data"]
+         self.assertTrue(body.get("background_url"))
+ 
+-    def test_list_scoped_to_title(self):
++    def test_get_certificate_returns_title_certificate(self):
+         with schema_context(self.schema_name):
+             self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
+-                {"name": "A"},
++                self._certificate_url(self.org_title.id),
++                {},
+                 format="json",
+             )
+             self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.other_title.id}/templates",
+-                {"name": "B"},
++                self._certificate_url(self.other_title.id),
++                {},
+                 format="json",
+             )
+-            listed = self._client(self.admin).get(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
+-            )
+-        names = {row["name"] for row in listed.json()["data"]}
+-        self.assertIn("A", names)
+-        self.assertNotIn("B", names)
+-
+-    def test_unknown_template_404(self):
+-        with schema_context(self.schema_name):
+             resp = self._client(self.admin).get(
+-                f"{self.api_prefix}/award-templates/999999"
+-            )
+-        self.assertEqual(resp.status_code, 404, resp.content)
+-
+-    def test_duplicate_name_400(self):
+-        with schema_context(self.schema_name):
+-            first = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
+-                {"name": "May"},
+-                format="json",
++                self._certificate_url(self.org_title.id),
+             )
+-            self.assertEqual(first.status_code, 201, first.content)
+-            second = self._client(self.admin).post(
+-                f"{self.api_prefix}/award-titles/{self.org_title.id}/templates",
+-                {"name": "may"},
+-                format="json",
+-            )
+-        self.assertEqual(second.status_code, 400, second.content)
++        self.assertEqual(resp.status_code, 200, resp.content)
++        self.assertEqual(resp.json()["data"]["title"], self.org_title.id)

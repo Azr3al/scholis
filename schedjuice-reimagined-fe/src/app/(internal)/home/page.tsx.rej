@@ -1,0 +1,27 @@
+diff a/schedjuice-reimagined-fe/src/app/(internal)/home/page.tsx b/schedjuice-reimagined-fe/src/app/(internal)/home/page.tsx	(rejected hunks)
+@@ -2,11 +2,11 @@
+ 
+ import { PageContainer } from "@/components/layout/page-container";
+ import { PageSection } from "@/components/layout/page-section";
++import { HomePage } from "@/components/home/home-page";
+ import { usePageHeader } from "@/components/shell/use-page-header";
+-import { HomeDashboard } from "@/components/home/home-dashboard";
+ import { useMemo } from "react";
+ 
+-export default function HomePage() {
++export default function HomePageRoute() {
+   usePageHeader(
+     useMemo(
+       () => ({
+@@ -19,9 +19,9 @@ export default function HomePage() {
+   );
+ 
+   return (
+-    <PageContainer width="default">
++    <PageContainer width="narrow">
+       <PageSection dominant>
+-        <HomeDashboard />
++        <HomePage />
+       </PageSection>
+     </PageContainer>
+   );

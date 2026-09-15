@@ -1,0 +1,32 @@
+diff a/schedjuice-reimagined-fe/src/config/route-permissions.ts b/schedjuice-reimagined-fe/src/config/route-permissions.ts	(rejected hunks)
+@@ -59,10 +59,14 @@ export const ROUTE_RULES: RouteRule[] = [
+     suffix: "student-payments",
+     anyOf: ["payment.view_all", "payment.record"],
+   },
++  {
++    prefix: "/courses",
++    suffix: "attendance/marking",
++    anyOf: ["attendance.mark"],
++  },
+   { prefix: "/courses", anyOf: ["course.view"] },
+   { prefix: "/quizzes-v3", anyOf: ["quiz.author", "quiz.view_responses"] },
+   { prefix: "/assessments/submission-tracker", anyOf: ["submission.track"] },
+-  { prefix: "/templates/award", anyOf: ["award_title.manage"] },
+   { prefix: "/templates/id-card", anyOf: ["org.configure"] },
+   { prefix: "/templates/document", anyOf: ["document_template.manage"] },
+   { prefix: "/studio", anyOf: ["document_template.manage", "award_title.manage"] },
+@@ -145,9 +149,14 @@ export const ROUTE_RULES: RouteRule[] = [
+   // `middleware.ts`; this rule exists for completeness/nav and is not the gate
+   // that middleware applies to org paths.
+   { prefix: "/organizations/profile", anyOf: ["org.configure", "ai.usage.view"] },
++  {
++    prefix: "/organizations/user-activity/devices",
++    anyOf: ["mobile_device.view"],
++  },
+   { prefix: "/organizations", anyOf: ["org.manage_all"] },
+   { prefix: "/platform/docs", anyOf: ["docs.view", "docs.manage"] },
+   { prefix: "/platform/usage", anyOf: ["ai.usage.view", "billing.manage"] },
++  { prefix: "/administration/scholis", anyOf: ["organization.manage"] },
+   { prefix: "/internal", anyOf: ["org.manage_all"] },
+ ];
+ 

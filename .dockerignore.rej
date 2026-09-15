@@ -1,0 +1,15 @@
+diff a/.dockerignore b/.dockerignore	(rejected hunks)
+@@ -4,13 +4,10 @@ node_modules
+ **/.next
+ .turbo
+ **/.turbo
+-<<<<<<< HEAD
+-=======
+ # Local build output. The image builds its own; copying a stale one in would
+ # mean shipping whatever happened to be on the machine that ran docker build.
+ dist
+ **/dist
+->>>>>>> master
+ coverage
+ **/coverage
+ .git

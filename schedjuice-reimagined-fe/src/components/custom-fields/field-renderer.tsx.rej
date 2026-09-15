@@ -1,0 +1,50 @@
+diff a/schedjuice-reimagined-fe/src/components/custom-fields/field-renderer.tsx b/schedjuice-reimagined-fe/src/components/custom-fields/field-renderer.tsx	(rejected hunks)
+@@ -55,7 +55,7 @@ export function FieldRenderer({
+             {field.fieldLabel}
+             <FieldLabelSuffix required={required} />
+           </Field.Label>
+-          {renderControl(field, rhf, readOnly, commitField, entityType)}
++          {renderControl(field, rhf, required, readOnly, commitField, entityType)}
+           {field.description ? (
+             <Field.Description>{field.description}</Field.Description>
+           ) : null}
+@@ -71,6 +71,7 @@ export function FieldRenderer({
+ function renderControl(
+   def: FormConfigField,
+   field: ControlField,
++  required: boolean,
+   readOnly: boolean,
+   commitField?: (name: string) => void,
+   entityType?: string,
+@@ -112,6 +113,7 @@ function renderControl(
+             commit();
+           }}
+           disabled={readOnly}
++          required={required}
+         />
+       );
+     case "datetime":
+@@ -125,6 +127,7 @@ function renderControl(
+             commit();
+           }}
+           disabled={readOnly}
++          required={required}
+         />
+       );
+     case "boolean":
+@@ -144,13 +147,14 @@ function renderControl(
+         <Select
+           value={(field.value as string) ?? ""}
+           onValueChange={(value) => {
+-            field.onChange(value);
++            field.onChange(value === "" ? undefined : value);
+             commit();
+           }}
+           disabled={readOnly}
+           name={field.name}
+           placeholder="Select an option"
+           items={choices.map((c) => ({ value: c.value, label: c.label }))}
++          required={required}
+         />
+       );
+     }

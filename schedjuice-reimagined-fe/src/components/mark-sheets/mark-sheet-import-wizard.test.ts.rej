@@ -1,0 +1,60 @@
+diff a/schedjuice-reimagined-fe/src/components/mark-sheets/mark-sheet-import-wizard.test.ts b/schedjuice-reimagined-fe/src/components/mark-sheets/mark-sheet-import-wizard.test.ts	(rejected hunks)
+@@ -8,6 +8,30 @@ import {
+   seedManualMatchResolution,
+   seedMarkSheetRematchResolving,
+ } from "@/components/mark-sheets/mark-sheet-import-wizard";
++import type { UserMatchResult } from "@/app/client-api/imports";
++
++const exactNameMatch: UserMatchResult = {
++  kind: "exact",
++  user: {
++    id: 1,
++    name: "Hla Hla",
++    email: "hlahla@hlahla.com",
++    code: null,
++    profile_image: null,
++    roles: [],
++  },
++  field: "name",
++  score: 100,
++  candidates: [],
++};
++
++const noneNameMatch: UserMatchResult = {
++  kind: "none",
++  user: null,
++  field: null,
++  score: null,
++  candidates: [],
++};
+ 
+ describe("mark-sheet-import-wizard rematch helpers", () => {
+   it("createRematchRequestGuard ignores stale responses", () => {
+@@ -27,11 +51,8 @@ describe("mark-sheet-import-wizard rematch helpers", () => {
+     const rowIds = ["row-0", "row-1"];
+     const matchResults = {
+       name: {
+-        "Hla Hla": {
+-          kind: "exact" as const,
+-          user: { id: 1, name: "Hla Hla", email: "hlahla@hlahla.com" },
+-        },
+-        "Su Su": { kind: "none" as const },
++        "Hla Hla": exactNameMatch,
++        "Su Su": noneNameMatch,
+       },
+     };
+ 
+@@ -79,10 +100,10 @@ describe("mark-sheet-import-wizard rematch helpers", () => {
+     const snapshot = buildMarkSheetRematchResolution(rows, rowIds, { name: 0 }, {
+       name: {
+         "Hla Hla": {
+-          kind: "exact" as const,
+-          user: { id: 1, name: "Hla Hla", email: "a@a.com" },
++          ...exactNameMatch,
++          user: { ...exactNameMatch.user!, email: "a@a.com" },
+         },
+-        "Su Su": { kind: "none" as const },
++        "Su Su": noneNameMatch,
+       },
+     });
+     expect(snapshot.get("row-0:name")?.status).toBe("confirmed");

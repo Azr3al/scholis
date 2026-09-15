@@ -1,0 +1,39 @@
+diff a/schedjuice-reimagined-be/app_attendance/leave_request_approval.py b/schedjuice-reimagined-be/app_attendance/leave_request_approval.py	(rejected hunks)
+@@ -11,10 +11,11 @@ from app_attendance.leave_request_notifications import (
+     notify_leave_approved,
+     notify_leave_denied,
+ )
++from app_attendance.leave_request_enrollment import enrolled_course_ids_for_student
+ from app_attendance.marking_services import _tenant_local_date, _tenant_timezone
+ from app_attendance.models import LeaveRequest, UserEvent
+ from app_auth.models import User
+-from app_course.models import Event, UserCourse
++from app_course.models import Event
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -46,15 +47,6 @@ def _assert_pending(leave_request: LeaveRequest) -> None:
+         raise ValidationError("Only pending leave requests can be reviewed.")
+ 
+ 
+-def _enrolled_course_ids(student_id: int) -> list[int]:
+-    return list(
+-        UserCourse.objects.filter(
+-            user_id=student_id,
+-            assigned_as=UserCourse.AssignedAs.STUDENT,
+-        ).values_list("course_id", flat=True)
+-    )
+-
+-
+ def _iter_date_range(start_date: date, end_date: date):
+     current = start_date
+     while current <= end_date:
+@@ -105,7 +97,7 @@ def _mark_user_event_absent_for_leave(
+ 
+ 
+ def apply_approved_leave_to_attendance(leave_request: LeaveRequest, tenant) -> int:
+-    course_ids = _enrolled_course_ids(leave_request.student_id)
++    course_ids = enrolled_course_ids_for_student(leave_request.student_id)
+     updated_count = 0
+ 
+     for day in _iter_date_range(leave_request.start_date, leave_request.end_date):

@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-fe/src/types/api.ts b/schedjuice-reimagined-fe/src/types/api.ts	(rejected hunks)
+@@ -16,6 +16,8 @@ export type queryParamOptions = {
+     all?: boolean
+     /** When true, POST /users/search includes inactive users (non-student lists). */
+     include_inactive?: boolean
++    /** When true, POST /admissions/people/search includes alumni on the Students tab. */
++    include_alumni?: boolean
+     /** When true, POST /user-courses/search applies teacher roster seniority order (course members staff). */
+     teacher_roster_order?: boolean
+     /** When true, POST /user-courses/search orders enrolled students by user name (course members students). */

@@ -31,6 +31,14 @@ class PaymentMethodApiTests(APITestCase):
                 is_password_change_required=False,
                 is_active=True,
             )
+            User.objects.filter(email=cls.student_email).update(
+                is_password_change_required=False,
+                is_active=True,
+            )
+            User.objects.filter(email=cls.student_email).update(
+                is_password_change_required=False,
+                is_active=True,
+            )
 
     def _login(self, email, password):
         res = self.client.post(

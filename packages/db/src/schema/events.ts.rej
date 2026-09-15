@@ -1,0 +1,50 @@
+diff a/packages/db/src/schema/events.ts b/packages/db/src/schema/events.ts	(rejected hunks)
+@@ -1,19 +1,6 @@
+ import { bigserial, index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+ import { organizations } from './organizations';
+ 
+-<<<<<<< HEAD
+-/**
+- * Append-only decision log. Never updated, never deleted.
+- *
+- * Exists from day one although nothing reads it yet, because webhooks (Phase 6)
+- * are a *projection over this table* rather than a second emission path. Adding
+- * it later would mean either a migration that cannot backfill history, or
+- * webhooks that fire for events the log never recorded.
+- *
+- * `seq` is a per-database monotonic counter so a future consumer can detect
+- * gaps. Cheap now; impossible to add retroactively with meaningful values.
+- */
+-=======
+ // Append-only. Never updated, never deleted.
+ //
+ // Nothing reads it yet — it's here because webhooks (Phase 6) are a projection
+@@ -22,7 +9,6 @@ import { organizations } from './organizations';
+ //
+ // `seq` lets a future consumer detect gaps. Cheap now, impossible to add
+ // retroactively with meaningful values.
+->>>>>>> master
+ export const events = pgTable(
+   'events',
+   {
+@@ -32,20 +18,12 @@ export const events = pgTable(
+       .notNull()
+       .references(() => organizations.id, { onDelete: 'restrict' }),
+ 
+-<<<<<<< HEAD
+-    /** Versioned per event type, e.g. `attempt.submitted.v1` (DESIGN.md §10). */
+-=======
+     /** Versioned per event type, e.g. `attempt.submitted.v1`. */
+->>>>>>> master
+     type: text('type').notNull(),
+     subjectType: text('subject_type').notNull(),
+     subjectId: uuid('subject_id').notNull(),
+ 
+-<<<<<<< HEAD
+-    /** Thin. Consumers call back for the body (DESIGN.md §6). */
+-=======
+     /** Thin. Consumers call back for the body. */
+->>>>>>> master
+     payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+ 
+     occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),

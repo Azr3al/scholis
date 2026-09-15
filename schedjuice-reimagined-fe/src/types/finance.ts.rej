@@ -1,0 +1,9 @@
+diff a/schedjuice-reimagined-fe/src/types/finance.ts b/schedjuice-reimagined-fe/src/types/finance.ts	(rejected hunks)
+@@ -303,6 +303,7 @@ export const paymentMethodSchema = z.object({
+     .optional()
+     .nullable()
+     .describe("Bank account number"),
++  is_retired: z.boolean().optional().describe("Retired"),
+ });
+ 
+ export const paymentMethodCreateEditSchema = paymentMethodSchema.pick({

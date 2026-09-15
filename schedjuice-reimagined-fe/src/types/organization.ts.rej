@@ -1,0 +1,12 @@
+diff a/schedjuice-reimagined-fe/src/types/organization.ts b/schedjuice-reimagined-fe/src/types/organization.ts	(rejected hunks)
+@@ -125,6 +125,10 @@ const organizationFieldsSchema = z.object({
+ 
+   is_homepage_disabled: z.boolean().describe("Disable Home Page"),
+   is_student_login_disabled: z.boolean().describe("Disable student login"),
++  is_single_mobile_device_enabled: z
++    .boolean()
++    .default(false)
++    .describe("Allow only one mobile device per account"),
+   is_library_disabled: z.boolean().describe("Disable library"),
+   can_teacher_create_course: z
+     .boolean()

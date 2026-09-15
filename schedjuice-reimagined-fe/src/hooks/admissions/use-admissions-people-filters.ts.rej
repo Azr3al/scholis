@@ -1,0 +1,53 @@
+diff a/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people-filters.ts b/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people-filters.ts	(rejected hunks)
+@@ -8,7 +8,8 @@ import {
+   parseAsStringEnum,
+   useQueryStates,
+ } from "nuqs";
+-import type { UserHubFilterSet, UserHubTab } from "@/types/user-hub";
++import type { AdmissionsPeopleFilterState } from "@/helpers/admissions/people-filter-params";
++import type { UserHubTab } from "@/types/user-hub";
+ 
+ const parsers = {
+   tab: parseAsStringEnum<UserHubTab>(["staff", "students"]).withDefault(
+@@ -17,19 +18,19 @@ const parsers = {
+   q: parseAsString.withDefault(""),
+   page: parseAsInteger.withDefault(1),
+   includeInactive: parseAsBoolean.withDefault(false),
+-  incomplete: parseAsBoolean.withDefault(false),
++  includeAlumni: parseAsBoolean.withDefault(false),
+ };
+ 
+ export function useAdmissionsPeopleFilters() {
+   const [raw, setRaw] = useQueryStates(parsers, { history: "replace" });
+ 
+-  const state: Omit<UserHubFilterSet, "view"> = useMemo(
++  const state: AdmissionsPeopleFilterState = useMemo(
+     () => ({
+       tab: raw.tab ?? "students",
+       q: raw.q ?? "",
+       page: raw.page ?? 1,
+       includeInactive: Boolean(raw.includeInactive),
+-      incomplete: Boolean(raw.incomplete),
++      includeAlumni: Boolean(raw.includeAlumni),
+     }),
+     [raw],
+   );
+@@ -44,8 +45,8 @@ export function useAdmissionsPeopleFilters() {
+     (includeInactive: boolean) => setRaw({ includeInactive, page: 1 }),
+     [setRaw],
+   );
+-  const setIncomplete = useCallback(
+-    (incomplete: boolean) => setRaw({ incomplete, page: 1 }),
++  const setIncludeAlumni = useCallback(
++    (includeAlumni: boolean) => setRaw({ includeAlumni, page: 1 }),
+     [setRaw],
+   );
+ 
+@@ -55,6 +56,6 @@ export function useAdmissionsPeopleFilters() {
+     setQ,
+     setPage,
+     setIncludeInactive,
+-    setIncomplete,
++    setIncludeAlumni,
+   };
+ }

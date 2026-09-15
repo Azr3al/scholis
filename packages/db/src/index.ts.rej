@@ -1,0 +1,109 @@
+diff a/packages/db/src/index.ts b/packages/db/src/index.ts	(rejected hunks)
+@@ -4,56 +4,36 @@ export type { Database, Executor, Tx } from './executor.types';
+ export * as schema from './schema';
+ 
+ export {
+-<<<<<<< HEAD
+-  attemptStatus,
+-  attempts,
+-  events,
+-  mutations,
+-  organizations,
+-  questionOptions,
+-  questionType,
+-  questions,
+-  responses,
+-  shortAnswerKeys,
+-  testStatus,
+-  tests,
+-  userRole,
+-  users,
+-} from './schema';
+-
+-export type {
+-  AttemptRow,
+-  EventRow,
+-=======
+   accounts,
+   apiClientKind,
+   apiClientSecrets,
+   apiClients,
+-  attemptStatus,
+   attemptEvents,
++  attemptStatus,
+   attempts,
+   events,
+   idempotencyKeys,
+-  mutations,
+   invitations,
++  launchTokens,
++  mutations,
+   organizations,
+   questionOptions,
+-  sections,
+   questionType,
+   questions,
+   responses,
++  sections,
+   sessions,
+   shortAnswerKeys,
++  teacherSsoTickets,
++  testStatus,
+   testTagAssignments,
+   testTags,
+-  testStatus,
+   tests,
+-  launchTokens,
+-  webhookDeliveries,
+-  webhookEndpoints,
+   userRole,
+   users,
+   verifications,
++  webhookDeliveries,
++  webhookEndpoints,
+ } from './schema';
+ 
+ export type {
+@@ -63,37 +43,26 @@ export type {
+   AttemptRow,
+   EventRow,
+   IdempotencyKeyRow,
+->>>>>>> master
++  InvitationRow,
++  LaunchTokenRow,
+   MutationRow,
+   NewAttemptRow,
+   NewEventRow,
+   NewQuestionRow,
+-<<<<<<< HEAD
+-=======
+-  NewSectionRow,
+->>>>>>> master
+   NewResponseRow,
++  NewSectionRow,
+   NewTestRow,
+   OrganizationRow,
+   QuestionOptionRow,
+-<<<<<<< HEAD
+   QuestionRow,
+   ResponseRow,
++  SectionRow,
+   ShortAnswerKeyRow,
++  TeacherSsoTicketRow,
+   TestRow,
+-  UserRow,
+-=======
+-  InvitationRow,
+-  QuestionRow,
+-  SectionRow,
+   TestTagAssignmentRow,
+   TestTagRow,
+-  ResponseRow,
+-  ShortAnswerKeyRow,
+-  LaunchTokenRow,
+-  TestRow,
+   UserRow,
+   WebhookDeliveryRow,
+   WebhookEndpointRow,
+->>>>>>> master
+ } from './schema';

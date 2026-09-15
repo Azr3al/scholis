@@ -535,6 +535,14 @@ export const navLinks: navLinkType[] = [
         href: "/data-verification-requests",
         requiredPermissions: ["verification.view"],
       },
+      {
+        title: "Scholis",
+        icon: Activity,
+        href: "/administration/scholis",
+        // The same code the endpoints behind this page enforce, so the entry
+        // cannot be visible to somebody whose every request would be refused.
+        requiredPermissions: ["organization.manage"],
+      },
     ],
   },
   {

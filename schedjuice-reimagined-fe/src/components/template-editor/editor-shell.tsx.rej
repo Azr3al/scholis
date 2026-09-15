@@ -1,0 +1,33 @@
+diff a/schedjuice-reimagined-fe/src/components/template-editor/editor-shell.tsx b/schedjuice-reimagined-fe/src/components/template-editor/editor-shell.tsx	(rejected hunks)
+@@ -11,6 +11,7 @@ export type EditorShellProps = {
+   section: string;
+   title: string;
+   onTitleChange: (title: string) => void;
++  titleReadOnly?: boolean;
+   backHref: string;
+   onBack?: () => void;
+   onSave: () => void;
+@@ -32,6 +33,7 @@ export function EditorShell({
+   section,
+   title,
+   onTitleChange,
++  titleReadOnly = false,
+   backHref,
+   onBack,
+   onSave,
+@@ -88,7 +90,14 @@ export function EditorShell({
+           <span className="shrink-0 truncate text-text-muted">{section}</span>
+           <span className="shrink-0 text-text-muted">/</span>
+           <div data-testid="template-name-slot" className="max-w-56 min-w-0">
+-            {editingTitle ? (
++            {titleReadOnly ? (
++              <span
++                aria-label="Template name"
++                className="block w-full truncate px-1 font-serif text-lg text-text-primary"
++              >
++                {displayTitle}
++              </span>
++            ) : editingTitle ? (
+               <input
+                 aria-label="Template name"
+                 className="w-full border-0 bg-transparent p-0 text-left font-serif text-lg text-text-primary outline-none"

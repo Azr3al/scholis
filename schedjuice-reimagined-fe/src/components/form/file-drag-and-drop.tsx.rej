@@ -1,0 +1,46 @@
+diff a/schedjuice-reimagined-fe/src/components/form/file-drag-and-drop.tsx b/schedjuice-reimagined-fe/src/components/form/file-drag-and-drop.tsx	(rejected hunks)
+@@ -62,6 +62,7 @@ interface IFileDragAndDropProps {
+   showSelectionCount?: boolean;
+   buttonLabel?: string;
+   isButtonDisabled?: boolean;
++  disabled?: boolean;
+   maxSize?: number;
+   maxFiles?: number;
+   showCarousel?: boolean;
+@@ -83,6 +84,7 @@ const FileDragAndDrop: React.FC<IFileDragAndDropProps> = ({
+   showSelectionCount = true,
+   buttonLabel = "Add",
+   isButtonDisabled = false,
++  disabled = false,
+   maxSize = 100 * 1024 * 1024,
+   maxFiles = 3,
+   showCarousel = true,
+@@ -189,6 +191,7 @@ const FileDragAndDrop: React.FC<IFileDragAndDropProps> = ({
+     multiple: isMultiple,
+     noClick: true,
+     noKeyboard: true,
++    disabled: disabled || readOnly,
+     maxSize: maxSize * 1024 * 1024,
+     maxFiles: maxFiles,
+     accept: dropzoneAccept,
+@@ -237,7 +240,10 @@ const FileDragAndDrop: React.FC<IFileDragAndDropProps> = ({
+       {!readOnly && (
+         <div
+           {...getRootProps({
+-            className: fileDropzoneRootClassName(density),
++            className: cn(
++              fileDropzoneRootClassName(density),
++              disabled && "pointer-events-none opacity-50",
++            ),
+             onPaste: handlePaste,
+           })}
+         >
+@@ -278,7 +284,7 @@ const FileDragAndDrop: React.FC<IFileDragAndDropProps> = ({
+           <div className={fileDropzoneButtonWrapClassName(density)}>
+             <Button
+               type="button"
+-              variant="secondary" disabled={isButtonDisabled || visibleFiles.length >= maxFiles}
++              variant="secondary" disabled={disabled || isButtonDisabled || visibleFiles.length >= maxFiles}
+               onClick={open}
+             >
+               {buttonLabel}

@@ -14,8 +14,6 @@ export {
 } from './mutation';
 
 export {
-<<<<<<< HEAD
-=======
   validateChoiceRubric,
   buildAllOrNothingRubric,
   buildEvenSplitRubric,
@@ -31,7 +29,6 @@ export {
 } from './short-grading';
 
 export {
->>>>>>> master
   choiceSettingsSchema,
   essaySettingsSchema,
   keyedChoiceOptionSchema,
@@ -69,16 +66,11 @@ export {
   richTextNodeSchema,
   richTextSchema,
   richTextToPlainText,
-<<<<<<< HEAD
-=======
   textToRichText,
->>>>>>> master
   type RichText,
   type RichTextNode,
 } from './rich-text';
 
-<<<<<<< HEAD
-=======
 export {
   ORG_SCOPES,
   PLATFORM_SCOPES,
@@ -91,5 +83,4 @@ export {
 } from './integration';
 
 export { sectionSchema, type Section } from './section';
->>>>>>> master
 export { testPackageMaxScore, testPackageSchema, type TestPackage } from './test-package';

@@ -51,6 +51,7 @@ urlpatterns = [
     path("api/v1/", include("app_quiz_v3.urls")),
     path("api/v1/", include("app_organization.urls")),
     path("api/v1/", include("app_zoom.urls")),
+    path("api/v1/", include("app_scholis.urls")),
     path("api/v1/", include("app_custom_fields.urls")),
     path("api/v1/", include("app_welcome_board.urls")),
     path("api/v1/", include("app_utility_notifications.urls")),

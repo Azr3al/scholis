@@ -1,0 +1,19 @@
+diff a/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people-tab-counts.ts b/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people-tab-counts.ts	(rejected hunks)
+@@ -2,7 +2,7 @@
+ 
+ import { useQuery } from "@tanstack/react-query";
+ import { searchEntities } from "@/app/client-api/utils";
+-import { buildHubUserTabCountFilterParams } from "@/helpers/user-hub/filter-params";
++import { buildAdmissionsPeopleTabCountFilterParams } from "@/helpers/admissions/people-filter-params";
+ import type { UserHubTab } from "@/types/user-hub";
+ 
+ export const ADMISSIONS_PEOPLE_TAB_COUNTS_KEY = [
+@@ -23,7 +23,7 @@ async function fetchTabCount(
+       sorts: ["name"],
+       fields: ["id"],
+     },
+-    buildHubUserTabCountFilterParams(tab),
++    buildAdmissionsPeopleTabCountFilterParams(tab),
+     { signal },
+   );
+   const payload = res.data ?? {};

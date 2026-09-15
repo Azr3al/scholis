@@ -1,0 +1,22 @@
+diff a/schedjuice-reimagined-fe/src/components/shortcuts/shortcut-session-section.tsx b/schedjuice-reimagined-fe/src/components/shortcuts/shortcut-session-section.tsx	(rejected hunks)
+@@ -11,6 +11,7 @@ import {
+   PrimaryTeacherLine,
+   type PrimaryTeacherDisplay,
+ } from "@/components/course/primary-teacher-line";
++import { coursePrimaryTeacherForDisplay } from "@/helpers/course-primary-teacher-display";
+ import type { courseType } from "@/types/course";
+ import Image from "next/image";
+ import { OpenNewWindow as ExternalLink } from "iconoir-react";
+@@ -58,8 +59,10 @@ function getPrimaryTeacher(
+   course: ShortcutSessionEventRow["course"],
+ ): PrimaryTeacherDisplay | null {
+   if (course && typeof course === "object" && course.primary_teacher) {
+-    const pt = course.primary_teacher;
+-    if (pt?.name) return pt;
++    return coursePrimaryTeacherForDisplay(
++      course.primary_teacher,
++      course.main_teacher_count,
++    );
+   }
+   return null;
+ }

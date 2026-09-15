@@ -1,0 +1,16 @@
+diff a/packages/schema/src/rich-text.test.ts b/packages/schema/src/rich-text.test.ts	(rejected hunks)
+@@ -53,8 +53,6 @@ describe('richTextToPlainText', () => {
+   it('handles a block node with no content', () => {
+     expect(richTextToPlainText(doc({ type: 'paragraph' }))).toBe('');
+   });
+-<<<<<<< HEAD
+-=======
+ 
+   it('separates list items with newlines', () => {
+     const list = doc({
+@@ -80,5 +78,4 @@ describe('richTextToPlainText', () => {
+     });
+     expect(richTextToPlainText(quoted)).toBe('quoted');
+   });
+->>>>>>> master
+ });

@@ -1,0 +1,15 @@
+diff a/schedjuice-reimagined-fe/src/components/finances/finance-homepage-stat-cards.tsx b/schedjuice-reimagined-fe/src/components/finances/finance-homepage-stat-cards.tsx	(rejected hunks)
+@@ -27,11 +27,11 @@ export function FinanceHomepageStatCards({
+   const comparison = summary?.comparison;
+ 
+   return (
+-    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
++    <div className="grid min-w-0 grid-cols-2 gap-4 lg:grid-cols-4">
+       <Card>
+         <CardHeader className="pb-2">
+           <CardTitle className="text-sm font-medium text-muted-foreground">
+-            Collected
++            Cash received
+           </CardTitle>
+         </CardHeader>
+         <CardContent className="space-y-1">

@@ -1,0 +1,35 @@
+diff a/schedjuice-reimagined-fe/src/lib/chat/group-chat-sender-display-name.test.ts b/schedjuice-reimagined-fe/src/lib/chat/group-chat-sender-display-name.test.ts	(rejected hunks)
+@@ -1,5 +1,6 @@
+ import { describe, expect, it } from "vitest";
+ 
++import { role } from "@/types/user";
+ import { groupChatSenderDisplayName, isGroupChatTeacherParticipant } from "@/lib/chat/group-chat-sender-display-name";
+ 
+ describe("groupChatSenderDisplayName", () => {
+@@ -10,7 +11,7 @@ describe("groupChatSenderDisplayName", () => {
+   ];
+ 
+   it("masks teacher authors for pure-student viewers", () => {
+-    const viewer = { id: 1, roles: ["student"] };
++    const viewer = { id: 1, roles: [role.student] };
+     expect(
+       groupChatSenderDisplayName({
+         viewer,
+@@ -24,7 +25,7 @@ describe("groupChatSenderDisplayName", () => {
+   });
+ 
+   it("keeps the student viewer own name", () => {
+-    const viewer = { id: 1, roles: ["student"] };
++    const viewer = { id: 1, roles: [role.student] };
+     expect(
+       groupChatSenderDisplayName({
+         viewer,
+@@ -38,7 +39,7 @@ describe("groupChatSenderDisplayName", () => {
+   });
+ 
+   it("keeps real names for staff viewers", () => {
+-    const viewer = { id: 2, roles: ["teacher"] };
++    const viewer = { id: 2, roles: [role.teacher] };
+     expect(
+       groupChatSenderDisplayName({
+         viewer,

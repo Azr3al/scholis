@@ -150,6 +150,60 @@ describe("tenant query retry policy", () => {
   });
 });
 
+describe("tenant query retry policy", () => {
+  it("retries a timeout, a 429 and a 5xx before giving up on the tenant", () => {
+    const timeout = { code: "ECONNABORTED" };
+    const throttled = { response: { status: 429 } };
+    const serverError = { response: { status: 502 } };
+
+    for (const error of [timeout, throttled, serverError]) {
+      expect(tenantQueryRetry(0, error)).toBe(true);
+      expect(tenantQueryRetry(2, error)).toBe(true);
+      expect(tenantQueryRetry(3, error)).toBe(false);
+    }
+  });
+
+  it("does not retry a 404, the only definitive missing-tenant answer", () => {
+    const notFound = { response: { status: 404 } };
+
+    expect(isTenantNotFoundError(notFound)).toBe(true);
+    expect(tenantQueryRetry(0, notFound)).toBe(false);
+  });
+
+  it("treats a transient failure as unknown tenant, not missing tenant", () => {
+    expect(isTenantNotFoundError({ code: "ECONNABORTED" })).toBe(false);
+    expect(isTenantNotFoundError({ response: { status: 429 } })).toBe(false);
+    expect(isTenantNotFoundError(null)).toBe(false);
+  });
+});
+
+describe("tenant query retry policy", () => {
+  it("retries a timeout, a 429 and a 5xx before giving up on the tenant", () => {
+    const timeout = { code: "ECONNABORTED" };
+    const throttled = { response: { status: 429 } };
+    const serverError = { response: { status: 502 } };
+
+    for (const error of [timeout, throttled, serverError]) {
+      expect(tenantQueryRetry(0, error)).toBe(true);
+      expect(tenantQueryRetry(2, error)).toBe(true);
+      expect(tenantQueryRetry(3, error)).toBe(false);
+    }
+  });
+
+  it("does not retry a 404, the only definitive missing-tenant answer", () => {
+    const notFound = { response: { status: 404 } };
+
+    expect(isTenantNotFoundError(notFound)).toBe(true);
+    expect(tenantQueryRetry(0, notFound)).toBe(false);
+  });
+
+  it("treats a transient failure as unknown tenant, not missing tenant", () => {
+    expect(isTenantNotFoundError({ code: "ECONNABORTED" })).toBe(false);
+    expect(isTenantNotFoundError({ response: { status: 429 } })).toBe(false);
+    expect(isTenantNotFoundError(null)).toBe(false);
+  });
+});
+
 describe("revalidateTenantCookieIfNeeded", () => {
   beforeEach(() => {
     getCookie.mockReset();

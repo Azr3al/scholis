@@ -1,0 +1,45 @@
+diff a/schedjuice-reimagined-be/app_attendance/leave_request_serializers.py b/schedjuice-reimagined-be/app_attendance/leave_request_serializers.py	(rejected hunks)
+@@ -3,6 +3,7 @@ from __future__ import annotations
+ from django.core.exceptions import ValidationError as DjangoValidationError
+ from rest_framework import serializers
+ 
++from app_attendance.leave_request_enrollment import enrolled_courses_for_students
+ from app_attendance.leave_request_validation import validate_leave_dates
+ from app_attendance.models import LeaveRequest
+ from app_chat.services import validate_chat_attachment_refs
+@@ -69,16 +70,35 @@ class _LeaveRequestWriteSerializerBase(serializers.Serializer):
+         return attrs
+ 
+ 
++class LeaveRequestListSerializer(serializers.ListSerializer):
++    def to_representation(self, data):
++        instances = list(data.all() if hasattr(data, "all") else data)
++        student_ids = [instance.student_id for instance in instances]
++        self.child.context["enrolled_courses_by_student"] = enrolled_courses_for_students(
++            student_ids
++        )
++        return [self.child.to_representation(instance) for instance in instances]
++
++
+ class LeaveRequestSerializer(BaseModelSerializer):
++    enrolled_courses = serializers.SerializerMethodField(read_only=True)
++
+     class Meta:
+         model = LeaveRequest
+         fields = "__all__"
++        list_serializer_class = LeaveRequestListSerializer
+         expandable_fields = {
+             "student": "app_auth.serializers.UserSerializer",
+             "reviewed_by": "app_auth.serializers.UserSerializer",
+             "attachment": "app_attachment.serializers.AttachmentSerializer",
+         }
+ 
++    def get_enrolled_courses(self, obj):
++        cache = self.context.get("enrolled_courses_by_student")
++        if cache is None:
++            cache = enrolled_courses_for_students([obj.student_id])
++        return cache.get(obj.student_id, [])
++
+ 
+ class StudentLeaveRequestCreateSerializer(_LeaveRequestWriteSerializerBase):
+     start_date = serializers.DateField()

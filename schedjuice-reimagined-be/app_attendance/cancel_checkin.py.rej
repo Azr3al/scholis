@@ -1,0 +1,32 @@
+diff a/schedjuice-reimagined-be/app_attendance/cancel_checkin.py b/schedjuice-reimagined-be/app_attendance/cancel_checkin.py	(rejected hunks)
+@@ -61,6 +61,13 @@ def _validate_cancel_reason(*, reason_code: str, note: str | None) -> tuple[str,
+     return reason_code, normalized_note
+ 
+ 
++def resolve_cancel_checkin_source(request) -> str:
++    client = (request.META.get("HTTP_X_SCHEDJUICE_CLIENT") or "").strip().lower()
++    if client == "web":
++        return AttendanceChangeEvent.Source.WEB_SESSION_CHECKIN
++    return AttendanceChangeEvent.Source.MOBILE_SESSION_CHECKIN
++
++
+ def cancel_open_checkin(
+     *,
+     user_event: UserEvent,
+@@ -68,6 +75,7 @@ def cancel_open_checkin(
+     tenant,
+     reason_code: str,
+     note: str | None = None,
++    source: str = AttendanceChangeEvent.Source.MOBILE_SESSION_CHECKIN,
+ ) -> UserEvent:
+     require_teacher_checkin_cancellation_enabled(tenant)
+ 
+@@ -117,7 +125,7 @@ def cancel_open_checkin(
+             user_event_id=locked.id,
+             actor_id=actor.id,
+             event_type=AttendanceChangeEvent.EventType.CHECKIN_CANCELLED,
+-            source=AttendanceChangeEvent.Source.MOBILE_SESSION_CHECKIN,
++            source=source,
+             payload={
+                 "reason_code": reason_code,
+                 "note": normalized_note,

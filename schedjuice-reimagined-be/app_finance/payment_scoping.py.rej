@@ -1,0 +1,43 @@
+diff a/schedjuice-reimagined-be/app_finance/payment_scoping.py b/schedjuice-reimagined-be/app_finance/payment_scoping.py	(rejected hunks)
+@@ -15,6 +15,32 @@ from app_finance import models
+ from app_rbac import scoping
+ from app_rbac.resolution import effective_permissions
+ 
++STAFF_PAYMENT_METHOD_PERMS = (
++    "payment.view_all",
++    "payment.configure",
++    "payment.record",
++)
++
++
++def staff_can_see_retired_payment_methods(user: User | None) -> bool:
++    if user is None:
++        return False
++    held = set(effective_permissions(user))
++    return any(code in held for code in STAFF_PAYMENT_METHOD_PERMS)
++
++
++def restrict_retired_payment_methods(request, filter_params):
++    """Hide retired methods from students; staff keep them for late payments."""
++    fp = dict(filter_params or {})
++    user = acting_user(request)
++    if staff_can_see_retired_payment_methods(user):
++        return fp
++    for key in list(fp):
++        if key == "is_retired" or str(key).startswith("is_retired__"):
++            fp.pop(key, None)
++    fp["is_retired"] = False
++    return fp
++
+ 
+ def user_owns_payment(user: User, payment: models.UserPayment) -> bool:
+     return payment.user_id is not None and payment.user_id == user.id
+@@ -149,6 +175,8 @@ def filter_course_ids_for_unpaid(user: User, course_ids: list[int]) -> list[int]
+ __all__ = [
+     "acting_user",
+     "can_view_unpaid",
++    "restrict_retired_payment_methods",
++    "staff_can_see_retired_payment_methods",
+     "check_payment_object_read",
+     "check_payment_read",
+     "check_payment_record",

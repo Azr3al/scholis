@@ -1,0 +1,83 @@
+diff a/apps/api/http/app.ts b/apps/api/http/app.ts	(rejected hunks)
+@@ -17,10 +17,34 @@ import { submitAttempt, submitAttemptInput } from '@/server/attempts/submit-atte
+ import { submitComment, submitCommentInput } from '@/server/attempts/submit-comment';
+ import { validationFailed } from '@/server/errors';
+ import { getAttemptMarking, getAttemptMarkingInput } from '@/server/grading/get-attempt-marking';
+-import { listComments, listCommentsInput } from '@/server/grading/list-comments';
+ import { listAttempts, listAttemptsInput } from '@/server/grading/list-attempts';
++import { listComments, listCommentsInput } from '@/server/grading/list-comments';
+ import { releaseResults, releaseResultsInput } from '@/server/grading/release-results';
+ import { scoreWrittenAnswer, scoreWrittenAnswerInput } from '@/server/grading/score-written-answer';
++import { launchAttempt, launchAttemptInput } from '@/server/integrations/launch-attempt';
++import { listScores, listScoresInput } from '@/server/integrations/list-scores';
++import {
++  issueClient,
++  issueClientInput,
++  listClients,
++  revokeClient,
++  revokeClientInput,
++  revokeSecret,
++  revokeSecretInput,
++  rotateClientSecret,
++  rotateClientSecretInput,
++} from '@/server/integrations/manage-clients';
++import {
++  addWebhook,
++  addWebhookInput,
++  listEvents,
++  listEventsInput,
++  listWebhooks,
++  removeWebhook,
++  removeWebhookInput,
++} from '@/server/integrations/manage-webhooks';
++import { provisionOrg, provisionOrgInput } from '@/server/integrations/provision-org';
++import { mintTeacherSsoTicket, teacherSsoInput } from '@/server/integrations/teacher-sso';
+ import { addDraftQuestions, addDraftQuestionsInput } from '@/server/tests/add-draft-questions';
+ import { addQuestion, addQuestionInput } from '@/server/tests/add-question';
+ import { createTest, createTestInput } from '@/server/tests/create-test';
+@@ -54,29 +78,6 @@ import { publishTest, publishTestInput } from '@/server/tests/publish-test';
+ import { reorderQuestions, reorderQuestionsInput } from '@/server/tests/reorder-questions';
+ import { updateQuestion, updateQuestionInput } from '@/server/tests/update-question';
+ import { updateTestInput, updateTestSettings } from '@/server/tests/update-test';
+-import {
+-  issueClient,
+-  issueClientInput,
+-  listClients,
+-  revokeClient,
+-  revokeClientInput,
+-  revokeSecret,
+-  revokeSecretInput,
+-  rotateClientSecret,
+-  rotateClientSecretInput,
+-} from '@/server/integrations/manage-clients';
+-import { launchAttempt, launchAttemptInput } from '@/server/integrations/launch-attempt';
+-import { listScores, listScoresInput } from '@/server/integrations/list-scores';
+-import {
+-  addWebhook,
+-  addWebhookInput,
+-  listEvents,
+-  listEventsInput,
+-  listWebhooks,
+-  removeWebhook,
+-  removeWebhookInput,
+-} from '@/server/integrations/manage-webhooks';
+-import { provisionOrg, provisionOrgInput } from '@/server/integrations/provision-org';
+ import { getFile } from '@/server/uploads/get-file';
+ import { uploadFile } from '@/server/uploads/upload-file';
+ import { zValidator } from '@hono/zod-validator';
+@@ -417,6 +418,15 @@ api.post('/integration/launch', zValidator('json', launchAttemptInput), async (c
+   return c.json(await launchAttempt(ctx, c.req.valid('json')), 201);
+ });
+ 
++// The staff analogue of the launch above: the caller has already authenticated
++// this teacher on its own side, so Scholis hands back a link that opens a
++// session rather than asking them to prove themselves a second time. It cannot
++// create an account — see server/integrations/teacher-sso.ts.
++api.post('/integration/teacher-sso', zValidator('json', teacherSsoInput), async (c) => {
++  const ctx = authedContextFor(await actorFromRequest(c.req.raw));
++  return c.json(await mintTeacherSsoTicket(ctx, c.req.valid('json')), 201);
++});
++
+ api.get('/integration/scores', async (c) => {
+   const ctx = authedContextFor(await actorFromRequest(c.req.raw));
+   const query = listScoresInput.parse({

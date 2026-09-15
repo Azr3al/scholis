@@ -1,0 +1,89 @@
+# There was no CI in this repository, so every gate below only ever ran when
+# somebody remembered to run it. Each one is here because it caught something
+# real; the step comments say what.
+#
+# Deliberately absent, so the omission is a decision rather than an oversight:
+#
+#   - `pnpm format:check` fails on 61 Scholis source files today. Gating on it
+#     would make the first run of this workflow red for a reason that has nothing
+#     to do with whatever change triggered it. Format the tree first, then add it.
+#   - `pnpm test:e2e` (Playwright) needs browsers plus a running API and
+#     database. It has not been proven to pass in a runner, and an unrunnable job
+#     that is skipped or flaky teaches people to ignore red. Prove it locally,
+#     then add it as its own job.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # This repository once carried 469 conflict markers committed as literal
+      # text across 56 files -- 936 of them inside pnpm-lock.yaml, which also
+      # ended up with a duplicated `apps/web` importer block. Nothing installed,
+      # typechecked, linted or tested, and it sat on the default branch.
+      #
+      # Only `<<<<<<< ` and `>>>>>>> ` are matched. A bare `=======` line is
+      # deliberately excluded: Markdown setext headings are runs of `=` and would
+      # fail on legitimate prose. Every real conflict carries both angle-bracket
+      # markers, so ignoring the middle one loses nothing.
+      #
+      # The vendored Schedjuice trees are excluded. They are not workspace
+      # members and have their own conventions -- the same reason
+      # .prettierignore keeps `pnpm format` out of them.
+      - name: No committed merge conflict markers
+        run: |
+          if git grep -nE '^(<{7} |>{7} )' -- . \
+               ':(exclude)schedjuice-reimagined-fe' \
+               ':(exclude)schedjuice-reimagined-be'; then
+            echo "::error::Merge conflict markers are committed above. Resolve them before merging."
+            exit 1
+          fi
+
+      # No `version:` input. It reads `packageManager` from package.json, so CI
+      # cannot drift onto a different pnpm major than a local shell -- which
+      # matters because pnpm rewrites the lockfile when it disagrees with it.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # --frozen-lockfile rather than a plain install: a lockfile that disagrees
+      # with package.json should fail here, not quietly resolve something new on
+      # the runner and hand back a green build of different code.
+      - run: pnpm install --frozen-lockfile
+
+      # typecheck -> lint -> arch -> test.
+      #
+      # No Postgres service container. The suites run against PGlite in-process,
+      # so there is nothing to connect to -- proven by running the whole thing
+      # with no .env file at all. Adding a container here would be cargo cult,
+      # and would hide the day a test genuinely starts needing a real server.
+      - run: pnpm verify
+
+      # Kept separate from `verify` because of a bug `verify` structurally could
+      # not see: apps/web built its fonts through next/font/google, which fetches
+      # from fonts.googleapis.com at build time and fails the build outright when
+      # it cannot reach it. apps/web/Dockerfile runs exactly that build, so the
+      # web image was unbuildable anywhere without that egress -- while every
+      # check in `verify` was green. The fonts are self-hosted now; this step is
+      # what stops either half of that regressing.
+      #
+      # It also exercises turbo's output caching. `build.outputs` once listed only
+      # `.next/**`, so a cache hit on @scholis/api#build replayed the log and
+      # restored no files, leaving dist/ absent for `start:prod`. dist/** is in
+      # the list now.
+      - run: pnpm build

@@ -1,0 +1,9 @@
+diff a/schedjuice-reimagined-fe/src/components/course/awards/course-awards-tabs.tsx b/schedjuice-reimagined-fe/src/components/course/awards/course-awards-tabs.tsx	(rejected hunks)
+@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
+ const TABS = [
+   { segment: "mark-sheets", label: "Mark Sheets" },
+   { segment: "awards", label: "Awards" },
++  { segment: "scholis", label: "Scholis" },
+ ] as const;
+ 
+ export function CourseAwardsTabs({ courseId }: { courseId?: string }) {

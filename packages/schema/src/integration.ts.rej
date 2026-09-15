@@ -1,0 +1,28 @@
+diff a/packages/schema/src/integration.ts b/packages/schema/src/integration.ts	(rejected hunks)
+@@ -37,6 +37,18 @@ export const apiScopeSchema = z.enum([
+   'results:read',
+   /** Start attempts on a student's behalf. */
+   'launch:write',
++  /**
++   * Mint a sign-in ticket for a teacher who already has an account here.
++   *
++   * Separate from `launch:write` rather than folded into it, because the two
++   * authorise very different things: one admits a student to a paper, the other
++   * opens a staff session. A key used only to send students into sittings
++   * should not be able to sign a teacher in, and a leaked one should not turn
++   * into staff access.
++   *
++   * It cannot create an account. Sign-in authenticates, it never provisions.
++   */
++  'sso:write',
+   /** Create organisations and mint their keys. Platform tier only. */
+   'orgs:write',
+ ]);
+@@ -48,6 +60,7 @@ export const ORG_SCOPES: readonly ApiScope[] = [
+   'tests:write',
+   'results:read',
+   'launch:write',
++  'sso:write',
+ ] as const;
+ 
+ /** What a platform credential may hold. Provisioning, and nothing else. */

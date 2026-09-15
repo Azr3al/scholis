@@ -1,0 +1,21 @@
+diff a/packages/engine/src/validate.test.ts b/packages/engine/src/validate.test.ts	(rejected hunks)
+@@ -1,7 +1,4 @@
+-<<<<<<< HEAD
+-=======
+ import { textToRichText } from '@scholis/schema';
+->>>>>>> master
+ import { describe, expect, it } from 'vitest';
+ import { attemptState, choiceQuestion, essayQuestion, richText, testPackage } from './fixtures';
+ import { countWords, validate } from './validate';
+@@ -74,11 +71,7 @@ describe('validate', () => {
+ 
+   it('skips an essay question answered with a mismatched response kind', () => {
+     const pkg = testPackage([essayQuestion('q1', { minWords: 10, maxWords: null })]);
+-<<<<<<< HEAD
+-    const state = attemptState({ responses: { q1: { kind: 'short', text: 'wrong kind' } } });
+-=======
+     const state = attemptState({ responses: { q1: { kind: 'short', doc: textToRichText('wrong kind') } } });
+->>>>>>> master
+     expect(validate(pkg, state)).toEqual([]);
+   });
+ });

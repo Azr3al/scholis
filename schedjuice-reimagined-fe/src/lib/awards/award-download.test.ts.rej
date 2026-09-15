@@ -1,0 +1,9 @@
+diff a/schedjuice-reimagined-fe/src/lib/awards/award-download.test.ts b/schedjuice-reimagined-fe/src/lib/awards/award-download.test.ts	(rejected hunks)
+@@ -60,6 +60,6 @@ describe("award download helpers", () => {
+       composite,
+     );
+     expect(result.ok).toBe(false);
+-    if (!result.ok) expect(result.files).toBeUndefined();
++    expect(result).toEqual({ ok: false });
+   });
+ });

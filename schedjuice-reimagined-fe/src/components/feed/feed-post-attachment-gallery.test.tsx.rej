@@ -1,0 +1,24 @@
+diff a/schedjuice-reimagined-fe/src/components/feed/feed-post-attachment-gallery.test.tsx b/schedjuice-reimagined-fe/src/components/feed/feed-post-attachment-gallery.test.tsx	(rejected hunks)
+@@ -22,12 +22,20 @@ describe("FeedPostAttachmentGallery", () => {
+           {
+             id: 1,
+             filename: "notes.pdf",
+-            file: "https://cdn.example.com/notes.pdf",
++            is_image: false,
++            data: null,
++            public_data: "https://cdn.example.com/notes.pdf",
++            file_type: "application/pdf",
++            table_name: "feed",
+           },
+           {
+             id: 2,
+             filename: "photo.png",
+-            file: "https://cdn.example.com/photo.png",
++            is_image: true,
++            data: null,
++            public_data: "https://cdn.example.com/photo.png",
++            file_type: "image/png",
++            table_name: "feed",
+           },
+         ]}
+       />,

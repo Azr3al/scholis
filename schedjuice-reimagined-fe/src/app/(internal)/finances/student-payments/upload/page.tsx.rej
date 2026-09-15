@@ -1,0 +1,54 @@
+diff a/schedjuice-reimagined-fe/src/app/(internal)/finances/student-payments/upload/page.tsx b/schedjuice-reimagined-fe/src/app/(internal)/finances/student-payments/upload/page.tsx	(rejected hunks)
+@@ -23,6 +23,7 @@ import { monthKey } from "@/helpers/payment-coverage-months";
+ import { getTenantDayBoundariesIso, getTenantTodayYmd } from "@/helpers/shortcuts-time";
+ import { formatInTimeZone } from "date-fns-tz";
+ import { isValidApiEntityIdParam } from "@/helpers/relation-fk";
++import { formatPaymentMethodDisplayName } from "@/helpers/payment-method-display";
+ import { isPaymentMembershipScoped } from "@/helpers/authorization";
+ import { formatMoney } from "@/helpers/money";
+ import { useTenant } from "@/hooks/useTenant";
+@@ -68,6 +69,7 @@ import {
+ import { PaymentScreenshotPreview } from "@/components/finances/payment-screenshot-preview";
+ import {
+   OCR_FIELD_EXTRACTING_MESSAGE,
++  OCR_READ_ERROR_MESSAGE,
+ } from "@/lib/finances/ocr-payment-screenshot";
+ import { Button, Field, Input, Skeleton, useToast } from "@/components/primitives";
+ import { cn } from "@/lib/utils";
+@@ -419,7 +421,7 @@ const StudentPaymentUploadPageInner = () => {
+             ? {
+                 ...part,
+                 ocrStatus: "error",
+-                ocrError: "Couldn't read this screenshot - enter manually.",
++                ocrError: OCR_READ_ERROR_MESSAGE,
+                 duplicateWarningId: null,
+               }
+             : part,
+@@ -1090,9 +1092,8 @@ const StudentPaymentUploadPageInner = () => {
+                           Reading screenshot...
+                         </p>
+                       ) : part.ocrStatus === "error" ? (
+-                        <p className="text-sm text-danger" role="alert">
+-                          {part.ocrError ??
+-                            "Couldn't read this screenshot - enter manually."}
++                        <p className="text-sm text-text-muted" role="status">
++                          {part.ocrError ?? OCR_READ_ERROR_MESSAGE}
+                         </p>
+                       ) : null}
+ 
+@@ -1137,13 +1138,13 @@ const StudentPaymentUploadPageInner = () => {
+                       <Field.Label>Payment method</Field.Label>
+                       <EntityCombobox
+                         queryParams={{
+-                          fields: ["name", "id"],
++                          fields: ["name", "id", "is_retired"],
+                           sorts: ["name"],
+                         }}
+                         label="Payment method"
+                         hideLabel
+                         containerClassName="w-full min-w-0"
+-                        displayFunction={(e) => e.name}
++                        displayFunction={(e) => formatPaymentMethodDisplayName(e)}
+                         entity="payment-methods"
+                         value={part.paymentMethodId || undefined}
+                         onChange={(v) =>

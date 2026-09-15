@@ -1,0 +1,29 @@
+diff a/packages/db/src/executor.types.ts b/packages/db/src/executor.types.ts	(rejected hunks)
+@@ -8,21 +8,6 @@ type Relations = ExtractTablesWithRelations<Schema>;
+ export type Database = PgDatabase<PgQueryResultHKT, Schema, Relations>;
+ export type Tx = PgTransaction<PgQueryResultHKT, Schema, Relations>;
+ 
+-<<<<<<< HEAD
+-/**
+- * What every `data/` function accepts.
+- *
+- * Typed as "a database or a transaction" so a service can decide the
+- * transaction boundary and pass either one down (IMPLEMENTATION.md §3.1, rule
+- * 5). Drizzle expresses this natively, so there is no unit-of-work abstraction
+- * and no repository interface — the executor *is* the seam.
+- *
+- * Deliberately widened over the concrete driver type. Production runs
+- * postgres-js; tests run PGlite in-process. Both are `PgDatabase`, so the same
+- * query modules run against both without a generic parameter leaking into
+- * every call site.
+- */
+-=======
+ // What every data/ function takes: a database or a transaction.
+ //
+ // Services pick the transaction boundary and pass either down. Drizzle types
+@@ -31,5 +16,4 @@ export type Tx = PgTransaction<PgQueryResultHKT, Schema, Relations>;
+ //
+ // Widened over the concrete driver so the same queries run against postgres-js
+ // in prod and PGlite in tests.
+->>>>>>> master
+ export type Executor = Database | Tx;

@@ -1,0 +1,87 @@
+diff a/apps/web/lib/api.ts b/apps/web/lib/api.ts	(rejected hunks)
+@@ -42,6 +42,27 @@ export class ApiError extends Error {
+   }
+ }
+ 
++/**
++ * Two error shapes, because two producers share this client.
++ *
++ * Scholis routes nest under `error`; Better Auth answers flat with `message`
++ * and `code` at the top level. Reading only the nested form silently turned
++ * every Better Auth refusal into "Something went wrong." — the status code was
++ * right and the reason was thrown away, which is the worst combination to
++ * debug against.
++ */
++const errorFrom = (status: number, body: unknown): ApiError => {
++  const flat = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : null;
++  const nested = flat?.error;
++  const source =
++    typeof nested === 'object' && nested !== null ? (nested as Record<string, unknown>) : flat;
++
++  const message = typeof source?.message === 'string' ? source.message : undefined;
++  const code = typeof source?.code === 'string' ? source.code : undefined;
++
++  return new ApiError(status, code ?? 'unknown', message ?? 'Something went wrong.');
++};
++
+ // credentials:'include' on everything — the session is a cookie on another
+ // origin, so omitting it silently makes every authed call anonymous.
+ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
+@@ -54,15 +75,7 @@ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
+ 
+   if (!res.ok) {
+     const body: unknown = await res.json().catch(() => null);
+-    const error =
+-      typeof body === 'object' && body !== null && 'error' in body
+-        ? (body.error as { code?: string; message?: string })
+-        : null;
+-    throw new ApiError(
+-      res.status,
+-      error?.code ?? 'unknown',
+-      error?.message ?? 'Something went wrong.',
+-    );
++    throw errorFrom(res.status, body);
+   }
+ 
+   return res.json() as Promise<T>;
+@@ -109,6 +122,17 @@ export const api = {
+   acceptInvite: (input: { token: string; name: string }) =>
+     post<{ orgId: string; email: string }>('/api/team/accept', input),
+ 
++  /**
++   * Trade a one-time ticket for a staff session.
++   *
++   * A Better Auth endpoint rather than one of ours, so the path carries the
++   * `/auth` prefix. It must go through this client and therefore through the
++   * Next rewrite: the response sets the session cookie, and that only lands
++   * first-party if the browser sees the web origin. See `next.config.ts`.
++   */
++  exchangeTeacherSso: (input: { ticket: string }) =>
++    post<{ status: boolean }>('/api/auth/sso/exchange', input),
++
+   getTeam: () =>
+     request<{
+       members: { id: string; email: string; name: string; role: 'owner' | 'teacher' }[];
+@@ -144,8 +168,7 @@ export const api = {
+ 
+   createTag: (input: { name: string }) => post<TestTag>('/api/tags', input),
+ 
+-  updateTag: (input: { tagId: string; name: string }) =>
+-    post<TestTag>('/api/tags/update', input),
++  updateTag: (input: { tagId: string; name: string }) => post<TestTag>('/api/tags/update', input),
+ 
+   deleteTag: (tagId: string) => post<{ deleted: true }>('/api/tags/delete', { tagId }),
+ 
+@@ -195,11 +218,7 @@ export const api = {
+ 
+     if (!res.ok) {
+       const body: unknown = await res.json().catch(() => null);
+-      const error =
+-        typeof body === 'object' && body !== null && 'error' in body
+-          ? (body.error as { code?: string; message?: string })
+-          : null;
+-      throw new ApiError(res.status, error?.code ?? 'unknown', error?.message ?? 'Upload failed.');
++      throw errorFrom(res.status, body);
+     }
+ 
+     return res.json() as Promise<UploadedFile>;

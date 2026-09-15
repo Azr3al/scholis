@@ -3733,6 +3733,172 @@ class FeeLifecycleView(RBACView):
         return self.send_response(False, "success", {"data": payload})
 
 
+_FEE_LIFECYCLE_PERMS = frozenset({"payment.view_all", "analytics.view"})
+
+
+class FeeLifecycleView(RBACView):
+    authentication_classes = [TenantBoundJWTStatelessAuthentication]
+
+    def check_permissions(self, request):
+        user = acting_user(request)
+        if user is None:
+            raise PermissionDenied("Authentication credentials were not provided.")
+        held = set(effective_permissions(user))
+        if not held.intersection(_FEE_LIFECYCLE_PERMS):
+            raise PermissionDenied("You don't have permission to perform this action.")
+
+    def post(self, request: Request):
+        user = acting_user(request)
+        if user is None:
+            return self.forbidden("Authentication required.")
+        del user
+
+        program_id = request.data.get("program_id")
+        if program_id in (None, ""):
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": "program_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        period = request.data.get("period") or "single_month"
+        if period not in VALID_PERIODS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": f"period must be one of: {', '.join(sorted(VALID_PERIODS))}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        breakdown = request.data.get("breakdown") or "none"
+        if breakdown not in VALID_BREAKDOWNS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {
+                    "details": (
+                        "breakdown must be one of: "
+                        f"{', '.join(sorted(VALID_BREAKDOWNS))}"
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        intake_raw = request.data.get("intake_id")
+        intake_id = int(intake_raw) if intake_raw not in (None, "") else None
+        date_from = _parse_finance_homepage_date(request.data.get("date_from"))
+        date_to = _parse_finance_homepage_date(request.data.get("date_to"))
+
+        try:
+            payload = build_fee_lifecycle_payload(
+                program_id=int(program_id),
+                intake_id=intake_id,
+                period=period,
+                date_from=date_from,
+                date_to=date_to,
+                breakdown=breakdown,
+                org=request.tenant,
+            )
+        except ValueError as exc:
+            msg = str(exc)
+            status_code = (
+                status.HTTP_404_NOT_FOUND
+                if "not found" in msg.lower()
+                else status.HTTP_400_BAD_REQUEST
+            )
+            return self.send_response(
+                True,
+                "validation_error" if status_code == 400 else "not_found",
+                {"details": msg},
+                status=status_code,
+            )
+        return self.send_response(False, "success", {"data": payload})
+
+
+_FEE_LIFECYCLE_PERMS = frozenset({"payment.view_all", "analytics.view"})
+
+
+class FeeLifecycleView(RBACView):
+    authentication_classes = [TenantBoundJWTStatelessAuthentication]
+
+    def check_permissions(self, request):
+        user = acting_user(request)
+        if user is None:
+            raise PermissionDenied("Authentication credentials were not provided.")
+        held = set(effective_permissions(user))
+        if not held.intersection(_FEE_LIFECYCLE_PERMS):
+            raise PermissionDenied("You don't have permission to perform this action.")
+
+    def post(self, request: Request):
+        user = acting_user(request)
+        if user is None:
+            return self.forbidden("Authentication required.")
+        del user
+
+        program_id = request.data.get("program_id")
+        if program_id in (None, ""):
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": "program_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        period = request.data.get("period") or "single_month"
+        if period not in VALID_PERIODS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {"details": f"period must be one of: {', '.join(sorted(VALID_PERIODS))}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        breakdown = request.data.get("breakdown") or "none"
+        if breakdown not in VALID_BREAKDOWNS:
+            return self.send_response(
+                True,
+                "validation_error",
+                {
+                    "details": (
+                        "breakdown must be one of: "
+                        f"{', '.join(sorted(VALID_BREAKDOWNS))}"
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        intake_raw = request.data.get("intake_id")
+        intake_id = int(intake_raw) if intake_raw not in (None, "") else None
+        date_from = _parse_finance_homepage_date(request.data.get("date_from"))
+        date_to = _parse_finance_homepage_date(request.data.get("date_to"))
+
+        try:
+            payload = build_fee_lifecycle_payload(
+                program_id=int(program_id),
+                intake_id=intake_id,
+                period=period,
+                date_from=date_from,
+                date_to=date_to,
+                breakdown=breakdown,
+                org=request.tenant,
+            )
+        except ValueError as exc:
+            msg = str(exc)
+            status_code = (
+                status.HTTP_404_NOT_FOUND
+                if "not found" in msg.lower()
+                else status.HTTP_400_BAD_REQUEST
+            )
+            return self.send_response(
+                True,
+                "validation_error" if status_code == 400 else "not_found",
+                {"details": msg},
+                status=status_code,
+            )
+        return self.send_response(False, "success", {"data": payload})
+
+
 def _parse_finance_homepage_date(value) -> date | None:
     if value in (None, ""):
         return None

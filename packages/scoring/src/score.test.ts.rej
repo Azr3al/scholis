@@ -1,0 +1,36 @@
+diff a/packages/scoring/src/score.test.ts b/packages/scoring/src/score.test.ts	(rejected hunks)
+@@ -1,7 +1,4 @@
+-<<<<<<< HEAD
+-=======
+ import { textToRichText, ShortGradingMode } from '@scholis/schema';
+->>>>>>> master
+ import { describe, expect, it } from 'vitest';
+ import { choice, essay, short } from './fixtures';
+ import { clamp, round4 } from './round';
+@@ -35,11 +32,7 @@ describe('score', () => {
+       questions: [choice('q1', [true, false]), short('q2', ['Paris'])],
+       responses: {
+         q1: { kind: 'choice', optionIds: ['q1-0'] },
+-<<<<<<< HEAD
+-        q2: { kind: 'short', text: 'paris' },
+-=======
+         q2: { kind: 'short', doc: textToRichText('paris') },
+->>>>>>> master
+       },
+       manualMarks: {},
+     });
+@@ -127,8 +120,6 @@ describe('score', () => {
+     });
+     expect(report.questionScores.map((q) => q.questionId)).toEqual(['q1', 'e1', 'q2']);
+   });
+-<<<<<<< HEAD
+-=======
+ 
+   it('marks an unmarked manual short as pending rather than zero', () => {
+     const report = score({
+@@ -176,5 +167,4 @@ describe('score', () => {
+     });
+     expect(report.requiresManualMarking).toBe(true);
+   });
+->>>>>>> master
+ });

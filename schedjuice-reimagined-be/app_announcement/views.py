@@ -333,6 +333,122 @@ class AnnouncementBatchCreateView(RBACView):
         )
 
 
+class AnnouncementBatchCreateView(RBACView):
+    name = "Announcement batch create view"
+    model = models.Announcement
+    serializer = serializers.AnnouncementSerializer
+    rbac_decision = "authenticated_only"
+    permission_classes = [IsAuthenticated, RBACPermission]
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        if request.method == "POST" and not _has_announcement_manage(request.user):
+            raise PermissionDenied("You don't have permission to manage announcements.")
+
+    def post(self, request: Request):
+        is_multipart = (
+            request.content_type
+            and "multipart/form-data" in request.content_type
+        )
+        if not is_multipart:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"details": "multipart/form-data is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = create_announcements_batch(request, self.get_serializer_class())
+        except BatchCreateValidationError as exc:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"details": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payload = batch_result_to_payload(result)
+        if not result.created:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"data": payload},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        response_status = (
+            status.HTTP_207_MULTI_STATUS
+            if result.failed
+            else status.HTTP_201_CREATED
+        )
+        message = "partial_success" if result.failed else "created"
+        return self.send_response(
+            False,
+            message,
+            {"data": payload},
+            status=response_status,
+        )
+
+
+class AnnouncementBatchCreateView(RBACView):
+    name = "Announcement batch create view"
+    model = models.Announcement
+    serializer = serializers.AnnouncementSerializer
+    rbac_decision = "authenticated_only"
+    permission_classes = [IsAuthenticated, RBACPermission]
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        if request.method == "POST" and not _has_announcement_manage(request.user):
+            raise PermissionDenied("You don't have permission to manage announcements.")
+
+    def post(self, request: Request):
+        is_multipart = (
+            request.content_type
+            and "multipart/form-data" in request.content_type
+        )
+        if not is_multipart:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"details": "multipart/form-data is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = create_announcements_batch(request, self.get_serializer_class())
+        except BatchCreateValidationError as exc:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"details": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payload = batch_result_to_payload(result)
+        if not result.created:
+            return self.send_response(
+                True,
+                "bad_request",
+                {"data": payload},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        response_status = (
+            status.HTTP_207_MULTI_STATUS
+            if result.failed
+            else status.HTTP_201_CREATED
+        )
+        message = "partial_success" if result.failed else "created"
+        return self.send_response(
+            False,
+            message,
+            {"data": payload},
+            status=response_status,
+        )
+
+
 class AnnouncementSearchView(RBACSearchView):
     name = "Announcement search view"
     model = models.Announcement

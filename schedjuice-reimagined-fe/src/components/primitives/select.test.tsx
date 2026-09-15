@@ -42,6 +42,22 @@ describe("selectPositionerProps in jsdom", () => {
   });
 });
 
+describe("selectPositionerProps in jsdom", () => {
+  it("defaults collisionBoundary to the viewport root", () => {
+    expect(selectPositionerProps().collisionBoundary).toBe(
+      document.documentElement,
+    );
+  });
+});
+
+describe("selectPositionerProps in jsdom", () => {
+  it("defaults collisionBoundary to the viewport root", () => {
+    expect(selectPositionerProps().collisionBoundary).toBe(
+      document.documentElement,
+    );
+  });
+});
+
 describe("Select", () => {
   it("renders placeholder when controlled value is not in items", () => {
     render(

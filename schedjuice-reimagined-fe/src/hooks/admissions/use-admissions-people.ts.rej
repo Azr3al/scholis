@@ -1,0 +1,58 @@
+diff a/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people.ts b/schedjuice-reimagined-fe/src/hooks/admissions/use-admissions-people.ts	(rejected hunks)
+@@ -2,8 +2,10 @@
+ 
+ import { useQuery } from "@tanstack/react-query";
+ import { searchEntities } from "@/app/client-api/utils";
+-import { buildHubUserFilterParams } from "@/helpers/user-hub/filter-params";
+-import type { UserHubFilterSet } from "@/types/user-hub";
++import {
++  buildAdmissionsPeopleFilterParams,
++  type AdmissionsPeopleFilterState,
++} from "@/helpers/admissions/people-filter-params";
+ 
+ export const ADMISSIONS_PEOPLE_PAGE_SIZE = 24;
+ 
+@@ -14,6 +16,7 @@ const PEOPLE_FIELDS = [
+   "email",
+   "phone_number",
+   "is_active",
++  "is_attending",
+ ];
+ 
+ export type AdmissionsPersonRow = {
+@@ -23,6 +26,7 @@ export type AdmissionsPersonRow = {
+   email: string;
+   phone_number?: string | null;
+   is_active: boolean;
++  is_attending: boolean;
+ };
+ 
+ export interface AdmissionsPeopleResult {
+@@ -34,9 +38,8 @@ export interface AdmissionsPeopleResult {
+ export function useAdmissionsPeople({
+   state,
+ }: {
+-  state: Omit<UserHubFilterSet, "view">;
++  state: AdmissionsPeopleFilterState;
+ }) {
+-  const filterState: UserHubFilterSet = { ...state, view: "list" };
+   return useQuery({
+     queryKey: ["admissions-people-list", state],
+     keepPreviousData: true,
+@@ -50,9 +53,14 @@ export function useAdmissionsPeople({
+           sorts: ["name"],
+           fields: PEOPLE_FIELDS,
+           q: state.q || undefined,
+-          ...(state.includeInactive ? { include_inactive: true } : {}),
++          ...(state.tab === "students" && state.includeAlumni
++            ? { include_alumni: true }
++            : {}),
++          ...(state.tab === "staff" && state.includeInactive
++            ? { include_inactive: true }
++            : {}),
+         },
+-        buildHubUserFilterParams(filterState),
++        buildAdmissionsPeopleFilterParams(state),
+         { signal },
+       );
+       const payload = res.data ?? {};

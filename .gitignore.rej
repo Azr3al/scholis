@@ -1,0 +1,48 @@
+diff a/.gitignore b/.gitignore	(rejected hunks)
+@@ -1,25 +1,3 @@
+-<<<<<<< HEAD
+-node_modules/
+-dist/
+-.next/
+-out/
+-.turbo/
+-coverage/
+-*.tsbuildinfo
+-
+-.env
+-.env.local
+-.env.*.local
+-
+-.DS_Store
+-Thumbs.db
+-.idea/
+-.vscode/*
+-!.vscode/extensions.json
+-
+-playwright-report/
+-test-results/
+-=======
+ # Dependencies
+ node_modules/
+ .pnp
+@@ -43,7 +21,7 @@ apps/web/e2e/.auth/
+ # Environment (keep .env.example for onboarding)
+ .env
+ .env.*
+-.env.example
++!.env.example
+ 
+ # Logs & debug
+ npm-debug.log*
+@@ -72,7 +50,9 @@ Thumbs.db
+ .cursor/
+ test-plans/
+ 
++# Planning docs stay local to the workspace; the README is the tracked front door.
+ DESIGN.md
+ IMPLEMENTATION.md
+-README.md.storage/
+->>>>>>> master
++
++# Local object storage used by the API's filesystem storage provider
++.storage/

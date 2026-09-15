@@ -1,0 +1,39 @@
+diff a/apps/api/server/integrations/provisioning.test.ts b/apps/api/server/integrations/provisioning.test.ts	(rejected hunks)
+@@ -74,7 +74,7 @@ describe('provisioning a school', () => {
+     expect(second.created).toBe(true);
+   });
+ 
+-  it('records the caller\'s own identifier for the school', async () => {
++  it("records the caller's own identifier for the school", async () => {
+     const ctx = platformContext();
+     await provisionOrg(ctx, { externalRef: 'tenant-c', name: 'C School' });
+ 
+@@ -85,11 +85,27 @@ describe('provisioning a school', () => {
+   it('gives the new key every scope a team key may hold', async () => {
+     // Narrower would mean a caller cannot author a paper for the school it
+     // just provisioned, which is the first thing it will try to do.
++    //
++    // The list is spelled out rather than compared against ORG_SCOPES on
++    // purpose. This is a tripwire: provisioning grants all of it to every
++    // school it creates, so a scope added to ORG_SCOPES silently becomes
++    // something every integrating platform can do at every school. Making that
++    // a failing test means the decision gets taken deliberately. `sso:write`
++    // was added for teacher sign-in and is here because a platform that
++    // provisions a school is the same platform that will send its teachers in;
++    // a school wanting a narrower key can mint one from the dashboard, which
++    // takes an explicit scope list.
+     const ctx = platformContext();
+     const result = await provisionOrg(ctx, { externalRef: 'tenant-d', name: 'D School' });
+ 
+     const actor = await resolveClientActor(publicContext(harness.db), result.key?.token ?? '');
+-    expect(actor?.scopes).toEqual(['tests:read', 'tests:write', 'results:read', 'launch:write']);
++    expect(actor?.scopes).toEqual([
++      'tests:read',
++      'tests:write',
++      'results:read',
++      'launch:write',
++      'sso:write',
++    ]);
+     // And never the platform scope.
+     expect(actor?.scopes).not.toContain('orgs:write');
+   });

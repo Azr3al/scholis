@@ -1,0 +1,28 @@
+diff a/schedjuice-reimagined-fe/src/lib/ui/select-layout.test.ts b/schedjuice-reimagined-fe/src/lib/ui/select-layout.test.ts	(rejected hunks)
+@@ -7,6 +7,7 @@ import {
+   selectPopupScrollArrowClassName,
+   selectPopupItemTextClassName,
+   comboboxPopupWidthClassName,
++  selectPositionerProps,
+ } from "./select-layout";
+ 
+ describe("selectValueClassName", () => {
+@@ -72,3 +73,18 @@ describe("comboboxPopupWidthClassName", () => {
+     expect(cls).toContain("max-w-[var(--available-width)]");
+   });
+ });
++
++describe("selectPositionerProps", () => {
++  it("uses fixed positioning so overflow ancestors do not clip the popup", () => {
++    expect(selectPositionerProps().positionMethod).toBe("fixed");
++  });
++
++  it("measures collisions against an explicit viewport boundary", () => {
++    const viewport = { nodeName: "HTML" } as Element;
++    expect(selectPositionerProps(viewport).collisionBoundary).toBe(viewport);
++  });
++
++  it("omits collisionBoundary when no document or boundary is available", () => {
++    expect(selectPositionerProps().collisionBoundary).toBeUndefined();
++  });
++});

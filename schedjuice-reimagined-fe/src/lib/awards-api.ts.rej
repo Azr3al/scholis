@@ -1,0 +1,91 @@
+diff a/schedjuice-reimagined-fe/src/lib/awards-api.ts b/schedjuice-reimagined-fe/src/lib/awards-api.ts	(rejected hunks)
+@@ -1,4 +1,5 @@
+ import { axiosClient } from "@/lib/api";
++import axios from "axios";
+ import type {
+   AwardDisplayTemplate,
+   AwardFamily,
+@@ -141,59 +142,58 @@ export async function promoteAwardTitle(
+   return res.data.data;
+ }
+ 
+-export async function listAwardTemplates(titleId: number): Promise<AwardTemplate[]> {
+-  const res = await axiosClient.get<Envelope<AwardTemplate[]>>(
+-    `award-titles/${titleId}/templates`,
+-  );
+-  return res.data.data ?? [];
++export async function getAwardCertificate(
++  titleId: number,
++): Promise<AwardTemplate | null> {
++  try {
++    const res = await axiosClient.get<Envelope<AwardTemplate>>(
++      `award-titles/${titleId}/certificate`,
++    );
++    return res.data.data;
++  } catch (error) {
++    if (axios.isAxiosError(error) && error.response?.status === 404) {
++      return null;
++    }
++    throw error;
++  }
+ }
+ 
+-export async function createAwardTemplate(
++export async function createAwardCertificate(
+   titleId: number,
+-  name?: string,
+ ): Promise<AwardTemplate> {
+   const res = await axiosClient.post<Envelope<AwardTemplate>>(
+-    `award-titles/${titleId}/templates`,
+-    name ? { name } : {},
+-  );
+-  return res.data.data;
+-}
+-
+-export async function getAwardTemplate(id: number): Promise<AwardTemplate> {
+-  const res = await axiosClient.get<Envelope<AwardTemplate>>(
+-    `award-templates/${id}`,
++    `award-titles/${titleId}/certificate`,
++    {},
+   );
+   return res.data.data;
+ }
+ 
+-export async function updateAwardTemplate(
+-  id: number,
+-  input: { name?: string; document?: unknown; background?: File },
++export async function updateAwardCertificate(
++  titleId: number,
++  input: { document?: unknown; background?: File },
+ ): Promise<AwardTemplate> {
+   if (input.background) {
+     const body = new FormData();
+-    if (input.name != null) body.append("name", input.name);
+     if (input.document !== undefined) {
+       body.append("document", JSON.stringify(input.document));
+     }
+     body.append("background", input.background);
+     const res = await axiosClient.patch<Envelope<AwardTemplate>>(
+-      `award-templates/${id}`,
++      `award-titles/${titleId}/certificate`,
+       body,
+       { headers: { "Content-Type": "multipart/form-data" } },
+     );
+     return res.data.data;
+   }
+   const res = await axiosClient.patch<Envelope<AwardTemplate>>(
+-    `award-templates/${id}`,
++    `award-titles/${titleId}/certificate`,
+     {
+-      ...(input.name != null ? { name: input.name } : {}),
+       ...(input.document !== undefined ? { document: input.document } : {}),
+     },
+   );
+   return res.data.data;
+ }
+ 
+-export async function deleteAwardTemplate(id: number): Promise<void> {
+-  await axiosClient.delete(`award-templates/${id}`);
++export async function deleteAwardCertificate(titleId: number): Promise<void> {
++  await axiosClient.delete(`award-titles/${titleId}/certificate`);
+ }

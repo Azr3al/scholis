@@ -207,6 +207,56 @@ class PublicMediaStorageLegacyKeyUrlTests(SimpleTestCase):
 
 
 @override_settings(
+    AWS_S3_CUSTOM_DOMAIN="schedjuice-dev.sgp1.cdn.digitaloceanspaces.com",
+    AWS_STORAGE_BUCKET_NAME="schedjuice-dev",
+    AWS_PUBLIC_MEDIA_LOCATION="schedjuice-dev/media-dev/public",
+    AWS_S3_ENDPOINT_URL="https://sgp1.digitaloceanspaces.com",
+    AWS_ACCESS_KEY_ID="test-key",
+    AWS_SECRET_ACCESS_KEY="test-secret",
+)
+class PublicMediaStorageLegacyKeyUrlTests(SimpleTestCase):
+    @patch("schedjuice_backend.private_media_s3.s3_object_exists")
+    def test_public_logo_url_falls_back_to_legacy_key_without_env_prefix(self, exists):
+        def _exists(*, bucket, key, client):
+            return key == "media-dev/public/xschedjuice/logos/logo.png"
+
+        exists.side_effect = _exists
+
+        storage = PublicMediaStorage()
+        url = storage.url("xschedjuice/logos/logo.png")
+        self.assertEqual(
+            url,
+            "https://schedjuice-dev.sgp1.cdn.digitaloceanspaces.com/"
+            "media-dev/public/xschedjuice/logos/logo.png",
+        )
+
+
+@override_settings(
+    AWS_S3_CUSTOM_DOMAIN="schedjuice-dev.sgp1.cdn.digitaloceanspaces.com",
+    AWS_STORAGE_BUCKET_NAME="schedjuice-dev",
+    AWS_PUBLIC_MEDIA_LOCATION="schedjuice-dev/media-dev/public",
+    AWS_S3_ENDPOINT_URL="https://sgp1.digitaloceanspaces.com",
+    AWS_ACCESS_KEY_ID="test-key",
+    AWS_SECRET_ACCESS_KEY="test-secret",
+)
+class PublicMediaStorageLegacyKeyUrlTests(SimpleTestCase):
+    @patch("schedjuice_backend.private_media_s3.s3_object_exists")
+    def test_public_logo_url_falls_back_to_legacy_key_without_env_prefix(self, exists):
+        def _exists(*, bucket, key, client):
+            return key == "media-dev/public/xschedjuice/logos/logo.png"
+
+        exists.side_effect = _exists
+
+        storage = PublicMediaStorage()
+        url = storage.url("xschedjuice/logos/logo.png")
+        self.assertEqual(
+            url,
+            "https://schedjuice-dev.sgp1.cdn.digitaloceanspaces.com/"
+            "media-dev/public/xschedjuice/logos/logo.png",
+        )
+
+
+@override_settings(
     AWS_ACCESS_KEY_ID="test-key",
     AWS_SECRET_ACCESS_KEY="test-secret",
     AWS_STORAGE_BUCKET_NAME="schedjuice-dev",

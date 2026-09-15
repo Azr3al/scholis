@@ -1,0 +1,40 @@
+diff a/packages/schema/src/test-package.ts b/packages/schema/src/test-package.ts	(rejected hunks)
+@@ -1,18 +1,11 @@
+ import { z } from 'zod';
+ import { publicQuestionSchema } from './question';
+-<<<<<<< HEAD
+-=======
+ import { sectionSchema } from './section';
+->>>>>>> master
+ import { richTextSchema } from './rich-text';
+ 
+ /**
+  * The whole test as it ships to a student's device, fetched once and cached in
+-<<<<<<< HEAD
+- * IndexedDB (DESIGN.md §6, rule 1).
+-=======
+  * IndexedDB.
+->>>>>>> master
+  *
+  * Because every question here is a `publicQuestionSchema`, parsing a
+  * database-shaped test through this schema strips every answer key at every
+@@ -30,11 +23,6 @@ export const testPackageSchema = z.object({
+   /** When false, the taker moves strictly forwards. */
+   allowNavigation: z.boolean(),
+ 
+-<<<<<<< HEAD
+-  introBody: richTextSchema,
+-  outroBody: richTextSchema,
+-
+-=======
+   /**
+    * Turns on the in-browser deterrents. Defaulted so packages cached before
+    * this existed still parse — the same reasoning as `sections`.
+@@ -54,7 +42,6 @@ export const testPackageSchema = z.object({
+    */
+   sections: z.array(sectionSchema).default([]),
+ 
+->>>>>>> master
+   questions: z.array(publicQuestionSchema),
+ });
+ 

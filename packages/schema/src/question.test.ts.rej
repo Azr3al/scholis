@@ -1,0 +1,29 @@
+diff a/packages/schema/src/question.test.ts b/packages/schema/src/question.test.ts	(rejected hunks)
+@@ -15,11 +15,7 @@ const keyedChoice = {
+   body,
+   points: 2,
+   position: 0,
+-<<<<<<< HEAD
+-  settings: { selection: 'single' as const, variant: 'boolean' as const, partialCredit: false },
+-=======
+   settings: { selection: 'single' as const, variant: 'boolean' as const, rubric: null },
+->>>>>>> master
+   options: [
+     { id: 'true', body, isCorrect: true },
+     { id: 'false', body, isCorrect: false },
+@@ -44,15 +40,12 @@ describe('keyed question shapes', () => {
+   it('accepts a keyed short question', () => {
+     expect(keyedShortQuestionSchema.parse(keyedShort).acceptedAnswers).toEqual(['photosynthesis']);
+   });
+-<<<<<<< HEAD
+-=======
+ 
+   it('accepts a draft short question with no accepted answers yet', () => {
+     expect(
+       keyedShortQuestionSchema.parse({ ...keyedShort, acceptedAnswers: [] }).acceptedAnswers,
+     ).toEqual([]);
+   });
+->>>>>>> master
+ });
+ 
+ /**

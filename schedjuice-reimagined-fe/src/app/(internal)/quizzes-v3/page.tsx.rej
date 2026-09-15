@@ -1,0 +1,78 @@
+diff a/schedjuice-reimagined-fe/src/app/(internal)/quizzes-v3/page.tsx b/schedjuice-reimagined-fe/src/app/(internal)/quizzes-v3/page.tsx	(rejected hunks)
+@@ -42,39 +42,43 @@ export default function QuizzesV3ListPage() {
+     filterParams,
+   });
+ 
+-  usePageHeader({
+-    breadcrumb: (
+-      <div className="min-w-0">
+-        <h1 className="truncate font-serif text-lg text-text-primary">Quizzes</h1>
+-        <p className="truncate text-xs text-text-muted">
+-          Create and manage academic assessments that can be assigned to courses and
+-          classes.
+-        </p>
+-      </div>
+-    ),
+-    actions: (
+-      <div className={contentListToolbarClassName()}>
+-        <Link
+-          href="/quizzes-v3/question-bank"
+-          className={cn(
+-            buttonVariants({ variant: "secondary", size: "sm" }),
+-            "w-auto min-w-[8rem]",
+-          )}
+-        >
+-          Question Bank
+-        </Link>
+-        <Link
+-          href="/quizzes-v3/create"
+-          className={cn(
+-            buttonVariants({ variant: "primary", size: "sm" }),
+-            "w-auto min-w-[8rem]",
+-          )}
+-        >
+-          Create quiz
+-        </Link>
+-      </div>
+-    ),
+-  });
++  const headerConfig = useMemo(
++    () => ({
++      breadcrumb: (
++        <div className="min-w-0">
++          <h1 className="truncate font-serif text-lg text-text-primary">Quizzes</h1>
++          <p className="truncate text-xs text-text-muted">
++            Create and manage academic assessments that can be assigned to courses and
++            classes.
++          </p>
++        </div>
++      ),
++      actions: (
++        <div className={contentListToolbarClassName()}>
++          <Link
++            href="/quizzes-v3/question-bank"
++            className={cn(
++              buttonVariants({ variant: "secondary", size: "sm" }),
++              "w-auto min-w-[8rem]",
++            )}
++          >
++            Question Bank
++          </Link>
++          <Link
++            href="/quizzes-v3/create"
++            className={cn(
++              buttonVariants({ variant: "primary", size: "sm" }),
++              "w-auto min-w-[8rem]",
++            )}
++          >
++            Create quiz
++          </Link>
++        </div>
++      ),
++    }),
++    [],
++  );
++  usePageHeader(headerConfig);
+ 
+   return (
+     <PageContainer width="wide" className="flex flex-col gap-6">

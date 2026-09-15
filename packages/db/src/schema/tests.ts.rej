@@ -1,0 +1,45 @@
+diff a/packages/db/src/schema/tests.ts b/packages/db/src/schema/tests.ts	(rejected hunks)
+@@ -33,8 +33,6 @@ export const tests = pgTable(
+     allowNavigation: boolean('allow_navigation').notNull().default(true),
+     maxAttempts: integer('max_attempts').notNull().default(1),
+ 
+-<<<<<<< HEAD
+-=======
+     // Turns on the in-browser deterrents: no selecting or copying question
+     // text, no context menu. A deterrent and not a boundary — anyone can read
+     // the DOM — so it is opt-in per test rather than implied by publishing.
+@@ -43,7 +41,6 @@ export const tests = pgTable(
+     /** When true, each attempt gets a per-student shuffle within section runs. */
+     randomizeQuestionOrder: boolean('randomize_question_order').notNull().default(false),
+ 
+->>>>>>> master
+     introBody: jsonb('intro_body').$type<RichText>().notNull(),
+     outroBody: jsonb('outro_body').$type<RichText>().notNull(),
+ 
+@@ -55,18 +52,12 @@ export const tests = pgTable(
+       .references(() => users.id, { onDelete: 'restrict' }),
+ 
+     /**
+-<<<<<<< HEAD
+-     * Reserved for LTI 1.3 (DESIGN.md §10). Unused in v1 and deliberately so:
+-=======
+      * Reserved for LTI 1.3. Unused in v1 and deliberately so:
+->>>>>>> master
+      * the column costs nothing now and means adopting LTI later is not a
+      * migration that rewrites history.
+      */
+     ltiContextId: text('lti_context_id'),
+ 
+-<<<<<<< HEAD
+-=======
+     /**
+      * The integrating system's own course identifier, carried so results can
+      * be filtered by class without Scholis knowing what a class is.
+@@ -79,7 +70,6 @@ export const tests = pgTable(
+      */
+     courseRef: text('course_ref'),
+ 
+->>>>>>> master
+     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+   },

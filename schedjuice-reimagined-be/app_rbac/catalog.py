@@ -607,6 +607,50 @@ ALL_PERMISSIONS: tuple[Permission, ...] = (
         "Operational",
         sensitive=True,
     ),
+    # mobile device policy
+    _p(
+        "mobile_device_policy.configure",
+        "Configure mobile device policy",
+        "turn single-device mobile login on or off for the school",
+        "Operational",
+        sensitive=True,
+    ),
+    _p(
+        "mobile_device.view",
+        "View mobile devices",
+        "view signed-in mobile devices for users",
+        "Operational",
+        sensitive=True,
+    ),
+    _p(
+        "mobile_device.revoke",
+        "Revoke mobile devices",
+        "sign users out of mobile devices",
+        "Operational",
+        sensitive=True,
+    ),
+    # mobile device policy
+    _p(
+        "mobile_device_policy.configure",
+        "Configure mobile device policy",
+        "turn single-device mobile login on or off for the school",
+        "Operational",
+        sensitive=True,
+    ),
+    _p(
+        "mobile_device.view",
+        "View mobile devices",
+        "view signed-in mobile devices for users",
+        "Operational",
+        sensitive=True,
+    ),
+    _p(
+        "mobile_device.revoke",
+        "Revoke mobile devices",
+        "sign users out of mobile devices",
+        "Operational",
+        sensitive=True,
+    ),
     # SCHOOL_SETUP tier (default OFF for all school roles)
     _p("program.view", "View programs", "view programs", "Academic", tier=SCHOOL_SETUP),
     _p(

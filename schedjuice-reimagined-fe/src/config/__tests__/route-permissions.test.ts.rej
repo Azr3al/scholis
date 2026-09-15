@@ -1,0 +1,51 @@
+diff a/schedjuice-reimagined-fe/src/config/__tests__/route-permissions.test.ts b/schedjuice-reimagined-fe/src/config/__tests__/route-permissions.test.ts	(rejected hunks)
+@@ -98,6 +98,21 @@ describe("ruleForPath", () => {
+     expect(rule?.anyOf).toEqual(["org.manage_all"]);
+   });
+ 
++  it("resolves /organizations/user-activity/devices for mobile_device.view", () => {
++    const rule = ruleForPath("/organizations/user-activity/devices");
++    expect(rule?.prefix).toBe("/organizations/user-activity/devices");
++    expect(rule?.anyOf).toEqual(["mobile_device.view"]);
++  });
++
++  it("prefers mobile devices rule over broad organizations rule", () => {
++    expect(ruleForPath("/organizations/user-activity/devices/42")?.prefix).toBe(
++      "/organizations/user-activity/devices",
++    );
++    expect(ruleForPath("/organizations/user-activity/login-activity")?.prefix).toBe(
++      "/organizations",
++    );
++  });
++
+   it("resolves CRM settings before board routes", () => {
+     expect(ruleForPath("/crm/leads/settings")?.prefix).toBe("/crm/leads/settings");
+     expect(ruleForPath("/crm/leads/settings")?.anyOf).toEqual(["crm.configure"]);
+@@ -113,9 +128,9 @@ describe("ruleForPath", () => {
+     expect(ruleForPath("/crm/issues")?.anyOf).toEqual(["issue.view"]);
+   });
+ 
+-  it("resolves /templates/award for award_title.manage", () => {
+-    const rule = ruleForPath("/templates/award/12");
+-    expect(rule?.prefix).toBe("/templates/award");
++  it("resolves /award-titles/:id/certificate for award_title.manage", () => {
++    const rule = ruleForPath("/award-titles/3/certificate");
++    expect(rule?.prefix).toBe("/award-titles");
+     expect(rule?.anyOf).toEqual(["award_title.manage"]);
+   });
+ 
+@@ -145,4 +160,14 @@ describe("ruleForPath", () => {
+     expect(ruleForPath("/complaints/42")?.prefix).toBe("/complaints");
+     expect(ruleForPath("/complaints/42")?.anyOf).toEqual(["complaint.view_own"]);
+   });
++
++  it("gates attendance marking routes on attendance.mark", () => {
++    expect(ruleForPath("/courses/42/attendance/marking/today")?.anyOf).toEqual([
++      "attendance.mark",
++    ]);
++    expect(ruleForPath("/courses/42/attendance/marking/3")?.anyOf).toEqual([
++      "attendance.mark",
++    ]);
++    expect(ruleForPath("/courses/42/attendance")?.anyOf).toEqual(["course.view"]);
++  });
+ });

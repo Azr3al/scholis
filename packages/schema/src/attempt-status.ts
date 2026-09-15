@@ -1,11 +1,7 @@
 import { z } from 'zod';
 
 /**
-<<<<<<< HEAD
- * The lifecycle of one taker's run at one test (DESIGN.md §4).
-=======
  * The lifecycle of one taker's run at one test.
->>>>>>> master
  *
  * Explicit rather than derived from nullable timestamps, because the teacher's
  * results view needs "started but abandoned" and "submitted but not yet graded"

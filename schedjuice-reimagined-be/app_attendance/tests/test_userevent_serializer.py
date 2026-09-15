@@ -347,9 +347,10 @@ class UserEventSerializerUpdateTest(APITestCase):
         ue_id, _course_id, checkout = self._teacher_checkin_row(
             student_count_snapshot=2,
             student_user_count=2,
+            teacher_email=self.teacher_email,
         )
 
-        token = self._token()
+        token = self._token(self.teacher_email, self.teacher_password)
         resp = self.client.put(
             reverse("userevent-details", kwargs={"obj_id": ue_id}),
             {

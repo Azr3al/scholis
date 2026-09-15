@@ -1,0 +1,67 @@
+diff a/schedjuice-reimagined-be/app_finance/tests/test_enrollment_anchor.py b/schedjuice-reimagined-be/app_finance/tests/test_enrollment_anchor.py	(rejected hunks)
+@@ -185,6 +185,65 @@ class EnrollmentAnchorIntegrationTests(TestCase):
+                 first_late_session,
+             )
+ 
++    def test_late_joiner_with_no_future_events_uses_join_date(self):
++        suffix = uuid4().hex[:6]
++        course_first = date(2026, 7, 9)
++        join_day = date(2026, 9, 2)
++        with schema_context(self.schema_name):
++            course = self._course_with_sessions(
++                suffix=suffix,
++                course_start=date(2026, 6, 9),
++                course_end=date(2026, 12, 9),
++                session_days=[course_first, date(2026, 8, 29)],
++            )
++            student = User.objects.create_user(
++                email=f"late-no-future-{suffix}@example.com",
++                password="x",
++                name="Late no future",
++                phone_number="-",
++                date_of_birth=date(2010, 1, 1),
++                roles=[User.UserRole.STUDENT],
++            )
++            joined_at = timezone.make_aware(datetime.combine(join_day, time(9, 0)))
++            uc = UserCourse.objects.create(
++                user=student,
++                course=course,
++                assigned_as=UserCourse.AssignedAs.STUDENT,
++                joined_at=joined_at,
++            )
++            uc.refresh_from_db()
++            self.assertEqual(uc.billing_cycle_anchor_date, join_day)
++            self.assertEqual(resolve_anchor_for_enrollment(uc), join_day)
++
++    def test_on_time_joiner_still_null_when_no_future_events(self):
++        suffix = uuid4().hex[:6]
++        course_first = date(2026, 7, 9)
++        with schema_context(self.schema_name):
++            course = self._course_with_sessions(
++                suffix=suffix,
++                course_start=date(2026, 6, 9),
++                course_end=date(2026, 12, 9),
++                session_days=[course_first, date(2026, 8, 29)],
++            )
++            student = User.objects.create_user(
++                email=f"ontime-no-future-{suffix}@example.com",
++                password="x",
++                name="On time no future",
++                phone_number="-",
++                date_of_birth=date(2010, 1, 1),
++                roles=[User.UserRole.STUDENT],
++            )
++            joined_at = timezone.make_aware(
++                datetime.combine(course_first, time(9, 0))
++            )
++            uc = UserCourse.objects.create(
++                user=student,
++                course=course,
++                assigned_as=UserCourse.AssignedAs.STUDENT,
++                joined_at=joined_at,
++            )
++            self.assertIsNone(resolve_anchor_for_enrollment(uc))
++
+     def test_substitution_reserve_sessions_are_skipped(self):
+         suffix = uuid4().hex[:6]
+         reserve_day = date(2026, 9, 6)

@@ -1,0 +1,11 @@
+diff a/schedjuice-reimagined-fe/src/hooks/__tests__/useTenant.test.tsx b/schedjuice-reimagined-fe/src/hooks/__tests__/useTenant.test.tsx	(rejected hunks)
+@@ -19,7 +19,9 @@ vi.mock("@/lib/api", () => ({
+ }));
+ 
+ import {
++  isTenantNotFoundError,
+   revalidateTenantCookieIfNeeded,
++  tenantQueryRetry,
+   useTenant,
+ } from "@/hooks/useTenant";
+ 

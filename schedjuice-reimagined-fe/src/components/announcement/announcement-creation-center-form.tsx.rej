@@ -1,0 +1,262 @@
+diff a/schedjuice-reimagined-fe/src/components/announcement/announcement-creation-center-form.tsx b/schedjuice-reimagined-fe/src/components/announcement/announcement-creation-center-form.tsx	(rejected hunks)
+@@ -17,7 +17,8 @@ import { makePostRequest, searchEntities } from "@/app/client-api/utils";
+ import { setFormErrrors } from "@/helpers/form";
+ import { useEditor } from "@tiptap/react";
+ import { getAnnouncementEditorOptions } from "../editor/config";
+-import { useCallback, useEffect, useId, useState } from "react";
++import { useCallback, useEffect, useId, useMemo, useState } from "react";
++import { Xmark } from "iconoir-react";
+ import { queryClient } from "@/lib/query";
+ import { useUser } from "@/hooks/useUser";
+ import { useTenant } from "@/hooks/useTenant";
+@@ -38,7 +39,12 @@ import {
+   AnnouncementCenterScope,
+   type AnnouncementCourseFilters,
+ } from "@/types/announcement-center";
++import {
++  getBatchCreateToastMessage,
++  parseAnnouncementBatchCreateResult,
++} from "@/helpers/announcement-batch-create";
+ import { buildAnnouncementCenterFormData } from "@/helpers/announcement-center-form-data";
++import { operatorEnum } from "@/types/api";
+ import {
+   COURSE_START_TIMING_LABEL_EARLY,
+   COURSE_START_TIMING_LABEL_LATER,
+@@ -62,6 +68,11 @@ const schema = z.object({
+ 
+ type FormValues = z.infer<typeof schema>;
+ 
++type SelectedCourse = {
++  id: number;
++  title: string;
++};
++
+ export type AnnouncementCreationCenterFormProps = {
+   cancelHref?: string;
+   onCancel?: () => void;
+@@ -82,7 +93,8 @@ export function AnnouncementCreationCenterForm({
+   const microsoftOn = Boolean(tenant?.is_microsoft_on);
+ 
+   const [scope, setScope] = useState(AnnouncementCenterScope.OrgWide);
+-  const [courseId, setCourseId] = useState<number | null>(null);
++  const [selectedCourses, setSelectedCourses] = useState<SelectedCourse[]>([]);
++  const [coursePickerValue, setCoursePickerValue] = useState("");
+   const [attachments, setAttachments] = useState<(attachmentType | File)[]>([]);
+   const [selectedCategories, setSelectedCategories] = useState<entityType[]>([]);
+   const [sendToMicrosoft, setSendToMicrosoft] = useState(false);
+@@ -137,11 +149,69 @@ export function AnnouncementCreationCenterForm({
+ 
+   const categories = categoriesData?.data?.data ?? [];
+ 
++  const courseExcludeParams = useMemo(
++    () =>
++      selectedCourses.length > 0
++        ? [
++            {
++              field_name: "id",
++              operator: operatorEnum.in,
++              value: selectedCourses.map((course) => course.id).join(","),
++            },
++          ]
++        : [],
++    [selectedCourses],
++  );
++
++  const addSelectedCourse = useCallback((course: { id: number; title: string }) => {
++    setSelectedCourses((prev) => {
++      if (prev.some((item) => item.id === course.id)) {
++        return prev;
++      }
++      return [...prev, { id: course.id, title: course.title }];
++    });
++  }, []);
++
++  const removeSelectedCourse = useCallback((courseId: number) => {
++    setSelectedCourses((prev) => prev.filter((course) => course.id !== courseId));
++  }, []);
++
+   const createMutation = useMutation({
+-    mutationKey: ["createAnnouncementCenter"],
+-    mutationFn: (formData: FormData) =>
+-      makePostRequest("announcements", formData, {}, {}),
+-    onSuccess: () => {
++    mutationKey: ["createAnnouncementCenter", scope],
++    mutationFn: ({
++      formData,
++      endpoint,
++    }: {
++      formData: FormData;
++      endpoint: "announcements" | "announcements/batch";
++    }) => makePostRequest(endpoint, formData, {}, {}),
++    onSuccess: (response) => {
++      if (scope === AnnouncementCenterScope.PerCourse) {
++        const { created, failed } = parseAnnouncementBatchCreateResult(response);
++        const toastMessage = getBatchCreateToastMessage(
++          created.length,
++          failed.length,
++        );
++        toast.add({
++          type: toastMessage.type,
++          description: toastMessage.description,
++        });
++        queryClient.invalidateQueries({ queryKey: ["announcementList"] });
++        for (const row of created) {
++          queryClient.invalidateQueries({
++            queryKey: ["announcementList", row.course_id],
++          });
++          queryClient.invalidateQueries({
++            queryKey: ["courseFeed", row.course_id],
++          });
++        }
++        if (created.length === 0) {
++          return;
++        }
++        onSuccess?.();
++        return;
++      }
++
+       toast.add({
+         description:
+           scope === AnnouncementCenterScope.OrgWide && sendToMicrosoft
+@@ -149,12 +219,6 @@ export function AnnouncementCreationCenterForm({
+             : "Announcement created successfully",
+       });
+       queryClient.invalidateQueries({ queryKey: ["announcementList"] });
+-      if (scope === AnnouncementCenterScope.PerCourse && courseId != null) {
+-        queryClient.invalidateQueries({
+-          queryKey: ["announcementList", courseId],
+-        });
+-        queryClient.invalidateQueries({ queryKey: ["courseFeed", courseId] });
+-      }
+       onSuccess?.();
+     },
+     onError: (e) => {
+@@ -194,22 +258,35 @@ export function AnnouncementCreationCenterForm({
+       dataHtml: editor?.getHTML() ?? "",
+       createdById: user?.id,
+       files: filesToUpload,
+-      courseId: courseId ?? undefined,
++      courseIds:
++        scope === AnnouncementCenterScope.PerCourse
++          ? selectedCourses.map((course) => course.id)
++          : undefined,
+       sendToMicrosoft:
+         microsoftOn && sendToMicrosoft ? true : undefined,
+       courseFilters: buildCourseFilters(data),
+     });
+ 
+-    createMutation.mutate(formData);
++    createMutation.mutate({
++      formData,
++      endpoint:
++        scope === AnnouncementCenterScope.PerCourse
++          ? "announcements/batch"
++          : "announcements",
++    });
+     setConfirmOpen(false);
+     setPendingSubmit(null);
+   };
+ 
+   const onSubmit = (data: FormValues) => {
+-    if (scope === AnnouncementCenterScope.PerCourse && courseId == null) {
++    if (
++      scope === AnnouncementCenterScope.PerCourse &&
++      selectedCourses.length === 0
++    ) {
+       toast.add({
+         type: "error",
+-        description: "Select a course before creating the announcement.",
++        description:
++          "Select at least one course before creating the announcement.",
+       });
+       return;
+     }
+@@ -275,7 +352,8 @@ export function AnnouncementCreationCenterForm({
+                   if (!value) return;
+                   setScope(value as AnnouncementCenterScope);
+                   if (value === AnnouncementCenterScope.OrgWide) {
+-                    setCourseId(null);
++                    setSelectedCourses([]);
++                    setCoursePickerValue("");
+                   }
+                 }}
+                 className="justify-start"
+@@ -306,21 +384,63 @@ export function AnnouncementCreationCenterForm({
+                   exit="exit"
+                   className="mt-4 max-w-md"
+                 >
+-                  <EntityCombobox
+-                    entity="courses"
+-                    label="Course"
+-                    value={courseId != null ? String(courseId) : ""}
+-                    onChange={(value) => {
+-                      setCourseId(value ? Number(value) : null);
+-                    }}
+-                    comboboxPlaceholder="Search courses"
+-                    displayFunction={(course) => course.title}
+-                    queryParams={{
+-                      fields: ["id", "title"],
+-                      sorts: ["title"],
+-                      size: 20,
+-                    }}
+-                  />
++                  <div className="space-y-2">
++                    <span className="text-sm text-muted-foreground">Courses</span>
++                    <div className="flex flex-wrap gap-1.5">
++                      {selectedCourses.length === 0 ? (
++                        <p className="text-xs text-muted-foreground">
++                          None selected yet.
++                        </p>
++                      ) : (
++                        selectedCourses.map((course) => (
++                          <span
++                            key={course.id}
++                            className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-surface px-2 py-1 text-xs text-foreground"
++                          >
++                            <span className="max-w-40 truncate">
++                              {course.title}
++                            </span>
++                            <button
++                              type="button"
++                              aria-label={`Remove ${course.title}`}
++                              disabled={isSaving}
++                              className="rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
++                              onClick={() => removeSelectedCourse(course.id)}
++                            >
++                              <Xmark className="size-3" aria-hidden />
++                            </button>
++                          </span>
++                        ))
++                      )}
++                    </div>
++                    <EntityCombobox
++                      entity="courses"
++                      label="Courses"
++                      hideLabel
++                      value={coursePickerValue}
++                      onChange={setCoursePickerValue}
++                      onSelectedEntityChange={(course) => {
++                        if (course?.id == null || !course.title) {
++                          return;
++                        }
++                        addSelectedCourse({
++                          id: Number(course.id),
++                          title: String(course.title),
++                        });
++                        setCoursePickerValue("");
++                      }}
++                      comboboxPlaceholder="Search courses"
++                      displayFunction={(course) => course.title}
++                      filterParams={{
++                        exclude_params: courseExcludeParams,
++                      }}
++                      queryParams={{
++                        fields: ["id", "title"],
++                        sorts: ["title"],
++                        size: 20,
++                      }}
++                    />
++                  </div>
+                 </motion.div>
+               ) : null}
+             </AnimatePresence>

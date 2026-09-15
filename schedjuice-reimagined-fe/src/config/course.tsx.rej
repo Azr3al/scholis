@@ -1,0 +1,16 @@
+diff a/schedjuice-reimagined-fe/src/config/course.tsx b/schedjuice-reimagined-fe/src/config/course.tsx	(rejected hunks)
+@@ -1,4 +1,4 @@
+-import { permissionsFor } from "@/helpers/authorization";
++import { canAccessCourseAttendance, permissionsFor } from "@/helpers/authorization";
+ import { tenantShowsMeetingAttendance } from "@/helpers/meeting-attendance-gate";
+ import { courseType } from "@/types/course";
+ import { organizationType } from "@/types/organization";
+@@ -41,7 +41,7 @@ const dropdownMenuItems: {
+         title: "Attendance",
+         href: "attendance",
+         icon: <UserCheck />,
+-        canShow: (user) => permissionsFor(user).can("attendance.mark"),
++        canShow: (user) => canAccessCourseAttendance(user),
+       },
+       {
+         title: "Check-in History",

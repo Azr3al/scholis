@@ -1,0 +1,26 @@
+diff a/schedjuice-reimagined-be/app_awards/models.py b/schedjuice-reimagined-be/app_awards/models.py	(rejected hunks)
+@@ -130,10 +130,10 @@ class AwardGrant(BaseModel):
+ 
+ 
+ class AwardTemplate(BaseModel):
+-    title = models.ForeignKey(
++    title = models.OneToOneField(
+         AwardTitle,
+         on_delete=models.CASCADE,
+-        related_name="templates",
++        related_name="template",
+     )
+     name = models.CharField(max_length=128)
+     background = models.ImageField(
+@@ -152,10 +152,4 @@ class AwardTemplate(BaseModel):
+     )
+ 
+     class Meta:
+-        constraints = [
+-            UniqueConstraint(
+-                "title",
+-                Lower("name"),
+-                name="uniq_award_template_title_name",
+-            ),
+-        ]
++        pass

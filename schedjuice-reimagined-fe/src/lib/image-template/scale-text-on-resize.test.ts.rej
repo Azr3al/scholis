@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-fe/src/lib/image-template/scale-text-on-resize.test.ts b/schedjuice-reimagined-fe/src/lib/image-template/scale-text-on-resize.test.ts	(rejected hunks)
+@@ -83,7 +83,7 @@ describe("scaleTextOnResize", () => {
+     const factor = Math.hypot(200, 42) / Math.hypot(100, 40);
+     expect(next.width).toBeCloseTo(100 * factor);
+     expect(next.fontSize).toBeCloseTo(24 * factor);
+-    expect(next.height).toBeCloseTo(next.fontSize * 1.2);
++    expect(next.height).toBeCloseTo(next.fontSize! * 1.2);
+     expect(next.x).toBe(0);
+     expect(next.y).toBe(0);
+   });

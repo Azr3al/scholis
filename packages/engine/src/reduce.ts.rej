@@ -1,0 +1,36 @@
+diff a/packages/engine/src/reduce.ts b/packages/engine/src/reduce.ts	(rejected hunks)
+@@ -16,22 +16,11 @@ const reject = (state: AttemptState, reason: ReduceResult['rejected']): ReduceRe
+ const findQuestion = (pkg: TestPackage, questionId: string): PublicQuestion | undefined =>
+   pkg.questions.find((question) => question.id === questionId);
+ 
+-<<<<<<< HEAD
+-/**
+- * Apply one taker action to an attempt.
+- *
+- * Total: every input produces a result, and a rejected event returns the state
+- * untouched with a reason. Never mutates its arguments — the take UI holds the
+- * previous state until IndexedDB confirms the write, so aliasing would corrupt
+- * the rollback.
+- */
+-=======
+ // Total: every input returns a result, and a rejected event returns the state
+ // untouched with a reason.
+ //
+ // Never mutates its arguments — the take UI holds the previous state until
+ // IndexedDB confirms the write, so aliasing would break the rollback.
+->>>>>>> master
+ export const reduce = (
+   pkg: TestPackage,
+   state: AttemptState,
+@@ -132,11 +121,7 @@ export const reduce = (
+       // attempt they can never close.
+       return {
+         state: { ...state, submittedAt: ctx.now.toISOString() },
+-<<<<<<< HEAD
+-        // Submit is its own idempotent endpoint (DESIGN.md §6, rule 4), called
+-=======
+         // Submit is its own idempotent endpoint, called
+->>>>>>> master
+         // after the outbox drains — not an outbox item itself.
+         mutations: [],
+         rejected: null,

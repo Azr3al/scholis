@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-fe/src/components/announcement/announcement-center-page.test.tsx b/schedjuice-reimagined-fe/src/components/announcement/announcement-center-page.test.tsx	(rejected hunks)
+@@ -68,7 +68,7 @@ function renderPage() {
+ describe("AnnouncementCenterPage", () => {
+   beforeEach(() => {
+     mockReplace.mockReset();
+-    for (const key of [...mockSearchParams.keys()]) {
++    for (const key of Array.from(mockSearchParams.keys())) {
+       mockSearchParams.delete(key);
+     }
+   });

@@ -1,0 +1,101 @@
+diff a/packages/schema/src/response.ts b/packages/schema/src/response.ts	(rejected hunks)
+@@ -1,22 +1,4 @@
+ import { z } from 'zod';
+-<<<<<<< HEAD
+-import { richTextSchema } from './rich-text';
+-
+-/**
+- * One taker's answer to one question.
+- *
+- * Collapsing true/false into `choice` (DESIGN.md §4) removed a fourth shape:
+- * a boolean answer is just an option id, so there is no `{ value: true }` case.
+- *
+- * The `kind` discriminator is deliberate redundancy with the question's `type`.
+- * It earns its place because responses travel through the sync protocol
+- * independently of the questions they answer — an outbox flush carries
+- * mutations, not a test package. Without a discriminator, parsing a response
+- * would require first loading its question, which the sync endpoint should not
+- * have to do. It also gives Zod a discriminated union (precise errors) and
+- * makes `switch` exhaustiveness checkable, which our ESLint config enforces.
+- */
+-=======
+ import { richTextSchema, richTextToPlainText, textToRichText, type RichText } from './rich-text';
+ 
+ // One taker's answer to one question.
+@@ -24,28 +6,21 @@ import { richTextSchema, richTextToPlainText, textToRichText, type RichText } fr
+ // The `kind` discriminator duplicates the question's type on purpose —
+ // mutations sync independently of test packages, so the sync endpoint has to
+ // parse a response without loading its question.
+->>>>>>> master
+ export const choiceResponseSchema = z.object({
+   kind: z.literal('choice'),
+   optionIds: z.array(z.string().min(1)),
+ });
+ 
+-<<<<<<< HEAD
+-export const shortResponseSchema = z.object({
+-=======
+ const shortResponseDocSchema = z.object({
+   kind: z.literal('short'),
+   doc: richTextSchema,
+ });
+ 
+ const shortResponseLegacySchema = z.object({
+->>>>>>> master
+   kind: z.literal('short'),
+   text: z.string(),
+ });
+ 
+-<<<<<<< HEAD
+-=======
+ /** Accepts legacy `{ text }` payloads from older clients and normalises to `doc`. */
+ export const shortResponseSchema = z
+   .union([shortResponseDocSchema, shortResponseLegacySchema])
+@@ -54,17 +29,12 @@ export const shortResponseSchema = z
+     return { kind: 'short', doc: textToRichText(val.text) };
+   });
+ 
+->>>>>>> master
+ export const essayResponseSchema = z.object({
+   kind: z.literal('essay'),
+   doc: richTextSchema,
+ });
+ 
+-<<<<<<< HEAD
+-export const responseValueSchema = z.discriminatedUnion('kind', [
+-=======
+ export const responseValueSchema = z.union([
+->>>>>>> master
+   choiceResponseSchema,
+   shortResponseSchema,
+   essayResponseSchema,
+@@ -78,29 +48,14 @@ export const responseKindForQuestionType = {
+   essay: 'essay',
+ } as const satisfies Record<'choice' | 'short' | 'essay', ResponseValue['kind']>;
+ 
+-<<<<<<< HEAD
+-/**
+- * Whether a response carries anything at all.
+- *
+- * "Answered" drives progress counts and the unanswered-questions warning at
+- * submit, so it has to treat a whitespace-only essay and an empty selection as
+- * unanswered — otherwise the UI cheerfully reports 20/20 while the student has
+- * typed nothing.
+- */
+-=======
+ // "Present but empty" has to read as unanswered, or the UI cheerfully reports
+ // 20/20 to a student who typed nothing.
+->>>>>>> master
+ export const isAnswered = (value: ResponseValue): boolean => {
+   switch (value.kind) {
+     case 'choice':
+       return value.optionIds.length > 0;
+     case 'short':
+-<<<<<<< HEAD
+-      return value.text.trim().length > 0;
+-=======
+       return richTextToPlainText(value.doc).trim().length > 0;
+->>>>>>> master
+     case 'essay':
+       return value.doc.content.length > 0;
+   }

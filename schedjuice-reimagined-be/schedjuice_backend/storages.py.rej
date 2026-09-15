@@ -1,0 +1,39 @@
+diff a/schedjuice-reimagined-be/schedjuice_backend/storages.py b/schedjuice-reimagined-be/schedjuice_backend/storages.py	(rejected hunks)
+@@ -11,6 +11,22 @@ from schedjuice_backend.private_media_s3 import (
+ from schedjuice_backend.settings import _do_public_url_bucket_prefix
+ 
+ 
++def build_public_cdn_url_for_s3_key(full_key: str) -> str:
++    """Build a public CDN URL for an absolute Spaces object key."""
++    domain = getattr(settings, "AWS_S3_CUSTOM_DOMAIN", None)
++    bucket = settings.AWS_STORAGE_BUCKET_NAME
++    path = full_key.lstrip("/")
++    if domain:
++        bucket_prefix = _do_public_url_bucket_prefix(domain, bucket)
++        if bucket_prefix:
++            prefix = bucket_prefix.rstrip("/")
++            if not path.startswith(f"{prefix}/"):
++                path = f"{prefix}/{path}"
++        return f"https://{domain}/{path}"
++    region = getattr(settings, "AWS_S3_REGION_NAME", "sgp1")
++    return f"https://{bucket}.{region}.digitaloceanspaces.com/{path}"
++
++
+ class _DoPublicCdnUrlMixin:
+     """Public CDN URLs on a shared DO hostname include the bucket when needed."""
+ 
+@@ -50,6 +66,14 @@ class PublicMediaStorage(_DoPublicCdnUrlMixin, S3Boto3Storage, TenantStorageMixi
+     location = settings.AWS_PUBLIC_MEDIA_LOCATION
+     file_overwrite = False
+ 
++    def url(self, name, parameters=None, expire=None, http_method=None):
++        key = resolve_existing_private_media_s3_key(name, storage=self)
++        if key:
++            return build_public_cdn_url_for_s3_key(key)
++        return super().url(
++            name, parameters=parameters, expire=expire, http_method=http_method
++        )
++
+ 
+ class PrivateMediaStorage(S3Boto3Storage, TenantStorageMixin):
+     location = settings.AWS_PRIVATE_MEDIA_LOCATION

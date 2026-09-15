@@ -1312,6 +1312,344 @@ html[data-theme="dark"] .sj-root {
   }
 }
 
+/* Text shimmer — CSS animation so background-image is not dropped by motion. */
+.sj-text-shimmer {
+  --shimmer-duration: 2s;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-size: 250% 100%, auto;
+  background-repeat: no-repeat, padding-box;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(50% - var(--spread, 2rem)),
+      var(--color-background) calc(50%),
+      transparent calc(50% + var(--spread, 2rem))
+    ),
+    linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground));
+  background-position: 100% center;
+  animation: sj-text-shimmer var(--shimmer-duration) linear infinite;
+}
+
+@keyframes sj-text-shimmer {
+  to {
+    background-position: 0% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-text-shimmer {
+    animation: none;
+    background-position: 0% center;
+  }
+}
+
+/* === Ma composition (DESIGN.md §6, §9) =====================================
+   Latin cannot inherit the airiness of an em-square writing system: it has no
+   ragless rectangle, no half-empty punctuation box, and it breaks lines on fit
+   rather than on meaning. The three rules below manufacture each of those. */
+
+/* 。 occupies a full em square and leaves roughly two-thirds of it empty. A
+   Latin period leaves nothing, so the gap is set explicitly. */
+.sj-root .sj-stop {
+  padding-right: 0.5em;
+}
+
+/* Display headings. Latin ascender height already supplies air, so leading is
+   tighter than the Japanese reference rather than copied from it — but Myanmar
+   stacks diacritics above and below the baseline and clips at this leading. */
+.sj-root .sj-display {
+  line-height: 1.14;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+.sj-root .sj-display[data-script="myanmar"] {
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+/* Lede set on a second axis. Each child is one clause on one line: the break
+   points are authored upstream so the paragraph breaks on meaning. `balance`
+   only handles the overflow case at a narrow measure. */
+.sj-root .sj-lede {
+  line-height: 1.9;
+}
+.sj-root .sj-lede > span {
+  display: block;
+  text-wrap: balance;
+}
+
+.sj-root .sj-dateline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.sj-root .sj-dateline__gregorian {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.sj-root .sj-dateline__myanmar {
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* === Ink bleed ============================================================
+   One static feTurbulence + feDisplacementMap; only the circle's scale
+   animates, so the ragged edge grows organically at no per-frame cost. Two
+   circles at staggered delay give the capillary feathering. */
+.sj-root .sj-ink-act {
+  --ink-x: 50%;
+  --ink-y: 50%;
+  --ink-spread: 620ms;
+  --ink-trail: 820ms;
+  --ink-fade: 420ms;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--ink-spread) var(--ease-quiet);
+}
+.sj-root .sj-ink-act > * {
+  position: relative;
+  z-index: 2;
+}
+.sj-root .sj-ink-act::before,
+.sj-root .sj-ink-act::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: var(--ink-x);
+  top: var(--ink-y);
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transform: scale(0);
+  opacity: 0;
+  filter: url(#sj-ink-bleed-sm);
+}
+.sj-root .sj-ink-act::before {
+  transition:
+    transform var(--ink-spread) var(--ease-quiet),
+    opacity 200ms;
+}
+.sj-root .sj-ink-act::after {
+  transition:
+    transform var(--ink-trail) var(--ease-quiet) 60ms,
+    opacity 300ms;
+}
+.sj-root .sj-ink-act:hover,
+.sj-root .sj-ink-act:focus-visible {
+  color: var(--surface);
+}
+.sj-root .sj-ink-act:hover::before,
+.sj-root .sj-ink-act:focus-visible::before {
+  transform: scale(11);
+  opacity: 1;
+}
+.sj-root .sj-ink-act:hover::after,
+.sj-root .sj-ink-act:focus-visible::after {
+  transform: scale(13);
+  opacity: 0.5;
+}
+/* Ink does not un-spread. On leave it fades in place, then resets instantly
+   once invisible — the asymmetry is what reads as ink rather than as a wipe. */
+.sj-root .sj-ink-act:not(:hover):not(:focus-visible)::before,
+.sj-root .sj-ink-act:not(:hover):not(:focus-visible)::after {
+  transition:
+    opacity var(--ink-fade) ease,
+    transform 0s var(--ink-fade);
+}
+
+/* Settled markers and the seal reuse the same filter at a coarser scale. */
+.sj-root .sj-ink-dot {
+  filter: url(#sj-ink-bleed-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-root .sj-ink-act {
+    --ink-spread: 1ms;
+    --ink-trail: 1ms;
+    --ink-fade: 1ms;
+  }
+}
+
+/* Text shimmer — CSS animation so background-image is not dropped by motion. */
+.sj-text-shimmer {
+  --shimmer-duration: 2s;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-size: 250% 100%, auto;
+  background-repeat: no-repeat, padding-box;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(50% - var(--spread, 2rem)),
+      var(--color-background) calc(50%),
+      transparent calc(50% + var(--spread, 2rem))
+    ),
+    linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground));
+  background-position: 100% center;
+  animation: sj-text-shimmer var(--shimmer-duration) linear infinite;
+}
+
+@keyframes sj-text-shimmer {
+  to {
+    background-position: 0% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-text-shimmer {
+    animation: none;
+    background-position: 0% center;
+  }
+}
+
+/* === Ma composition (DESIGN.md §6, §9) =====================================
+   Latin cannot inherit the airiness of an em-square writing system: it has no
+   ragless rectangle, no half-empty punctuation box, and it breaks lines on fit
+   rather than on meaning. The three rules below manufacture each of those. */
+
+/* 。 occupies a full em square and leaves roughly two-thirds of it empty. A
+   Latin period leaves nothing, so the gap is set explicitly. */
+.sj-root .sj-stop {
+  padding-right: 0.5em;
+}
+
+/* Display headings. Latin ascender height already supplies air, so leading is
+   tighter than the Japanese reference rather than copied from it — but Myanmar
+   stacks diacritics above and below the baseline and clips at this leading. */
+.sj-root .sj-display {
+  line-height: 1.14;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+.sj-root .sj-display[data-script="myanmar"] {
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+/* Lede set on a second axis. Each child is one clause on one line: the break
+   points are authored upstream so the paragraph breaks on meaning. `balance`
+   only handles the overflow case at a narrow measure. */
+.sj-root .sj-lede {
+  line-height: 1.9;
+}
+.sj-root .sj-lede > span {
+  display: block;
+  text-wrap: balance;
+}
+
+.sj-root .sj-dateline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.sj-root .sj-dateline__gregorian {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.sj-root .sj-dateline__myanmar {
+  font-family: var(--font-sans);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* === Ink bleed ============================================================
+   One static feTurbulence + feDisplacementMap; only the circle's scale
+   animates, so the ragged edge grows organically at no per-frame cost. Two
+   circles at staggered delay give the capillary feathering. */
+.sj-root .sj-ink-act {
+  --ink-x: 50%;
+  --ink-y: 50%;
+  --ink-spread: 620ms;
+  --ink-trail: 820ms;
+  --ink-fade: 420ms;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--ink-spread) var(--ease-quiet);
+}
+.sj-root .sj-ink-act > * {
+  position: relative;
+  z-index: 2;
+}
+.sj-root .sj-ink-act::before,
+.sj-root .sj-ink-act::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: var(--ink-x);
+  top: var(--ink-y);
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transform: scale(0);
+  opacity: 0;
+  filter: url(#sj-ink-bleed-sm);
+}
+.sj-root .sj-ink-act::before {
+  transition:
+    transform var(--ink-spread) var(--ease-quiet),
+    opacity 200ms;
+}
+.sj-root .sj-ink-act::after {
+  transition:
+    transform var(--ink-trail) var(--ease-quiet) 60ms,
+    opacity 300ms;
+}
+.sj-root .sj-ink-act:hover,
+.sj-root .sj-ink-act:focus-visible {
+  color: var(--surface);
+}
+.sj-root .sj-ink-act:hover::before,
+.sj-root .sj-ink-act:focus-visible::before {
+  transform: scale(11);
+  opacity: 1;
+}
+.sj-root .sj-ink-act:hover::after,
+.sj-root .sj-ink-act:focus-visible::after {
+  transform: scale(13);
+  opacity: 0.5;
+}
+/* Ink does not un-spread. On leave it fades in place, then resets instantly
+   once invisible — the asymmetry is what reads as ink rather than as a wipe. */
+.sj-root .sj-ink-act:not(:hover):not(:focus-visible)::before,
+.sj-root .sj-ink-act:not(:hover):not(:focus-visible)::after {
+  transition:
+    opacity var(--ink-fade) ease,
+    transform 0s var(--ink-fade);
+}
+
+/* Settled markers and the seal reuse the same filter at a coarser scale. */
+.sj-root .sj-ink-dot {
+  filter: url(#sj-ink-bleed-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-root .sj-ink-act {
+    --ink-spread: 1ms;
+    --ink-trail: 1ms;
+    --ink-fade: 1ms;
+  }
+}
+
 .sj-root .sj-attendance-row-stagger > td {
   opacity: 0;
   animation: sj-attendance-row-fade var(--duration-normal) var(--ease-paper) both;

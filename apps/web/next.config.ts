@@ -2,15 +2,6 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   // Railway runs the app as a Node process, so ship the standalone output and
-<<<<<<< HEAD
-  // keep the image small (DESIGN.md §2).
-  output: 'standalone',
-
-  // Internal packages export TypeScript source rather than a built `dist`.
-  // That removes an entire class of stale-build bugs and the build ordering
-  // that comes with it; Next compiles them alongside app code.
-  transpilePackages: ['@scholis/schema', '@scholis/engine', '@scholis/scoring', '@scholis/db'],
-=======
   // keep the image small.
   output: 'standalone',
 
@@ -40,20 +31,13 @@ const config: NextConfig = {
     const target = process.env.API_PROXY_TARGET ?? 'http://localhost:3001';
     return [{ source: '/api/:path*', destination: `${target}/api/:path*` }];
   },
->>>>>>> master
 
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: false },
 
-<<<<<<< HEAD
-  experimental: {
-    typedRoutes: true,
-  },
-=======
   // Top level rather than under `experimental`, which Next 15.5 deprecated and
   // warned about on every build.
   typedRoutes: true,
->>>>>>> master
 };
 
 export default config;

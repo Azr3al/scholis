@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-fe/src/lib/image-template/pointer-session.test.ts b/schedjuice-reimagined-fe/src/lib/image-template/pointer-session.test.ts	(rejected hunks)
+@@ -219,7 +219,7 @@ describe("reducePointer", () => {
+     expect(next).toBeTruthy();
+     if (!next || next.type !== "text") return;
+     expect(next.fontSize).toBeGreaterThan(24);
+-    expect(next.height).toBeCloseTo(next.fontSize * 1.2);
++    expect(next.height).toBeCloseTo(next.fontSize! * 1.2);
+     expect(next.x).toBe(10);
+     expect(next.y).toBe(20);
+   });

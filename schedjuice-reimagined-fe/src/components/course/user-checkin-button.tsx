@@ -367,6 +367,34 @@ export const UserCheckinButton = ({
         />
       ) : null}
 
+      {showCancelCheckin ? (
+        <CancelCheckinDialog
+          open={cancelCheckinOpen}
+          onOpenChange={setCancelCheckinOpen}
+          isLoading={cancelCheckinMutation.isPending}
+          onConfirm={({ reasonCode, note }) =>
+            cancelCheckinMutation.mutate({
+              reasonCode,
+              note: normalizeCancelCheckinNote(note),
+            })
+          }
+        />
+      ) : null}
+
+      {showCancelCheckin ? (
+        <CancelCheckinDialog
+          open={cancelCheckinOpen}
+          onOpenChange={setCancelCheckinOpen}
+          isLoading={cancelCheckinMutation.isPending}
+          onConfirm={({ reasonCode, note }) =>
+            cancelCheckinMutation.mutate({
+              reasonCode,
+              note: normalizeCancelCheckinNote(note),
+            })
+          }
+        />
+      ) : null}
+
       {showCheckIn ? (
         <UserCheckinPopup
           courseId={courseId}

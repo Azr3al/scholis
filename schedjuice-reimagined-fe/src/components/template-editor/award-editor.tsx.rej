@@ -1,0 +1,186 @@
+diff a/schedjuice-reimagined-fe/src/components/template-editor/award-editor.tsx b/schedjuice-reimagined-fe/src/components/template-editor/award-editor.tsx	(rejected hunks)
+@@ -30,9 +30,13 @@ import {
+ import { layerOriginForViewCenter } from "@/lib/image-template/place-layer";
+ import { shouldConfirmClose } from "@/lib/image-template/should-confirm-close";
+ import type { AwardDocument, Layer } from "@/lib/image-template/types";
+-import { getAwardTemplate, getAwardTitle, updateAwardTemplate } from "@/lib/awards-api";
++import {
++  getAwardCertificate,
++  getAwardTitle,
++  updateAwardCertificate,
++} from "@/lib/awards-api";
+ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+-import { useParams, useRouter } from "next/navigation";
++import { useRouter } from "next/navigation";
+ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+ 
+ function isBackgroundError(error: unknown): boolean {
+@@ -41,9 +45,7 @@ function isBackgroundError(error: unknown): boolean {
+   return Boolean(details && "background" in details);
+ }
+ 
+-export function AwardEditor() {
+-  const { templateId } = useParams<{ templateId: string }>();
+-  const id = Number(templateId);
++export function AwardEditor({ titleId }: { titleId: number }) {
+   const router = useRouter();
+   const toast = useToast();
+   const queryClient = useQueryClient();
+@@ -55,7 +57,6 @@ export function AwardEditor() {
+   const [dirty, setDirty] = useState(false);
+   const [pendingFile, setPendingFile] = useState<File | null>(null);
+   const [undo, setUndo] = useState<AwardDocument[]>([]);
+-  const [templateName, setTemplateName] = useState("Untitled");
+   const [previewOpen, setPreviewOpen] = useState(false);
+   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(
+     null,
+@@ -79,22 +80,27 @@ export function AwardEditor() {
+     img.src = url;
+   }, [pendingUrl, document?.background.url]);
+ 
+-  const query = useQuery({
+-    queryKey: ["award-template", id],
+-    queryFn: () => getAwardTemplate(id),
+-    enabled: Number.isFinite(id),
++  const certificateQuery = useQuery({
++    queryKey: ["award-certificate", titleId],
++    queryFn: () => getAwardCertificate(titleId),
++    enabled: Number.isFinite(titleId),
+   });
+   const titleQuery = useQuery({
+-    queryKey: ["award-title", query.data?.title],
+-    queryFn: () => getAwardTitle(query.data!.title),
+-    enabled: Number.isFinite(query.data?.title),
++    queryKey: ["award-title", titleId],
++    queryFn: () => getAwardTitle(titleId),
++    enabled: Number.isFinite(titleId),
+   });
+ 
+   useEffect(() => {
+-    if (!query.data) return;
+-    const parsed = parseAwardDocument(query.data.document);
++    if (!certificateQuery.isSuccess) return;
++    if (certificateQuery.data === null) {
++      router.replace(`/award-titles/${titleId}/edit`);
++      return;
++    }
++    const certificate = certificateQuery.data;
++    const parsed = parseAwardDocument(certificate.document);
+     if (parsed === null) {
+-      const raw = query.data.document;
++      const raw = certificate.document;
+       const empty =
+         raw &&
+         typeof raw === "object" &&
+@@ -102,25 +108,23 @@ export function AwardEditor() {
+         Object.keys(raw as object).length === 0;
+       if (!empty) {
+         setMalformed(true);
+-        toast.add({ type: "error", title: "Could not open this template." });
++        toast.add({ type: "error", title: "Could not open this certificate." });
+         return;
+       }
+-      setTemplateName(query.data.name?.trim() || "Untitled");
+       setDocument({
+         ...emptyAwardDocument(),
+-        background: { url: query.data.background_url, ...IDENTITY_FILL },
++        background: { url: certificate.background_url, ...IDENTITY_FILL },
+       });
+       setDirty(false);
+       return;
+     }
+-    setTemplateName(query.data.name?.trim() || "Untitled");
+     setDocument({
+       ...parsed,
+-      background: { ...parsed.background, url: query.data.background_url },
++      background: { ...parsed.background, url: certificate.background_url },
+     });
+     setDirty(false);
+     // eslint-disable-next-line react-hooks/exhaustive-deps -- toast once on load
+-  }, [query.data]);
++  }, [certificateQuery.data, certificateQuery.isSuccess, titleId, router]);
+ 
+   const commit = useCallback((next: AwardDocument) => {
+     setUndo((stack) => (document ? [...stack, document] : stack));
+@@ -133,8 +137,7 @@ export function AwardEditor() {
+   const save = useMutation({
+     mutationFn: async () => {
+       if (!document) throw new Error("missing document");
+-      return updateAwardTemplate(id, {
+-        name: templateName,
++      return updateAwardCertificate(titleId, {
+         document,
+         background: pendingFile ?? undefined,
+       });
+@@ -153,24 +156,23 @@ export function AwardEditor() {
+             : current,
+         );
+       }
+-      queryClient.setQueryData(["award-template", id], saved);
++      queryClient.setQueryData(["award-certificate", titleId], saved);
+       setDirty(false);
+       setPendingFile(null);
+-      toast.add({ title: "Template saved." });
++      toast.add({ title: "Certificate saved." });
+     },
+     onError: (error) => {
+       toast.add({
+         type: "error",
+         title: isBackgroundError(error)
+           ? "Background image required"
+-          : "Could not save template.",
++          : "Could not save certificate.",
+       });
+     },
+   });
+ 
+-  const homeHref = query.data
+-    ? `/award-titles/${query.data.title}/edit`
+-    : "/award-titles";
++  const homeHref = `/award-titles/${titleId}/edit`;
++  const displayName = titleQuery.data?.name ?? "Untitled";
+ 
+   const goHome = () => {
+     if (
+@@ -219,7 +221,7 @@ export function AwardEditor() {
+   if (malformed) {
+     return (
+       <div className="p-6">
+-        <p className="text-sm text-red-300">Could not open this template.</p>
++        <p className="text-sm text-red-300">Could not open this certificate.</p>
+         <button type="button" className="mt-3 underline" onClick={goHome}>
+           Back
+         </button>
+@@ -227,7 +229,7 @@ export function AwardEditor() {
+     );
+   }
+ 
+-  if (!document || query.isLoading) {
++  if (!document || certificateQuery.isLoading || titleQuery.isLoading) {
+     return <p className="p-6 text-sm text-text-muted">Loading…</p>;
+   }
+ 
+@@ -265,11 +267,9 @@ export function AwardEditor() {
+   return (
+     <EditorShell
+       section="Award titles"
+-      title={templateName}
+-      onTitleChange={(next) => {
+-        setTemplateName(next);
+-        setDirty(true);
+-      }}
++      title={displayName}
++      titleReadOnly
++      onTitleChange={() => {}}
+       backHref={homeHref}
+       onBack={goHome}
+       onSave={() => save.mutate()}
+@@ -386,7 +386,7 @@ export function AwardEditor() {
+             url: pendingUrl ?? document.background.url,
+           },
+         }}
+-        awardTitle={titleQuery.data?.name ?? ""}
++        awardTitle={displayName}
+       />
+     </EditorShell>
+   );

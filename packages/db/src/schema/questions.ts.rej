@@ -1,0 +1,57 @@
+diff a/packages/db/src/schema/questions.ts b/packages/db/src/schema/questions.ts	(rejected hunks)
+@@ -12,16 +12,6 @@ import {
+ } from 'drizzle-orm/pg-core';
+ import { tests } from './tests';
+ 
+-<<<<<<< HEAD
+-/**
+- * Three storage types. The teacher sees five (DESIGN.md §4).
+- *
+- * True/false, Yes/No and rating scales are authoring templates over `choice`,
+- * recorded in `settings.variant`. Adding a template is UI work and no migration.
+- */
+-export const questionType = pgEnum('question_type', ['choice', 'short', 'essay']);
+-
+-=======
+ // Three storage types, five in the UI. Variants live in `settings`, so adding a
+ // template is UI work and no migration.
+ export const questionType = pgEnum('question_type', ['choice', 'short', 'essay']);
+@@ -51,7 +41,6 @@ export const sections = pgTable(
+   (table) => [index('sections_test_position_idx').on(table.testId, table.position)],
+ );
+ 
+->>>>>>> master
+ export const questions = pgTable(
+   'questions',
+   {
+@@ -68,30 +57,17 @@ export const questions = pgTable(
+     points: integer('points').notNull().default(1),
+     position: integer('position').notNull().default(0),
+ 
+-<<<<<<< HEAD
+-=======
+     // Nullable, and set null rather than cascade when a section goes: deleting
+     // a heading must not delete the questions under it.
+     sectionId: uuid('section_id').references(() => sections.id, { onDelete: 'set null' }),
+ 
+->>>>>>> master
+     settings: jsonb('settings').$type<ChoiceSettings | ShortSettings | EssaySettings>().notNull(),
+   },
+   (table) => [index('questions_test_position_idx').on(table.testId, table.position)],
+ );
+ 
+-<<<<<<< HEAD
+-/**
+- * ANSWER KEY. `is_correct` never leaves the server.
+- *
+- * `testPackageSchema.parse` strips it by construction (see
+- * `packages/schema/src/question.ts`), and `no-scoring-in-client` stops client
+- * code reaching the scorer that reads it.
+- */
+-=======
+ // ANSWER KEY. is_correct never leaves the server — testPackageSchema.parse
+ // strips it, and no-scoring-in-client stops client code reaching the scorer.
+->>>>>>> master
+ export const questionOptions = pgTable(
+   'question_options',
+   {

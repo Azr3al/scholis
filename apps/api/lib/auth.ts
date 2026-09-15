@@ -2,6 +2,7 @@ import { accounts, sessions, users, verifications } from '@scholis/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { magicLink } from 'better-auth/plugins';
+import { teacherSso } from './auth-plugins/teacher-sso';
 import { getDb, requireEnv } from './db';
 import { createMailer } from './mail';
 
@@ -75,11 +76,21 @@ export const auth = betterAuth({
         });
       },
     }),
+
+    // Sign-in for a teacher arriving from an integrating platform, which mints
+    // the ticket with its org credential. See lib/auth-plugins/teacher-sso.ts.
+    teacherSso(),
   ],
 
-  // Google is deliberately absent until requirements are confirmed. Adding it
-  // is a `socialProviders` entry plus credentials — the `accounts` table that
-  // would store the linkage already exists, so it is not a migration.
+  // Google and Microsoft are deliberately absent until requirements are
+  // confirmed. Adding either is a `socialProviders` entry plus credentials —
+  // the `accounts` table that would store the linkage already exists, so it is
+  // not a migration.
+  //
+  // They are also not what an integrating platform needs. A school running
+  // Schedjuice has already authenticated this teacher there; asking them to
+  // prove it again to a third party would be a second inbox to check for no
+  // security gained. That is the case `teacherSso` covers.
 });
 
 export type Session = typeof auth.$Infer.Session;

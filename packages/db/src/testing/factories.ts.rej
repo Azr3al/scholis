@@ -1,0 +1,13 @@
+diff a/packages/db/src/testing/factories.ts b/packages/db/src/testing/factories.ts	(rejected hunks)
+@@ -96,11 +96,7 @@ export const makeChoiceQuestion = async (
+   const settings: ChoiceSettings = {
+     selection: 'single',
+     variant: 'plain',
+-<<<<<<< HEAD
+-    partialCredit: false,
+-=======
+     rubric: null,
+->>>>>>> master
+     ...args.settings,
+   };
+ 

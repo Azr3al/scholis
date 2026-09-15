@@ -1,0 +1,13 @@
+diff a/schedjuice-reimagined-fe/src/app/(internal)/quizzes-v3/[id]/edit/page.tsx b/schedjuice-reimagined-fe/src/app/(internal)/quizzes-v3/[id]/edit/page.tsx	(rejected hunks)
+@@ -57,10 +57,7 @@ function QuizV3EditStudentLinkBlock({ quizId }: { quizId: number }) {
+ 
+   if (!quiz?.code) return null;
+ 
+-  const takeUrl =
+-    typeof window !== "undefined"
+-      ? `${window.location.origin}/take/${quiz.code}`
+-      : `/take/${quiz.code}`;
++  const takeUrl = `/take/${quiz.code}`;
+ 
+   return (
+     <QuizTakeLinkCard

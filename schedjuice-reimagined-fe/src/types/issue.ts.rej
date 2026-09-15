@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-fe/src/types/issue.ts b/schedjuice-reimagined-fe/src/types/issue.ts	(rejected hunks)
+@@ -17,7 +17,7 @@ export interface IssueStatus {
+ }
+ 
+ export interface IssueUserMini {
+-  id: number;
++  id: number | null;
+   name: string;
+   email: string;
+ }

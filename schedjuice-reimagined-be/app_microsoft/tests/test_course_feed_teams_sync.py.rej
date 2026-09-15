@@ -1,0 +1,31 @@
+diff a/schedjuice-reimagined-be/app_microsoft/tests/test_course_feed_teams_sync.py b/schedjuice-reimagined-be/app_microsoft/tests/test_course_feed_teams_sync.py	(rejected hunks)
+@@ -1,3 +1,4 @@
++from datetime import datetime, timezone as dt_timezone
+ from types import SimpleNamespace
+ from unittest.mock import MagicMock, patch
+ 
+@@ -44,6 +45,24 @@ class BuildTeamsHtmlTests(SimpleTestCase):
+         self.assertIn("<h2>Daily lesson</h2>", html)
+         self.assertNotIn("Unit None", html)
+ 
++    @patch("django.utils.timezone.now")
++    def test_footer_uses_tenant_timezone(self, mock_now):
++        mock_now.return_value = datetime(2026, 9, 3, 8, 17, tzinfo=dt_timezone.utc)
++        announcement = SimpleNamespace(
++            post_type=PostType.ANNOUNCEMENT,
++            finished_unit=None,
++            title="Hello",
++            html_data="<p>Body</p>",
++            data=None,
++            attachments=MagicMock(all=MagicMock(return_value=[])),
++        )
++        tenant = SimpleNamespace(timezone="Asia/Yangon")
++        html, _hosted = _build_teams_html(announcement, tenant)
++        self.assertIn(
++            "<p><em>automatically sent at 2026-09-03 14:47:00</em></p>",
++            html,
++        )
++
+ class SyncCourseAnnouncementToTeamsTests(SimpleTestCase):
+     def _announcement(self, **overrides):
+         base = {

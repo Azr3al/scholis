@@ -1,0 +1,126 @@
+diff a/schedjuice-reimagined-be/app_finance/management/commands/delete-pre-join-invoices.py b/schedjuice-reimagined-be/app_finance/management/commands/delete-pre-join-invoices.py	(rejected hunks)
+@@ -2,21 +2,20 @@
+ Delete pending invoices issued before a late joiner's billing anchor.
+ 
+ Usage:
+-  python manage.py delete-pre-join-invoices --course-id 123 --dry-run
+-  python manage.py delete-pre-join-invoices --course-id 123 --schema-name xschedjuice
++  python manage.py delete-pre-join-invoices --schema-name xschedjuice --dry-run
++  python manage.py delete-pre-join-invoices --course-id 123 --schema-name xschedjuice --apply
+ """
+ 
+ from __future__ import annotations
+ 
+-from datetime import datetime, time
+-
+ from django.core.management.base import BaseCommand
+-from django.utils import timezone as dj_timezone
+ from tenant_schemas.utils import get_public_schema_name, schema_context
+ 
+ from app_course.models import Course, UserCourse
+-from app_finance.enrollment_anchor import resolve_anchor_for_enrollment
+-from app_finance.models import UserPayment
++from app_finance.late_joiner_backfill import (
++    delete_pre_join_pending_invoices,
++    iter_candidate_enrollments,
++)
+ from app_organization.models import Organization
+ 
+ 
+@@ -30,8 +29,8 @@ class Command(BaseCommand):
+         parser.add_argument(
+             "--course-id",
+             type=int,
+-            required=True,
+-            help="Course whose late-joiner invoices should be cleaned up.",
++            default=None,
++            help="Course whose late-joiner invoices should be cleaned up (optional).",
+         )
+         parser.add_argument(
+             "--dry-run",
+@@ -51,7 +50,7 @@ class Command(BaseCommand):
+         )
+ 
+     def handle(self, *args, **options):
+-        course_id = options["course_id"]
++        course_id = options.get("course_id")
+         dry_run = not options["apply"]
+         schema_name_arg = options.get("schema_name")
+ 
+@@ -71,16 +70,28 @@ class Command(BaseCommand):
+         total_deleted = 0
+         for schema_name in schemas:
+             with schema_context(schema_name):
+-                course = Course.objects.filter(id=course_id).first()
+-                if course is None:
++                if course_id is not None and not Course.objects.filter(id=course_id).exists():
+                     continue
+-                deleted = self._cleanup_course(course_id, dry_run=dry_run)
++                enrollments = list(
++                    iter_candidate_enrollments(course_id=course_id, force=True)
++                )
++                delete_rows, deleted = delete_pre_join_pending_invoices(
++                    enrollments,
++                    dry_run=dry_run,
++                    course_id=course_id,
++                )
+                 total_deleted += deleted
+                 if deleted:
++                    scope = f"course {course_id}" if course_id else "tenant"
+                     self.stdout.write(
+-                        f"[{schema_name}] course {course_id}: "
++                        f"[{schema_name}] {scope}: "
+                         f"{'would delete' if dry_run else 'deleted'} {deleted} row(s)"
+                     )
++                    for row in delete_rows:
++                        self.stdout.write(
++                            f"  payment {row.payment_id}: user={row.user_id} "
++                            f"billing_end={row.billing_end_date}"
++                        )
+ 
+         if total_deleted == 0:
+             self.stdout.write("No matching pending_payment rows found.")
+@@ -90,43 +101,3 @@ class Command(BaseCommand):
+                     f"Re-run with --apply to delete {total_deleted} row(s)."
+                 )
+             )
+-
+-    def _cleanup_course(self, course_id: int, *, dry_run: bool) -> int:
+-        enrollments = UserCourse.objects.filter(
+-            course_id=course_id,
+-            assigned_as=UserCourse.AssignedAs.STUDENT,
+-        )
+-        ids_to_delete: list[int] = []
+-        for enrollment in enrollments:
+-            anchor = enrollment.billing_cycle_anchor_date or resolve_anchor_for_enrollment(
+-                enrollment
+-            )
+-            if anchor is None:
+-                continue
+-            anchor_end = dj_timezone.make_aware(
+-                datetime.combine(anchor, time.max),
+-                timezone=dj_timezone.utc,
+-            )
+-            qs = UserPayment.objects.filter(
+-                user_id=enrollment.user_id,
+-                course_id=course_id,
+-                status=UserPayment.Status.PENDING_PAYMENT,
+-                billing_end_date__lt=anchor_end,
+-            )
+-            ids_to_delete.extend(qs.values_list("id", flat=True))
+-
+-        if not ids_to_delete:
+-            return 0
+-        unique_ids = sorted(set(ids_to_delete))
+-        if dry_run:
+-            for payment_id in unique_ids:
+-                payment = UserPayment.objects.filter(id=payment_id).first()
+-                if payment:
+-                    self.stdout.write(
+-                        f"  payment {payment_id}: user={payment.user_id} "
+-                        f"billing_end={payment.billing_end_date}"
+-                    )
+-            return len(unique_ids)
+-
+-        deleted, _ = UserPayment.objects.filter(id__in=unique_ids).delete()
+-        return deleted

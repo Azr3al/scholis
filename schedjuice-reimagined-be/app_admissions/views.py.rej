@@ -1,0 +1,72 @@
+diff a/schedjuice-reimagined-be/app_admissions/views.py b/schedjuice-reimagined-be/app_admissions/views.py	(rejected hunks)
+@@ -22,6 +22,36 @@ class AdmissionsPeopleSearchView(OptimizedSearchMixin, RBACSearchView):
+     def get_serializer_class(self):
+         return AdmissionsPersonSerializer
+ 
++    def get_queryset(
++        self,
++        request,
++        filter_params=None,
++        exclude_params=None,
++        is_csv=False,
++        fields=None,
++        sorts=None,
++        expand=None,
++        filter_ids=None,
++        chained_filter_params=None,
++    ):
++        from app_admissions.services import is_admissions_students_search
++
++        if is_admissions_students_search(request):
++            get = request._request.GET.copy()
++            get["include_inactive"] = "true"
++            request._request.GET = get
++        return super().get_queryset(
++            request,
++            filter_params,
++            exclude_params,
++            is_csv,
++            fields,
++            sorts,
++            expand,
++            filter_ids,
++            chained_filter_params,
++        )
++
+     def augment_search_queryset(self, queryset, expand, is_csv):
+         queryset = super().augment_search_queryset(queryset, expand, is_csv)
+         from app_auth.user_search import apply_user_search_q_with_meta, get_search_q
+@@ -33,6 +63,17 @@ class AdmissionsPeopleSearchView(OptimizedSearchMixin, RBACSearchView):
+             )
+         else:
+             self._search_used_fallback = False
++        from app_admissions.services import (
++            annotate_is_attending,
++            include_alumni_requested,
++            is_admissions_students_search,
++        )
++
++        queryset = annotate_is_attending(queryset)
++        if is_admissions_students_search(self.request) and not include_alumni_requested(
++            self.request
++        ):
++            queryset = queryset.filter(is_attending=True)
+         return queryset
+ 
+     def post(self, request, filter_ids=None):
+@@ -46,11 +87,13 @@ class AdmissionsPersonAttendingView(RBACView):
+     required_permissions = {"GET": "admissions.view"}
+ 
+     def get(self, request, id: int):
+-        user = User.objects.filter(pk=id).first()
++        from app_admissions.services import annotate_is_attending, attending_classes_for_user
++
++        user = annotate_is_attending(User.objects.filter(pk=id)).first()
+         if user is None:
+             return self.not_found()
+         data = dict(AdmissionsPersonSerializer(user).data)
+-        data["classes"] = attending_classes_for_user(user)
++        data["classes"] = attending_classes_for_user(user, request=request)
+         return self.ok(data)
+ 
+ 

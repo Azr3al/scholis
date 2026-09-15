@@ -1,0 +1,149 @@
+diff a/schedjuice-reimagined-be/app_finance/tests/test_payment_method.py b/schedjuice-reimagined-be/app_finance/tests/test_payment_method.py	(rejected hunks)
+@@ -7,12 +7,15 @@ from tenant_schemas.utils import schema_context
+ 
+ from app_auth.models import User
+ from app_finance.models import PaymentBank, PaymentMethod
++from app_finance.student_checkout import _resolve_payment_method
+ 
+ 
+ class PaymentMethodApiTests(APITestCase):
+     schema_name = "xschedjuice"
+     admin_email = "james@schedjuice.com"
+     admin_password = "password123"
++    student_email = "student@schedjuice.com"
++    student_password = "password123"
+ 
+     @classmethod
+     def setUpTestData(cls):
+@@ -61,3 +68,131 @@ class PaymentMethodApiTests(APITestCase):
+         with schema_context(self.schema_name):
+             method = PaymentMethod.objects.get(pk=method_id)
+             self.assertEqual(method.bank_account_number, "09123456789")
++
++    def test_put_retires_and_unretires(self):
++        suffix = uuid4().hex[:8]
++        with schema_context(self.schema_name):
++            method = PaymentMethod.objects.create(
++                name=f"Retire toggle {suffix}",
++                payment_bank=PaymentBank.KPAY,
++            )
++            method_id = method.id
++            self.assertFalse(method.is_retired)
++
++        token = self._login(self.admin_email, self.admin_password)
++        res = self.client.put(
++            reverse("payment-method-details", kwargs={"obj_id": method_id}),
++            {"is_retired": True},
++            format="json",
++            **self._auth(token),
++        )
++        self.assertEqual(res.status_code, 200, res.content)
++        with schema_context(self.schema_name):
++            method = PaymentMethod.objects.get(pk=method_id)
++            self.assertTrue(method.is_retired)
++
++        res = self.client.put(
++            reverse("payment-method-details", kwargs={"obj_id": method_id}),
++            {"is_retired": False},
++            format="json",
++            **self._auth(token),
++        )
++        self.assertEqual(res.status_code, 200, res.content)
++        with schema_context(self.schema_name):
++            method = PaymentMethod.objects.get(pk=method_id)
++            self.assertFalse(method.is_retired)
++
++    def test_student_search_omits_retired_methods(self):
++        suffix = uuid4().hex[:8]
++        with schema_context(self.schema_name):
++            active = PaymentMethod.objects.create(
++                name=f"Active {suffix}",
++                payment_bank=PaymentBank.KPAY,
++            )
++            retired = PaymentMethod.objects.create(
++                name=f"Retired {suffix}",
++                payment_bank=PaymentBank.AYA,
++                is_retired=True,
++            )
++            active_id = active.id
++            retired_id = retired.id
++
++        token = self._login(self.student_email, self.student_password)
++        res = self.client.post(
++            reverse("payment-method-search"),
++            {"filter_params": []},
++            format="json",
++            QUERY_STRING="size=-1",
++            **self._auth(token),
++        )
++        self.assertEqual(res.status_code, 200, res.content)
++        ids = {row["id"] for row in res.data["data"]}
++        self.assertIn(active_id, ids)
++        self.assertNotIn(retired_id, ids)
++
++    def test_admin_search_includes_retired_methods(self):
++        suffix = uuid4().hex[:8]
++        with schema_context(self.schema_name):
++            retired = PaymentMethod.objects.create(
++                name=f"Admin sees retired {suffix}",
++                payment_bank=PaymentBank.KBZ,
++                is_retired=True,
++            )
++            retired_id = retired.id
++
++        token = self._login(self.admin_email, self.admin_password)
++        res = self.client.post(
++            reverse("payment-method-search"),
++            {"filter_params": []},
++            format="json",
++            QUERY_STRING="size=-1",
++            **self._auth(token),
++        )
++        self.assertEqual(res.status_code, 200, res.content)
++        ids = {row["id"] for row in res.data["data"]}
++        self.assertIn(retired_id, ids)
++
++    def test_student_cannot_opt_into_retired_via_filter(self):
++        suffix = uuid4().hex[:8]
++        with schema_context(self.schema_name):
++            retired = PaymentMethod.objects.create(
++                name=f"Hidden retired {suffix}",
++                payment_bank=PaymentBank.CB,
++                is_retired=True,
++            )
++            retired_id = retired.id
++
++        token = self._login(self.student_email, self.student_password)
++        res = self.client.post(
++            reverse("payment-method-search"),
++            {
++                "filter_params": [
++                    {
++                        "field_name": "is_retired",
++                        "operator": "exact",
++                        "value": "true",
++                    }
++                ]
++            },
++            format="json",
++            QUERY_STRING="size=-1",
++            **self._auth(token),
++        )
++        self.assertEqual(res.status_code, 200, res.content)
++        ids = {row["id"] for row in res.data["data"]}
++        self.assertNotIn(retired_id, ids)
++
++    def test_resolve_payment_method_skips_retired(self):
++        suffix = uuid4().hex[:8]
++        with schema_context(self.schema_name):
++            retired = PaymentMethod.objects.create(
++                name=f"Checkout retired {suffix}",
++                payment_bank=PaymentBank.YOMA,
++                is_retired=True,
++            )
++            active = PaymentMethod.objects.create(
++                name=f"Checkout active {suffix}",
++                payment_bank=PaymentBank.YOMA,
++            )
++            self.assertIsNone(_resolve_payment_method(retired.id))
++            self.assertEqual(_resolve_payment_method(active.id).id, active.id)

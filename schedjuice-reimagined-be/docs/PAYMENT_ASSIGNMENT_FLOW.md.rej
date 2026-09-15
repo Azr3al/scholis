@@ -1,0 +1,40 @@
+diff a/schedjuice-reimagined-be/docs/PAYMENT_ASSIGNMENT_FLOW.md b/schedjuice-reimagined-be/docs/PAYMENT_ASSIGNMENT_FLOW.md	(rejected hunks)
+@@ -316,3 +316,38 @@ Use this to backfill changes when the HM/FM threshold or due date rules are upda
+ - **API**: `POST /education/classes/{id}/assignments` (create), `POST .../assignments/{id}/publish` (publish)
+ - **Auth**: App-only client credentials (`MSEducation`), same as Teams group creation
+ 
++---
++
++## Flow 5: Late joiner billing backfill
++
++**When**: One-time after deploying late-joiner billing, or when existing students were enrolled mid-term before `billing_cycle_anchor_date` was set.
++
++**Command**: `python manage.py backfill-late-joiner-billing`
++
++**Options**:
++
++- `--schema-name tenant_schema`: Required tenant scope
++- `--course-id 123`: Limit to one course (optional)
++- `--dry-run`: Preview anchors and pending invoices to delete (default when `--apply` omitted)
++- `--apply`: Persist `billing_cycle_anchor_date` and delete pre-anchor `pending_payment` rows
++- `--force`: Recompute anchors even when already set
++
++**Path**: `app_finance/management/commands/backfill-late-joiner-billing.py`
++
++**Logic**:
++
++1. Scan student `UserCourse` rows (tenant-wide unless `--course-id`).
++2. Resolve late-joiner anchor per enrollment (first future session, or join date when no sessions remain on/after join).
++3. Set `billing_cycle_anchor_date` when resolved.
++4. Delete `pending_payment` rows whose `billing_end_date` is before the anchor day.
++
++**Related cleanup-only command**: `delete-pre-join-invoices` (same pre-anchor deletion; optional `--course-id`; does not set anchors).
++
++**Admin workflow**:
++
++1. Run dry-run from internal management commands (Finance) or CLI.
++2. Review affected courses/students and pending invoice ids.
++3. Re-run with `--apply`.
++
++**Not in scope**: Paid or non-pending invoices before the anchor — manual finance review required.
++

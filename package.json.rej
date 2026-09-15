@@ -1,0 +1,22 @@
+diff a/package.json b/package.json	(rejected hunks)
+@@ -15,20 +15,13 @@
+     "arch": "depcruise --config .dependency-cruiser.cjs packages apps",
+     "format": "prettier --write .",
+     "format:check": "prettier --check .",
+-<<<<<<< HEAD
+-    "verify": "pnpm typecheck && pnpm lint && pnpm arch && pnpm test"
+-=======
+     "verify": "pnpm typecheck && pnpm lint && pnpm arch && pnpm test",
+     "test:e2e": "pnpm --filter @scholis/web test:e2e"
+->>>>>>> master
+   },
+   "devDependencies": {
+     "@scholis/config": "workspace:*",
+     "dependency-cruiser": "^16.9.0",
+-<<<<<<< HEAD
+-=======
+     "dotenv-cli": "^11.0.0",
+->>>>>>> master
+     "prettier": "^3.4.2",
+     "prettier-plugin-organize-imports": "^4.1.0",
+     "turbo": "^2.3.3",

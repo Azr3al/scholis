@@ -1,0 +1,33 @@
+diff a/schedjuice-reimagined-be/app_awards/tests/test_services.py b/schedjuice-reimagined-be/app_awards/tests/test_services.py	(rejected hunks)
+@@ -254,26 +254,17 @@ class AwardGrantServiceTests(TestCase):
+                 1,
+             )
+ 
+-    def test_display_template_is_oldest(self):
++    def test_display_template_returns_linked_template(self):
+         with schema_context(self.schema_name):
+             _teacher, _student, _course, top1, _top2, _today = self._setup()
+-            newer = AwardTemplate.objects.create(
++            tmpl = AwardTemplate.objects.create(
+                 title=top1,
+-                name="New",
++                name=top1.name,
+                 document=dict(EMPTY_AWARD_DOCUMENT),
+             )
+-            older = AwardTemplate.objects.create(
+-                title=top1,
+-                name="Old",
+-                document=dict(EMPTY_AWARD_DOCUMENT),
+-            )
+-            AwardTemplate.objects.filter(pk=older.pk).update(
+-                created_at=newer.created_at - timedelta(days=1)
+-            )
+-            older.refresh_from_db()
+             payload = serialize_display_template(top1)
+-            self.assertEqual(payload["id"], older.id)
+-            self.assertEqual(payload["name"], "Old")
++            self.assertEqual(payload["id"], tmpl.id)
++            self.assertEqual(payload["name"], top1.name)
+             self.assertIn("document", payload)
+             self.assertIn("background_url", payload)
+ 

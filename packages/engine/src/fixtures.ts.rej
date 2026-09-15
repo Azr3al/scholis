@@ -1,0 +1,48 @@
+diff a/packages/engine/src/fixtures.ts b/packages/engine/src/fixtures.ts	(rejected hunks)
+@@ -22,12 +22,8 @@ export const choiceQuestion = (
+   body: emptyRichText(),
+   points: 1,
+   position: 0,
+-<<<<<<< HEAD
+-  settings: { selection: 'single', variant: 'plain', partialCredit: false },
+-=======
+   settings: { selection: 'single', variant: 'plain', rubric: null, partialCredit: false },
+   sectionId: null,
+->>>>>>> master
+   options: [
+     { id: `${id}-a`, body: emptyRichText() },
+     { id: `${id}-b`, body: emptyRichText() },
+@@ -41,10 +37,7 @@ export const shortQuestion = (id: string): PublicQuestion => ({
+   body: emptyRichText(),
+   points: 1,
+   position: 0,
+-<<<<<<< HEAD
+-=======
+   sectionId: null,
+->>>>>>> master
+   settings: { caseSensitive: false },
+ });
+ 
+@@ -60,10 +53,7 @@ export const essayQuestion = (
+   body: emptyRichText(),
+   points: 5,
+   position: 0,
+-<<<<<<< HEAD
+-=======
+   sectionId: null,
+->>>>>>> master
+   settings,
+ });
+ 
+@@ -76,11 +66,8 @@ export const testPackage = (
+   title: 'Test',
+   timeLimitMinutes: 30,
+   allowNavigation: true,
+-<<<<<<< HEAD
+-=======
+   testTakingMode: false,
+   sections: [],
+->>>>>>> master
+   introBody: emptyRichText(),
+   outroBody: emptyRichText(),
+   questions: questions.map((question, index) => ({ ...question, position: index })),

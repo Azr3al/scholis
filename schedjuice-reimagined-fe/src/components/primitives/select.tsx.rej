@@ -1,0 +1,104 @@
+diff a/schedjuice-reimagined-fe/src/components/primitives/select.tsx b/schedjuice-reimagined-fe/src/components/primitives/select.tsx	(rejected hunks)
+@@ -4,6 +4,8 @@ import { type ComponentProps, type ReactNode } from "react";
+ import { Select as BaseSelect } from "@base-ui/react/select";
+ import { Check, NavArrowDown, NavArrowUp } from "iconoir-react";
+ import { cn } from "@/lib/utils";
++import { ClearFieldButton } from "@/components/form/clear-field-button";
++import { isFieldClearable } from "@/components/form/is-field-clearable";
+ import { useDropdownPositionerClassName } from "@/lib/ui/modal-overlay-context";
+ import {
+   selectTriggerClassName,
+@@ -12,6 +14,7 @@ import {
+   selectPopupListClassName,
+   selectPopupScrollArrowClassName,
+   selectPopupItemTextClassName,
++  selectPositionerProps,
+ } from "@/lib/ui/select-layout";
+ import type { ControlSize } from "@/lib/ui/control-sizing";
+ 
+@@ -51,6 +54,8 @@ export function Select({
+   onValueChange,
+   "aria-label": ariaLabel,
+   value: valueProp,
++  required,
++  clearable,
+   ...props
+ }: Omit<ComponentProps<typeof BaseSelect.Root>, "className" | "onValueChange"> & {
+   items: readonly SelectItem[];
+@@ -63,12 +68,16 @@ export function Select({
+   size?: ControlSize;
+   onValueChange?: (value: string) => void;
+   "aria-label"?: string;
++  required?: boolean;
++  clearable?: boolean;
+ }) {
+   const resolvedSize: ControlSize = fullWidth ? "full" : size;
+   const positionerClassName = useDropdownPositionerClassName("align-start");
+   const value = resolveControlledSelectValue(valueProp, items);
++  const showClear = isFieldClearable({ clearable, required }) && Boolean(value);
+   const popup = (
+     <BaseSelect.Positioner
++      {...selectPositionerProps()}
+       align="start"
+       alignItemWithTrigger={alignItemWithTrigger}
+       className={cn(positionerClassName)}
+@@ -115,24 +124,42 @@ export function Select({
+     </BaseSelect.Positioner>
+   );
+   return (
+-    <BaseSelect.Root
+-      items={items}
+-      {...props}
+-      value={value}
+-      onValueChange={onValueChange ? (value) => onValueChange(String(value)) : undefined}
++    <div
++      className={cn(
++        "relative",
++        resolvedSize === "default" ? "inline-flex" : "w-full",
++      )}
+     >
+-      <BaseSelect.Trigger
+-        aria-label={ariaLabel}
+-        className={cn(selectTriggerClassName({ size: resolvedSize }), className)}
++      <BaseSelect.Root
++        items={items}
++        {...props}
++        value={value}
++        onValueChange={onValueChange ? (value) => onValueChange(String(value)) : undefined}
+       >
+-        <BaseSelect.Value className={selectValueClassName()} placeholder={placeholder}>
+-          {(selectedValue) => resolveItemLabel(items, selectedValue, placeholder)}
+-        </BaseSelect.Value>
+-        <BaseSelect.Icon className="shrink-0 text-text-muted">
+-          <NavArrowDown width={16} height={16} aria-hidden />
+-        </BaseSelect.Icon>
+-      </BaseSelect.Trigger>
+-      {disablePortal ? popup : <BaseSelect.Portal>{popup}</BaseSelect.Portal>}
+-    </BaseSelect.Root>
++        <BaseSelect.Trigger
++          aria-label={ariaLabel}
++          className={cn(
++            selectTriggerClassName({ size: resolvedSize }),
++            showClear && "pr-10",
++            className,
++          )}
++        >
++          <BaseSelect.Value className={selectValueClassName()} placeholder={placeholder}>
++            {(selectedValue) => resolveItemLabel(items, selectedValue, placeholder)}
++          </BaseSelect.Value>
++          <BaseSelect.Icon className="shrink-0 text-text-muted">
++            <NavArrowDown width={16} height={16} aria-hidden />
++          </BaseSelect.Icon>
++        </BaseSelect.Trigger>
++        {disablePortal ? popup : <BaseSelect.Portal>{popup}</BaseSelect.Portal>}
++      </BaseSelect.Root>
++      {showClear ? (
++        <ClearFieldButton
++          label="Clear selection"
++          className="right-8"
++          onClear={() => onValueChange?.("")}
++        />
++      ) : null}
++    </div>
+   );
+ }

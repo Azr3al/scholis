@@ -1,0 +1,107 @@
+diff a/schedjuice-reimagined-fe/src/components/course/teacher-assignment/teacher-assignment-panel.tsx b/schedjuice-reimagined-fe/src/components/course/teacher-assignment/teacher-assignment-panel.tsx	(rejected hunks)
+@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+ import { useEffect, useMemo, useState } from "react";
+ 
+ import { deleteEntity, makePostRequest } from "@/app/client-api/utils";
+-import { Button, useToast } from "@/components/primitives";
++import { AlertDialog, Button, useToast } from "@/components/primitives";
+ import {
+   lastSelectedIsoDate,
+   sessionIdsForWeekdays,
+@@ -65,6 +65,7 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+   const [removingUserCourseId, setRemovingUserCourseId] = useState<number | null>(
+     null,
+   );
++  const [confirmEmptySessions, setConfirmEmptySessions] = useState(false);
+ 
+   useEffect(() => {
+     if (step !== "pick-sessions" || roleOption === null) return;
+@@ -92,6 +93,7 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+     setWeekdays([]);
+     setSelectedIds(new Set());
+     setAutoRemoveEnabled(true);
++    setConfirmEmptySessions(false);
+   }
+ 
+   const assign = useMutation({
+@@ -136,13 +138,21 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+     roleOption !== null &&
+     !roleNeedsSessionSelection(roleOption) &&
+     !assign.isPending;
+-  const canAssignFromSessions = selectedIds.size > 0 && !assign.isPending;
++  const canAssignFromSessions = !assign.isPending;
+   const isCustomSessionMode = roleOption?.isSubstitute === true || mode === "custom";
+ 
+   function goBackFromSessions() {
+     setStep(courseRolesEnabled ? "pick-role" : "pick-teacher");
+   }
+ 
++  function requestAssignFromSessions() {
++    if (selectedIds.size === 0) {
++      setConfirmEmptySessions(true);
++      return;
++    }
++    assign.mutate();
++  }
++
+   function handleRoleStepPrimaryAction() {
+     if (roleOption !== null && !roleNeedsSessionSelection(roleOption)) {
+       assign.mutate();
+@@ -297,7 +307,7 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+                       assignAction={
+                         isCustomSessionMode
+                           ? {
+-                              onAssign: () => assign.mutate(),
++                              onAssign: requestAssignFromSessions,
+                               canAssign: canAssignFromSessions,
+                               isPending: assign.isPending,
+                               onBack: goBackFromSessions,
+@@ -320,7 +330,7 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+                           type="button"
+                           disabled={!canAssignFromSessions}
+                           isLoading={assign.isPending}
+-                          onClick={() => assign.mutate()}
++                          onClick={requestAssignFromSessions}
+                         >
+                           Assign
+                         </Button>
+@@ -333,6 +343,39 @@ export function TeacherAssignmentPanel({ course }: { course: courseType }) {
+           </AnimatePresence>
+         </div>
+       </section>
++
++      <AlertDialog.Root
++        open={confirmEmptySessions}
++        onOpenChange={setConfirmEmptySessions}
++      >
++        <AlertDialog.Portal>
++          <AlertDialog.Backdrop />
++          <AlertDialog.Popup>
++            <AlertDialog.Title>Assign without sessions?</AlertDialog.Title>
++            <AlertDialog.Description>
++              This teacher will be on the course roster but not assigned to any
++              sessions. Are you sure?
++            </AlertDialog.Description>
++            <div className="flex justify-end gap-2">
++              <AlertDialog.Close render={<Button type="button" variant="ghost" />}>
++                Cancel
++              </AlertDialog.Close>
++              <AlertDialog.Close
++                render={
++                  <Button
++                    type="button"
++                    onClick={() => {
++                      assign.mutate();
++                    }}
++                  />
++                }
++              >
++                Assign anyway
++              </AlertDialog.Close>
++            </div>
++          </AlertDialog.Popup>
++        </AlertDialog.Portal>
++      </AlertDialog.Root>
+     </div>
+   );
+ }

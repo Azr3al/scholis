@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { segment: "mark-sheets", label: "Mark Sheets" },
   { segment: "awards", label: "Awards" },
+  { segment: "scholis", label: "Scholis" },
 ] as const;
 
 export function CourseAwardsTabs({ courseId }: { courseId?: string }) {

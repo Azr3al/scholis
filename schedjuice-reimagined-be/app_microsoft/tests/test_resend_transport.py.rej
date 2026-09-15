@@ -1,0 +1,19 @@
+diff a/schedjuice-reimagined-be/app_microsoft/tests/test_resend_transport.py b/schedjuice-reimagined-be/app_microsoft/tests/test_resend_transport.py	(rejected hunks)
+@@ -18,7 +18,7 @@ class SendViaResendTests(SimpleTestCase):
+ 
+     @override_settings(
+         RESEND_API_KEY="re_test",
+-        RESEND_FROM_EMAIL="noreply@schedjuice.com",
++        RESEND_FROM_EMAIL="noreply@mail.schedjuice.com",
+         RESEND_FROM_NAME="Schedjuice",
+     )
+     @patch("app_microsoft.resend_transport.requests.post")
+@@ -31,7 +31,7 @@ class SendViaResendTests(SimpleTestCase):
+         )
+         self.assertEqual(status, 200)
+         payload = mock_post.call_args.kwargs["json"]
+-        self.assertEqual(payload["from"], "Schedjuice <noreply@schedjuice.com>")
++        self.assertEqual(payload["from"], "Schedjuice <noreply@mail.schedjuice.com>")
+         self.assertEqual(payload["to"], ["user@example.com"])
+         self.assertNotIn("cc", payload)
+         self.assertNotIn("bcc", payload)

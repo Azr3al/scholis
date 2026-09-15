@@ -1,0 +1,12 @@
+diff a/schedjuice-reimagined-fe/src/components/document-editor/document-format-toolbar.test.tsx b/schedjuice-reimagined-fe/src/components/document-editor/document-format-toolbar.test.tsx	(rejected hunks)
+@@ -19,8 +19,8 @@ describe("DocumentFormatToolbar", () => {
+ 
+   it("disables Bold when no text block is selected", () => {
+     render(<DocumentFormatToolbar block={null} onChange={vi.fn()} />);
+-    expect(screen.getByRole("button", { name: "Bold" }).disabled).toBe(true);
+-    expect(screen.getByRole("button", { name: "Italic" }).disabled).toBe(true);
++    expect(screen.getByRole("button", { name: "Bold" })).toBeDisabled();
++    expect(screen.getByRole("button", { name: "Italic" })).toBeDisabled();
+   });
+ 
+   it("Bold click stamps bold true on the selected text block", async () => {

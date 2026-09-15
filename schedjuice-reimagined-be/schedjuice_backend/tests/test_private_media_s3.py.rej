@@ -1,0 +1,10 @@
+diff a/schedjuice-reimagined-be/schedjuice_backend/tests/test_private_media_s3.py b/schedjuice-reimagined-be/schedjuice_backend/tests/test_private_media_s3.py	(rejected hunks)
+@@ -172,6 +172,8 @@ class PresignClientTests(SimpleTestCase):
+         )
+         config = mock_boto_client.call_args.kwargs["config"]
+         self.assertEqual(config.s3["addressing_style"], "virtual")
++        self.assertEqual(config.connect_timeout, 5)
++        self.assertEqual(config.read_timeout, 30)
+ 
+     @patch("schedjuice_backend.private_media_s3.build_private_presign_s3_client")
+     def test_presign_uses_physical_bucket_and_full_key(self, mock_build_client):

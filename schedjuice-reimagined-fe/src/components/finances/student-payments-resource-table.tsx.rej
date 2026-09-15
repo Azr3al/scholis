@@ -1,0 +1,35 @@
+diff a/schedjuice-reimagined-fe/src/components/finances/student-payments-resource-table.tsx b/schedjuice-reimagined-fe/src/components/finances/student-payments-resource-table.tsx	(rejected hunks)
+@@ -29,6 +29,7 @@ import { formatInTimeZone } from "date-fns-tz";
+ import { formatMoney } from "@/helpers/money";
+ import { copyVisibleColumnValues } from "@/helpers/copy-visible-column-values";
+ import { isValidApiEntityIdParam } from "@/helpers/relation-fk";
++import { formatPaymentMethodDisplayName } from "@/helpers/payment-method-display";
+ import {
+   canDownloadPaymentReceipt,
+   canRecordRefunds,
+@@ -395,7 +396,7 @@ export function StudentPaymentsResourceTable({
+ 
+   const paymentMethodsListQuery = useGetAllEntitiesQuery(
+     "payment-methods",
+-    { fields: ["name", "id"], sorts: ["name"] },
++    { fields: ["name", "id", "is_retired"], sorts: ["name"] },
+     undefined,
+     {
+       enabled:
+@@ -407,14 +408,14 @@ export function StudentPaymentsResourceTable({
+ 
+   const paymentMethodOptions = useMemo(() => {
+     const list = paymentMethodsListQuery.data?.data?.data as
+-      | { id: number; name?: string | null }[]
++      | { id: number; name?: string | null; is_retired?: boolean | null }[]
+       | undefined;
+     if (!Array.isArray(list)) return [];
+     return list
+       .filter((c) => c?.id != null && isValidApiEntityIdParam(String(c.id)))
+       .map((c) => ({
+         value: String(c.id),
+-        label: c.name?.length ? c.name : `Account #${c.id}`,
++        label: formatPaymentMethodDisplayName(c),
+       }));
+   }, [paymentMethodsListQuery.data]);
+ 
