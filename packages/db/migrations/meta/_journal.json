@@ -71,6 +71,13 @@
       "when": 1788605644972,
       "tag": "0009_teacher_sso_tickets",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788700000000,
+      "tag": "0010_backfill_sso_scope",
+      "breakpoints": true
     }
   ]
 }

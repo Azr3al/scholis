@@ -206,6 +206,18 @@ for sittings should not be able to sign a teacher in. Note that provisioning
 grants it by default — `provisioning.test.ts` spells the scope list out so that
 adding one is a deliberately taken decision rather than a silent widening.
 
+Adding it to `ORG_SCOPES` only affected schools provisioned afterwards, which is
+worth spelling out because it is the kind of gap that does not show up in a test
+suite. `provisionOrg` writes the scope list as it stands the moment it runs, and
+a retry deliberately amends nothing — it returns `key: null` and leaves the
+existing credential alone. The scopes column is written on insert and never
+again, so every school already connected kept its four-scope key and got "This
+key cannot sign teachers in." from an otherwise perfectly valid credential.
+Migration `0010_backfill_sso_scope.sql` grants the scope to live org keys,
+skipping platform keys and revoked ones, and is idempotent. `sso-scope-backfill.test.ts`
+seeds the key an existing school actually holds rather than a freshly provisioned
+one, which is the assumption that hid the problem.
+
 ---
 
 ## Architecture guards

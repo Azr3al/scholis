@@ -221,7 +221,13 @@ class ScholisClient:
         if released_to:
             params["to"] = released_to
         result = self._request("GET", "/scores", params=params or None)
-        return result if isinstance(result, list) else []
+        # Scholis wraps the list: `c.json({ scores: ... })` in apps/api/http/app.ts.
+        # Reading it as a bare list silently returned [] for every pull -- no
+        # error, no log line, just a gradebook that never filled in. Unwrapped
+        # here rather than at the call site so there is one place that knows the
+        # envelope, and the bare list is still accepted so a mocked transport or
+        # an older deployment does not break.
+        return _unwrap_list(result, "scores")
 
     def list_events(
         self, *, since: str | None = None, limit: int | None = None
@@ -253,12 +259,36 @@ class ScholisClient:
 
     def list_webhooks(self) -> list[dict[str, Any]]:
         result = self._request("GET", "/webhooks")
-        return result if isinstance(result, list) else []
+        # `c.json({ endpoints: ... })` on their side, same as /scores above.
+        return _unwrap_list(result, "endpoints")
 
     def remove_webhook(self, *, endpoint_id: str) -> dict[str, Any]:
         return self._request(
             "POST", "/webhooks/delete", payload={"endpointId": endpoint_id}
         )
+
+
+def _unwrap_list(body: Any, key: str) -> list[dict[str, Any]]:
+    """
+    Pull a list out of Scholis's single-key envelope.
+
+    Their collection endpoints answer ``{"scores": [...]}`` and
+    ``{"endpoints": [...]}`` rather than a bare array. This client read them as
+    bare arrays, so every response fell through the ``isinstance(result, list)``
+    check and became ``[]`` -- a silent empty result rather than an error, which
+    is the worst way for a contract mismatch to present: ``pull_scores`` reported
+    ``fetched=0`` and looked like a school with nothing released yet.
+
+    A bare list is still accepted. Tests mock the transport with one, and being
+    liberal about it costs nothing.
+    """
+    if isinstance(body, list):
+        return body
+    if isinstance(body, dict):
+        inner = body.get(key)
+        if isinstance(inner, list):
+            return inner
+    return []
 
 
 def _parse_json(response: requests.Response) -> Any:
