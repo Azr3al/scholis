@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/HR_REPORT_VIEW.md

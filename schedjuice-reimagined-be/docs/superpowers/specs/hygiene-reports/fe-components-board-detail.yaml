@@ -1,0 +1,19 @@
+slice_id: fe-components-board-detail
+repo: schedjuice-reimagined-fe
+path: src/components/board-detail
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-components-board-detail.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/board-detail
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/board-detail (vitest: "No test files
+    found"). Skipped per hygiene playbook. No FE source edits (scan-only).
+    Live: lead-detail-drawer + issue-detail-drawer → MentionCommentComposer /
+    ObserversList (static imports).

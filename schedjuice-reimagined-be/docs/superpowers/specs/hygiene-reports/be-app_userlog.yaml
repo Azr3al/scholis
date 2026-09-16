@@ -1,0 +1,44 @@
+slice_id: be-app_userlog
+repo: schedjuice-reimagined-be
+path: app_userlog
+skipped: false
+deleted:
+  - path: app_userlog/tests/test_models.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused django.test.TestCase import left after high-value cleanup emptied
+      the module; no behavioral tests remain. Left empty module in place.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_userlog/tests/test_models.py
+    symbol: test_models.py
+    reason: empty-tests-module
+    confidence: ambiguous
+    notes: >-
+      Empty after unused-import strip; prior model tautologies removed in test
+      cleanup. Leave for discovery path / possible future model tests.
+  - path: app_userlog/tests/test_views.py
+    symbol: ReportTypeViewTest
+    reason: empty-test-scaffold
+    confidence: ambiguous
+    notes: >-
+      Class has setUp/setUpTestData but zero test_* methods after high-value
+      cleanup removed create/fields success coverage. Looks like WIP leftover;
+      do not delete without confirm (may regain sole report-type API coverage).
+  - path: app_userlog/views.py
+    symbol: UserLogVersionsView/UserLogTimelineView
+    reason: deleted-entries-still-readable
+    confidence: ambiguous
+    notes: >-
+      Detail filters is_deleted=False; versions/timeline load by pk without that
+      filter. May be intentional audit access for soft-deleted entries — leave.
+files_touched:
+  - app_userlog/tests/test_models.py
+  - docs/superpowers/specs/hygiene-reports/be-app_userlog.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_userlog.tests
+  passed: true
+  notes: Ran 8 tests, OK (--keepdb).

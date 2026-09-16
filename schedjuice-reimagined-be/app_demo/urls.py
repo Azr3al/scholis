@@ -1,0 +1,77 @@
+from django.urls import path
+
+from app_demo import views
+
+urlpatterns = [
+    path(
+        "demo-artifacts/guide",
+        views.DemoGuideView.as_view(),
+        name="demo-artifacts-guide",
+    ),
+    path("demo-artifacts", views.DemoArtifactHubView.as_view(), name="demo-artifacts-hub"),
+    path(
+        "demo-artifacts/blueprints",
+        views.DemoArtifactBlueprintListView.as_view(),
+        name="demo-artifacts-blueprints",
+    ),
+    path(
+        "demo-artifacts/blueprints/<str:blueprint_id>",
+        views.DemoArtifactBlueprintDetailView.as_view(),
+        name="demo-artifacts-blueprint-detail",
+    ),
+    path(
+        "demo-artifacts/briefs",
+        views.DemoArtifactBriefListView.as_view(),
+        name="demo-artifacts-briefs",
+    ),
+    path(
+        "demo-artifacts/briefs/<str:slug>",
+        views.DemoArtifactBriefDetailView.as_view(),
+        name="demo-artifacts-brief-detail",
+    ),
+    path(
+        "demo-artifacts/briefs/<str:slug>/provision-status",
+        views.DemoProvisionStatusView.as_view(),
+        name="demo-artifacts-brief-provision-status",
+    ),
+    path(
+        "demo-artifacts/briefs/<str:slug>/provision",
+        views.DemoProvisionStartView.as_view(),
+        name="demo-artifacts-brief-provision",
+    ),
+    path(
+        "demo-artifacts/provision-jobs/<int:job_id>",
+        views.DemoProvisionJobDetailView.as_view(),
+        name="demo-artifacts-provision-job-detail",
+    ),
+    path(
+        "demo-artifacts/scenario-packs",
+        views.DemoArtifactScenarioPackListView.as_view(),
+        name="demo-artifacts-scenario-packs",
+    ),
+    path(
+        "demo-artifacts/scenario-packs/<str:pack_id>",
+        views.DemoArtifactScenarioPackDetailView.as_view(),
+        name="demo-artifacts-scenario-pack-detail",
+    ),
+    path(
+        "demo-artifacts/use-cases",
+        views.DemoArtifactUseCaseListView.as_view(),
+        name="demo-artifacts-use-cases",
+    ),
+    path(
+        "demo-artifacts/use-cases/<str:use_case_id>",
+        views.DemoArtifactUseCaseDetailView.as_view(),
+        name="demo-artifacts-use-case-detail",
+    ),
+    path(
+        "demo-artifacts/imports",
+        views.DemoArtifactImportListView.as_view(),
+        name="demo-artifacts-imports",
+    ),
+    path(
+        "demo-artifacts/imports/<str:filename>",
+        views.DemoArtifactImportDetailView.as_view(),
+        name="demo-artifacts-import-detail",
+    ),
+]

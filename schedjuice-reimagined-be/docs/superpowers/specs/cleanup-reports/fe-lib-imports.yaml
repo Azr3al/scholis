@@ -1,0 +1,78 @@
+slice_id: fe-lib-imports
+repo: schedjuice-reimagined-fe
+path: src/lib/imports
+skipped: false
+deleted:
+  - path: src/lib/imports/wizard-logic.test.ts
+    test_name: maps address fields
+    reason: obvious-smoke
+  - path: src/lib/imports/wizard-logic.test.ts
+    test_name: marks email and courses special
+    reason: tautology
+  - path: src/lib/imports/wizard-logic.test.ts
+    test_name: includes address fields
+    reason: tautology
+  - path: src/lib/imports/resolution.test.ts
+    test_name: joins rowId and field
+    reason: tautology
+  - path: src/lib/imports/parse-excel-paste.test.ts
+    test_name: parses multiple lines as multiple rows
+    reason: obvious-smoke
+  - path: src/lib/imports/parse-excel-paste.test.ts
+    test_name: parses multiple data rows
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: src/lib/imports/wizard-logic.test.ts
+    test_name: maps obvious headers with high scores
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin high-score success matrix for email/name/courses/phone; unknown/question
+      rejection siblings remain. May be intentional contrast for scoreHeaderField.
+  - path: src/lib/imports/wizard-logic.test.ts
+    test_name: maps phone and address columns
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin buildAutoMapping success; question-header / duplicate-email edges remain.
+  - path: src/lib/imports/parse-excel-paste.test.ts
+    test_name: parses a single tab-separated row
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin happy parse; pad/truncate/blank/zero-col/CRLF edges remain in same describe.
+  - path: src/lib/imports/parse-excel-paste.test.ts
+    test_name: parses header row and one data row
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin withHeaders success; empty-header / pad / truncate / max-rows / header-only
+      errors remain.
+  - path: src/lib/imports/course-scope.test.ts
+    test_name: produces a stable cache key per scope
+    reason: may-be-cache-key-contract
+    notes: >
+      Asserts scopeKey string shape (p7:i12). May guard intentional cache identity or
+      only mirror template formatting.
+  - path: src/lib/imports/resolution.test.ts
+    test_name: 'lowercases, trims, and collapses whitespace'
+    reason: may-be-domain-normalize-contract
+    notes: >
+      Thin normalizeImportName; used by name-mismatch. May be sole explicit normalize
+      contract vs tautology of string helpers.
+  - path: src/lib/imports/validation.test.ts
+    test_name: accepts normal addresses
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin isLegalEmail true; reject siblings cover spaces/dots/tld. Likely intentional
+      contrast.
+  - path: src/lib/imports/normalize-cell.test.ts
+    test_name: passes a valid value as valid
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin ISO date already-valid path; adjusted/error/impossible/blank siblings remain.
+files_touched:
+  - src/lib/imports/wizard-logic.test.ts
+  - src/lib/imports/resolution.test.ts
+  - src/lib/imports/parse-excel-paste.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/imports
+  passed: true
+  notes: '10 files, 105 tests passed'

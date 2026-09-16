@@ -1,0 +1,20 @@
+slice_id: fe-lib-users
+repo: schedjuice-reimagined-fe
+path: src/lib/users
+skipped: false
+deleted:
+  - path: src/lib/users/staff-user-search-display.test.ts
+    test_name: returns alt name only when email is missing
+    reason: tautology
+  - path: src/lib/users/user-combobox-search.test.ts
+    test_name: joins name, alt name, and email with spaces
+    reason: obvious-smoke
+replaced: []
+ambiguous: []
+files_touched:
+  - src/lib/users/staff-user-search-display.test.ts
+  - src/lib/users/user-combobox-search.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/users
+  passed: true
+  tests_passed: 8

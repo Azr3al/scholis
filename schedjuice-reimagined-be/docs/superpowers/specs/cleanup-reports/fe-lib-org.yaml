@@ -1,0 +1,22 @@
+slice_id: fe-lib-org
+repo: schedjuice-reimagined-fe
+path: src/lib/org
+skipped: false
+deleted:
+  - path: src/lib/org/__tests__/org-section-href.test.ts
+    test_name: uses tenant profile path
+    reason: tautology
+  - path: src/lib/org/__tests__/org-section-href.test.ts
+    test_name: uses platform org record path
+    reason: tautology
+  - path: src/lib/org/__tests__/org-section-href.test.ts
+    test_name: builds platform org record section links
+    reason: tautology
+replaced: []
+ambiguous: []
+files_touched:
+  - src/lib/org/__tests__/org-section-href.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/org
+  passed: true
+  tests_passed: 4

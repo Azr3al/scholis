@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-07-12T06:03:30.281Z",
+  "consumers": [
+    {
+      "file": "src/app/globals.css",
+      "line": 1200,
+      "column": 20
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 1200,
+      "column": 84
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 1206,
+      "column": 2
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 1251,
+      "column": 8
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 1252,
+      "column": 26
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 1281,
+      "column": 30
+    },
+    {
+      "file": "src/components/shell/app-shell.tsx",
+      "line": 40,
+      "column": 25
+    },
+    {
+      "file": "src/components/shell/app-shell.tsx",
+      "line": 52,
+      "column": 16
+    },
+    {
+      "file": "src/components/shell/app-shell.tsx",
+      "line": 66,
+      "column": 25
+    }
+  ]
+}

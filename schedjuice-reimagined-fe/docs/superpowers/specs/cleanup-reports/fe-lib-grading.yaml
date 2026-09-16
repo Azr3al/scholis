@@ -1,0 +1,17 @@
+slice_id: fe-lib-grading
+repo: schedjuice-reimagined-fe
+path: src/lib/grading
+skipped: false
+deleted: []
+replaced: []
+ambiguous:
+  - path: src/lib/grading/compute-grade.test.ts
+    test_name: returns D band for low scores
+    reason: may-be-redundant-with-boundaries
+    notes: >
+      Overlaps band-boundary mapping; may still be intentional low-band cell.
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/grading
+  passed: true
+  tests_passed: 5

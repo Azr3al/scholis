@@ -1,0 +1,71 @@
+slice_id: fe-lib-ui
+repo: schedjuice-reimagined-fe
+path: src/lib/ui
+skipped: false
+deleted:
+  - path: src/lib/ui/overlay-layers.ts
+    symbol: OverlayLayerName
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private type; only used by overlayZClass / UTILITY_BY_LAYER. Zero external imports.
+  - path: src/lib/ui/overlay-layers.ts
+    symbol: DOCUMENTED_BRACKET_Z_UTILITIES
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only read by isDocumentedBracketZUtility.
+      Lint script imports the helper, not the Set.
+  - path: src/lib/ui/modal-overlay-context.tsx
+    symbol: ModalOverlayProvider
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by wrapWithModalOverlay.
+      Zero prod imports. Test updated to wrap via wrapWithModalOverlay.
+  - path: src/lib/ui/modal-overlay-context.tsx
+    symbol: useInModalOverlay
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used by useDropdownPositionerClassName. Zero external imports.
+  - path: src/lib/ui/global-overlay-registry.test.tsx
+    symbol: describe("useRegisterGlobalOverlay")
+    reason: commented-out-block
+    confidence: obvious
+    notes: Empty leftover suite after prior HV-test cleanup; caused vitest "No test found in suite".
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/ui/control-sizing.ts
+    symbol: selectTriggerSizeClassName
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >
+      Only imported by select-layout.ts (via selectTriggerClassName); zero other
+      prod imports. Must stay exported for sibling module — do not inline without confirm.
+  - path: src/lib/ui/overlay-classnames.ts
+    symbol: modalDropdownPositionerClassName
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >
+      Only imported by modal-overlay-context.tsx; public classname module
+      pattern. Leave exported unless classname module is reorganized.
+  - path: src/lib/ui/select-layout.ts
+    symbol: fullWidth
+    reason: deprecated-still-wired
+    confidence: ambiguous
+    notes: >
+      @deprecated on selectTriggerClassName; Select primitive and callers still
+      pass fullWidth. Migration to size="full" is a product cleanup, not hygiene.
+files_touched:
+  - src/lib/ui/overlay-layers.ts
+  - src/lib/ui/modal-overlay-context.tsx
+  - src/lib/ui/modal-overlay-context.test.tsx
+  - src/lib/ui/global-overlay-registry.test.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-lib-ui.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/ui/select-layout.test.ts src/lib/ui/overlay-layers.test.ts src/lib/ui/modal-overlay-context.test.tsx src/lib/ui/global-overlay-registry.test.tsx
+  passed: true
+  tests_passed: 17
+  notes: >-
+    Bare `src/lib/ui` also matches src/lib/ui-remediation; used explicit file
+    list. 4 files / 17 tests passed.

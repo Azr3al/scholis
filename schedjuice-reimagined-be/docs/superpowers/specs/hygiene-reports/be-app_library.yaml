@@ -1,0 +1,90 @@
+slice_id: be-app_library
+repo: schedjuice-reimagined-be
+path: app_library
+skipped: false
+deleted:
+  - path: app_library/views.py
+    symbol: render
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.shortcuts.render import in empty scaffold views module
+  - path: app_library/urls.py
+    symbol: views
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused `from app_library import views`; urlpatterns is empty and no view
+      symbols are referenced
+  - path: app_library/admin.py
+    symbol: admin
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.contrib.admin import; no model registrations
+  - path: app_library/tests.py
+    symbol: TestCase
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.test.TestCase import in empty startapp scaffold
+fixed_docs:
+  - path: app_library/views.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your views here." with unused render import; left empty module
+  - path: app_library/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: >-
+      Removed "# Register your models here." and unused admin import; Genre/Book/
+      BookGenre remain unregistered (unchanged behavior)
+  - path: app_library/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here." with unused TestCase import; left empty module
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_library/models.py
+    symbol: Genre/Book/BookGenre
+    reason: models-unused-outside-app
+    confidence: ambiguous
+    notes: >-
+      Zero static references outside app_library (no serializers/views/admin).
+      Models remain in INSTALLED_APPS with migrations; never delete schema in
+      hygiene pass. Likely WIP library feature.
+  - path: app_library/urls.py
+    symbol: urlpatterns
+    reason: empty-included-urlconf
+    confidence: ambiguous
+    notes: >-
+      Empty urlpatterns but included from schedjuice_backend.urls at api/v1/.
+      Mount is outside this slice; leave empty module as registration hook.
+  - path: app_library/admin.py
+    symbol: admin
+    reason: empty-admin-no-registrations
+    confidence: ambiguous
+    notes: >-
+      Genre/Book/BookGenre exist but are not registered; matches other apps'
+      empty admin. Unclear if intentional omission vs unfinished feature.
+  - path: app_library/views.py
+    symbol: views.py
+    reason: empty-views-module
+    confidence: ambiguous
+    notes: >-
+      Empty after scaffold cleanup; no API surface yet despite models + URLconf
+      include. Do not delete module (imported historically; keep for discovery).
+  - path: app_library/tests.py
+    symbol: tests.py
+    reason: empty-tests-module
+    confidence: ambiguous
+    notes: >-
+      Module empty after scaffold cleanup; no behavioral tests. Adding coverage
+      is out of scope; left in place for discovery path.
+files_touched:
+  - app_library/views.py
+  - app_library/urls.py
+  - app_library/admin.py
+  - app_library/tests.py
+  - docs/superpowers/specs/hygiene-reports/be-app_library.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_library.tests
+  passed: true
+  notes: Found 0 tests, OK (--keepdb)

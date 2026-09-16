@@ -1,0 +1,82 @@
+slice_id: be-app_custom_fields
+repo: schedjuice-reimagined-be
+path: app_custom_fields/tests
+skipped: false
+deleted:
+  - path: app_custom_fields/tests/test_rbac_custom_fields.py
+    test_name: CustomFieldsRBACTests.test_admin_can_read_form_config
+    reason: obvious-smoke
+  - path: app_custom_fields/tests/test_policy_validation.py
+    test_name: StageRoleActorTests.test_user_legacy_wrapper_still_works
+    reason: obvious-smoke
+  - path: app_custom_fields/tests/test_builtin_registry.py
+    test_name: BuiltinRegistryTests.test_is_builtin_key
+    reason: tautology
+  - path: app_custom_fields/tests/test_form_config_group_order.py
+    test_name: BuildFormConfigGroupOrderTests.test_groups_ordered_by_fieldgroup_sort_order
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: app_custom_fields/tests/test_rbac_custom_fields.py
+    test_name: CustomFieldsRBACTests.test_teacher_can_read_custom_field_definitions
+    reason: may-be-contrast-anchor
+    notes: Status-200 only; pairs with teacher_forbidden_on_custom_field_create (read vs write)
+  - path: app_custom_fields/tests/test_rbac_custom_fields.py
+    test_name: CustomFieldsRBACTests.test_admin_can_create_custom_field_definition
+    reason: may-be-contrast-anchor
+    notes: Thin 200/201 allow; contrasts teacher create 403 in the same file
+  - path: app_custom_fields/tests/test_validation.py
+    test_name: ValidateUserCustomDataTests.test_optional_omitted_ok
+    reason: may-be-contrast-anchor
+    notes: Thin success contrasting test_required_missing_on_create
+  - path: app_custom_fields/tests/test_validation.py
+    test_name: DateValidationTests.test_date_object_within_bounds_ok
+    reason: may-be-contrast-anchor
+    notes: Thin success contrasting test_date_object_respects_max
+  - path: app_custom_fields/tests/test_validation.py
+    test_name: EmailValidationTests.test_valid_email_ok
+    reason: may-be-contrast-anchor
+    notes: Thin success contrasting test_double_at_rejected
+  - path: app_custom_fields/tests/test_validation.py
+    test_name: DefinitionPatternValidationTests.test_valid_pattern_accepted_on_save
+    reason: may-be-contrast-anchor
+    notes: Thin success contrasting invalid/overlong pattern rejects
+  - path: app_custom_fields/tests/test_validation.py
+    test_name: FieldTypeImmutabilityTests.test_same_field_type_ok
+    reason: may-be-contrast-anchor
+    notes: Thin allow-same-type path contrasting field_type_change_rejected
+  - path: app_custom_fields/tests/test_definition_serializer_policy.py
+    test_name: PolicySerializerValidationTests.test_valid_roles_accepted
+    reason: may-be-contrast-anchor
+    notes: Thin success contrasting test_invalid_role_rejected
+  - path: app_custom_fields/tests/test_policy_validation.py
+    test_name: StageRoleActorTests.test_admin_only_field_allowed_for_admin_actor
+    reason: may-be-contrast-anchor
+    notes: Thin allow contrasting admin_only_field_rejected_for_user_actor
+  - path: app_custom_fields/tests/test_filtering.py
+    test_name: FilterValidationTests.test_filterable_custom_field_allowed
+    reason: may-be-contrast-anchor
+    notes: No-raise success contrasting unfilterable_custom_field_rejected
+  - path: app_custom_fields/tests/test_seeding.py
+    test_name: BuiltinDefaultsTests.test_defaults_are_safe
+    reason: may-encode-safety-defaults
+    notes: 'Mirrors build_builtin_defaults return shape, but guards silent required_at/show_on_create footguns'
+  - path: app_custom_fields/tests/test_key_reuse.py
+    test_name: KeyReuseTests.test_queries_only_inactive_rows_most_recent_first
+    reason: may-mirror-query-contract
+    notes: Asserts filter/order_by kwargs; may guard inactive-only + newest-first reuse semantics
+files_touched:
+  - app_custom_fields/tests/test_rbac_custom_fields.py
+  - app_custom_fields/tests/test_policy_validation.py
+  - app_custom_fields/tests/test_builtin_registry.py
+  - app_custom_fields/tests/test_form_config_group_order.py
+  - docs/superpowers/specs/cleanup-reports/be-app_custom_fields.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_custom_fields.tests
+  passed: true
+  notes: >
+    Shared schedjuice-test-db test_db was contended by parallel cleanup agents
+    (create/recreate races). Equivalent verification passed: DATABASE_URL to
+    isolated db_cf + manage.py test app_custom_fields.tests --keepdb --noinput
+    → Ran 70, OK (skipped=3). Kept group-order test fixture switched to
+    SimpleNamespace so FakeGroup does not hit Django FK descriptor.

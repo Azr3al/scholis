@@ -1,0 +1,94 @@
+slice_id: be-app_telegram
+repo: schedjuice-reimagined-be
+path: app_telegram/tests
+skipped: false
+deleted:
+  - path: app_telegram/tests/test_model_fields.py
+    test_name: TelegramModelFieldTests.test_user_has_telegram_fields
+    reason: tautology
+  - path: app_telegram/tests/test_models.py
+    test_name: TelegramModelsTests.test_processed_update_dedupe
+    reason: tautology
+  - path: app_telegram/tests/test_client_reactions.py
+    test_name: TelegramAckReactionConfigTests.test_ack_reactions_are_telegram_valid
+    reason: tautology
+  - path: app_telegram/tests/test_formatting.py
+    test_name: MarkdownToTelegramHtmlTests.test_empty_string
+    reason: tautology
+  - path: app_telegram/tests/test_admin_link.py
+    test_name: TelegramAdminLinkTests.test_self_service_link_token_still_works
+    reason: obvious-smoke
+  - path: app_telegram/tests/test_commands.py
+    test_name: TelegramCommandTests.test_set_webhooks_runs_without_error
+    reason: setup-theater
+  - path: app_telegram/tests/test_re_register_webhook.py
+    test_name: TelegramReRegisterWebhookTests.test_service_re_register
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: app_telegram/tests/test_binding.py
+    test_name: TelegramBindingTests.test_link_token_endpoint_returns_deeplink
+    reason: may-be-contrast-anchor
+    notes: Thin 200 + deeplink; pairs with invalid-token tenant-aware reply and JWT TokenUser path
+  - path: app_telegram/tests/test_admin_link.py
+    test_name: TelegramAdminLinkTests.test_superadmin_can_issue_link_token_for_teacher
+    reason: may-be-contrast-anchor
+    notes: Thin allow success; pairs with admin-forbidden and validation denials
+  - path: app_telegram/tests/test_config.py
+    test_name: TelegramConfigTests.test_enable_sets_token_and_webhook
+    reason: may-be-contrast-anchor
+    notes: Sole config enable success with webhook/state asserts; no disable counterpart in file
+  - path: app_telegram/tests/test_client.py
+    test_name: TelegramClientTests.test_send_message_calls_correct_url
+    reason: may-encode-url-contract
+    notes: Asserts Bot API URL and HTML payload defaults; may guard silent client shape
+  - path: app_telegram/tests/test_client.py
+    test_name: TelegramClientTests.test_edit_message_text_calls_correct_method
+    reason: may-encode-url-contract
+    notes: Parallel editMessageText URL/payload assert; pairs with entity-error retry
+  - path: app_telegram/tests/test_client_reactions.py
+    test_name: TelegramClientReactionTests.test_set_message_reaction
+    reason: may-be-contrast-anchor
+    notes: Thin happy payload; pairs with invalid-emoji fallback retry
+  - path: app_telegram/tests/test_client_reactions.py
+    test_name: TelegramClientReactionTests.test_send_message_with_reply
+    reason: may-encode-payload-contract
+    notes: Sole assert is reply_to_message_id passthrough
+  - path: app_telegram/tests/test_linking.py
+    test_name: TelegramLinkingTests.test_build_deeplink_contains_admin_rights
+    reason: may-encode-url-contract
+    notes: String-prefix + admin= presence; may guard startgroup deeplink shape
+  - path: app_telegram/tests/test_ai_query.py
+    test_name: TelegramRunAiQueryTaskTests.test_success_sends_answer_without_reply_target
+    reason: may-be-redundant-variant
+    notes: Third success send path vs dm-edit and group-reply; unclear if intentional branch
+  - path: app_telegram/tests/test_ai_query.py
+    test_name: TelegramRunAiQueryTaskTests.test_success_formats_markdown_answer
+    reason: may-overlap-unit-formatting
+    notes: Integration of markdown_to_telegram_html; overlaps test_formatting unit coverage
+  - path: app_telegram/tests/test_crypto.py
+    test_name: TelegramCryptoTests.test_round_trip
+    reason: may-be-contrast-anchor
+    notes: Thin encrypt/decrypt success; pairs with empty inputs and missing-key raise
+files_touched:
+  - app_telegram/tests/test_model_fields.py
+  - app_telegram/tests/test_models.py
+  - app_telegram/tests/test_client_reactions.py
+  - app_telegram/tests/test_formatting.py
+  - app_telegram/tests/test_admin_link.py
+  - app_telegram/tests/test_commands.py
+  - app_telegram/tests/test_re_register_webhook.py
+  - docs/superpowers/specs/cleanup-reports/be-app_telegram.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_telegram.tests
+  passed: true
+  notes: >
+    Shared schedjuice-test-db contended by parallel HVT agents. Equivalent
+    verification passed: DATABASE_URL=postgres://user:password@127.0.0.1:55432/tg_slice_db
+    + manage.py test app_telegram.tests -v 2 --keepdb --noinput → Ran 75, OK.
+counts:
+  deleted: 7
+  replaced: 0
+  ambiguous: 11
+  tests_before: 82
+  tests_after: 75

@@ -1,0 +1,29 @@
+slice_id: fe-components-changelog
+repo: schedjuice-reimagined-fe
+path: src/components/changelog
+skipped: false
+deleted:
+  - path: src/components/changelog/changelog-screenshot-lightbox.tsx
+    symbol: buttonVariants
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Removed unused import buttonVariants from @/components/primitives;
+      never referenced in module body. Lightbox stays — used by
+      ChangelogScreenshotGallery → ChangelogEntryCard → ChangelogFeed →
+      src/app/(internal)/changelog/page.tsx.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/components/changelog/changelog-screenshot-lightbox.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-changelog.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/changelog
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/changelog (vitest: expect "No test
+    files found"). Skipped per hygiene playbook. Live chain:
+    app/(internal)/changelog/page.tsx → ChangelogFeed → EntryCard →
+    CategoryBadge + ScreenshotGallery → ScreenshotLightbox.

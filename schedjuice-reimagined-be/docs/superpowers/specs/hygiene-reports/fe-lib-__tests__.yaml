@@ -1,0 +1,26 @@
+slice_id: fe-lib-__tests__
+repo: schedjuice-reimagined-fe
+path: src/lib/__tests__
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/__tests__/org-route-access.test.ts
+    symbol: isPlatformOrgManagementPath
+    reason: stub-lock-test-only-consumer
+    confidence: ambiguous
+    notes: >-
+      Sole static consumer of src/lib/org-route-access.ts
+      isPlatformOrgManagementPath (permanent false after platform org routes
+      moved to /internal). Paired with fe-lib-root ambiguous on the stub module —
+      do not delete the suite without confirming the stub is still wanted.
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/__tests__
+  passed: true
+  notes: >-
+    4 files / 15 tests passed. No in-slice FE edits (scan-only; no obvious
+    dead tests, commented-out blocks, or stale docs). Other suites
+    (find-page-onboarding-storage, internal-route-access, leads-board) exercise
+    live production helpers still imported from app/components.

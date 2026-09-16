@@ -1,0 +1,161 @@
+slice_id: be-app_tasks
+repo: schedjuice-reimagined-be
+path: app_tasks
+skipped: false
+deleted:
+  - path: app_tasks/sync_zoom_attendance_helpers.py
+    symbol: tenant_has_active_zoom_account
+    reason: dead-export
+    confidence: obvious
+    notes: Zero call sites; course_eligible uses tenant.has_active_zoom_account() directly
+  - path: app_tasks/sync_zoom_attendance_helpers.py
+    symbol: tenant_zoom_attendance_enabled
+    reason: dead-export
+    confidence: obvious
+    notes: Deprecated alias of unused tenant_has_active_zoom_account; zero refs
+  - path: app_tasks/models.py
+    symbol: timezone
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.utils.timezone import
+  - path: app_tasks/tasks.py
+    symbol: get_public_schema_name/schema_context/DataVerificationRequest/Course/send_mail
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; UserDataVerificationRequest and send_user_create_email remain
+  - path: app_tasks/management/commands/run-tasks.py
+    symbol: send_user_create_email
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; mail sent via tasks.send_email path
+  - path: app_tasks/management/commands/list-processed-recordings.py
+    symbol: Course
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; command only lists ProcessedTeamsRecording
+  - path: app_tasks/management/commands/retry_ss_extraction.py
+    symbol: get_public_schema_name/schema_context/Organization/async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused after command only uses run_for_all_orgs + .delay
+  - path: app_tasks/management/commands/ensure-payment-assignments.py
+    symbol: timedelta/async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports; async via create_payment_assignment_for_course_month_async
+  - path: app_tasks/management/commands/create-payment-assignments.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import; helpers use .delay
+  - path: app_tasks/management/commands/delete-payment-assignments.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import
+  - path: app_tasks/management/commands/schedule-meetings.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import
+  - path: app_tasks/management/commands/send-meeting-link-to-channel.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import
+  - path: app_tasks/management/commands/sync-meeting-attendance.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import; attendance helpers use .delay
+  - path: app_tasks/management/commands/update-meeting-policies.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import
+  - path: app_tasks/management/commands/update-payment-assignments.py
+    symbol: async_task/duplicate update_payment_assignment_async import
+    reason: dead-export
+    confidence: obvious
+    notes: Unused async_task plus duplicate payment_assignment_helpers import line
+  - path: app_tasks/management/commands/fetch-meeting-info.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import; utilitas.async_tasks.django_q_task remains
+  - path: app_tasks/management/commands/sync-payment-submissions.py
+    symbol: async_task
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django_q.tasks import; utilitas.async_tasks remains
+  - path: app_tasks/management/commands/retry_ss_extraction.py
+    symbol: commented id=2266 / sync extract call
+    reason: commented-out-block
+    confidence: obvious
+    notes: Removed debug-filtered id and commented sync extract path; .delay path kept
+fixed_docs:
+  - path: app_tasks/views.py
+    reason: stale-ms-teams-only-docs
+    confidence: obvious
+    notes: Module/view docs said MS Teams-only; allowlist includes payments, expo, billing backfills
+  - path: app_tasks/management/commands/retry_ss_extraction.py
+    reason: wrong-command-log-label
+    confidence: obvious
+    notes: Log said Running [calculate_salary]; corrected to retry_ss_extraction
+anti_pattern_fixes:
+  - path: app_tasks/sync_zoom_attendance_helpers.py
+    reason: missing-function-def-parse-zoom-datetime
+    confidence: obvious
+    notes: >
+      Body of _parse_zoom_datetime was left as unreachable code inside
+      _instance_uuids_newest_first after return; call sites still used the name
+      (NameError at runtime). Restored def _parse_zoom_datetime.
+ambiguous:
+  - path: app_tasks/cron_registry.py
+    symbol: get_job_by_schedule_name
+    reason: unused-public-helper
+    confidence: ambiguous
+    notes: Twin of get_job_by_log_command_name (used); zero call sites but looks like intentional registry API
+  - path: app_tasks/management/commands/sync-video-attendance.py
+    symbol: sync-video-attendance
+    reason: intentional-legacy-command-alias
+    confidence: ambiguous
+    notes: Documented deprecated alias; still in apps.py async cron names and views allowlist
+  - path: app_tasks/management/commands/sync-teams-attendance.py
+    symbol: sync-teams-attendance
+    reason: intentional-legacy-command-alias
+    confidence: ambiguous
+    notes: Documented deprecated alias; still allowlisted for triggers/management API
+  - path: app_tasks/views.py
+    symbol: MS_TEAMS_COMMANDS
+    reason: outdated-constant-name
+    confidence: ambiguous
+    notes: Name implies Teams-only; rename would be cosmetic/API surface for greppers — left as-is
+files_touched:
+  - app_tasks/sync_zoom_attendance_helpers.py
+  - app_tasks/models.py
+  - app_tasks/tasks.py
+  - app_tasks/views.py
+  - app_tasks/management/commands/retry_ss_extraction.py
+  - app_tasks/management/commands/run-tasks.py
+  - app_tasks/management/commands/list-processed-recordings.py
+  - app_tasks/management/commands/ensure-payment-assignments.py
+  - app_tasks/management/commands/create-payment-assignments.py
+  - app_tasks/management/commands/delete-payment-assignments.py
+  - app_tasks/management/commands/schedule-meetings.py
+  - app_tasks/management/commands/send-meeting-link-to-channel.py
+  - app_tasks/management/commands/sync-meeting-attendance.py
+  - app_tasks/management/commands/update-meeting-policies.py
+  - app_tasks/management/commands/update-payment-assignments.py
+  - app_tasks/management/commands/fetch-meeting-info.py
+  - app_tasks/management/commands/sync-payment-submissions.py
+  - docs/superpowers/specs/hygiene-reports/be-app_tasks.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_tasks.tests
+  passed: false
+  notes: >-
+    Full app_tasks.tests: 44 ran, 6 errors all in test_eas_webhook
+    (WSGIRequest.tenant / SimpleTestCase DB) — pre-existing, unrelated to hygiene.
+    Targeted suite OK (30 tests): test_cron_registry test_cron_health
+    test_cron_runner_discord test_payment_assignment_cron
+    test_teams_attendance_sync_gate test_acca_import_upload_api test_cron_health_views.

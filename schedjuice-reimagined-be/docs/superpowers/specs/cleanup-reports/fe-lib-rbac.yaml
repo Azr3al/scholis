@@ -1,0 +1,12 @@
+slice_id: fe-lib-rbac
+repo: schedjuice-reimagined-fe
+path: src/lib/rbac
+skipped: false
+deleted: []
+replaced: []
+ambiguous: []
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/rbac
+  passed: true
+  tests_passed: 10

@@ -1,0 +1,33 @@
+slice_id: fe-lib-product-docs
+repo: schedjuice-reimagined-fe
+path: src/lib/product-docs
+skipped: false
+deleted:
+  - path: src/lib/product-docs/slugify.test.ts
+    test_name: kebab-cases titles
+    reason: tautology
+  - path: src/lib/product-docs/heading-to-id.test.ts
+    test_name: slugifies heading text
+    reason: tautology
+  - path: src/lib/product-docs/media-markdown.test.ts
+    test_name: classifies video
+    reason: tautology
+  - path: src/lib/product-docs/media-markdown.test.ts
+    test_name: classifies image
+    reason: tautology
+  - path: src/lib/product-docs/media-markdown.test.ts
+    test_name: buildVideoSnippet
+    reason: tautology
+  - path: src/lib/product-docs/media-markdown.test.ts
+    test_name: buildImageSnippet
+    reason: tautology
+replaced: []
+ambiguous: []
+files_touched:
+  - src/lib/product-docs/slugify.test.ts
+  - src/lib/product-docs/heading-to-id.test.ts
+  - src/lib/product-docs/media-markdown.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/product-docs
+  passed: true
+  tests_passed: 12

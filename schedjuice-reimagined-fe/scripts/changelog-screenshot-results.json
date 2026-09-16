@@ -1,0 +1,122 @@
+[
+  {
+    "id": "2026-08-07-import-mark-sheets-from-a-spreadsheet",
+    "ok": true,
+    "src": "/changelog/2026-08-07-import-mark-sheets-from-a-spreadsheet/mark-sheet-import.png",
+    "alt": "Mark sheet import wizard with spreadsheet upload",
+    "caption": "Upload a spreadsheet and map columns before saving the mark sheet.",
+    "file": "mark-sheet-import.png"
+  },
+  {
+    "id": "2026-08-05-join-a-course-with-a-code-from-academic-hub",
+    "ok": true,
+    "src": "/changelog/2026-08-05-join-a-course-with-a-code-from-academic-hub/academic-hub.png",
+    "alt": "Academic Hub with join code entry",
+    "caption": "Enter a join code from Academic Hub when you have one from your teacher.",
+    "file": "academic-hub.png"
+  },
+  {
+    "id": "2026-08-05-smoother-registration-and-sign-in-screens",
+    "ok": true,
+    "src": "/changelog/2026-08-05-smoother-registration-and-sign-in-screens/sign-in.png",
+    "alt": "Sign-in screen with improved layout",
+    "caption": "Sign-in screens use clearer spacing and typography.",
+    "file": "sign-in.png"
+  },
+  {
+    "id": "2026-08-06-attendance-counts-stay-accurate",
+    "ok": true,
+    "src": "/changelog/2026-08-06-attendance-counts-stay-accurate/attendance-overview.png",
+    "alt": "Attendance overview with monthly student summary",
+    "caption": "Monthly summaries include unregistered students and stay aligned with enrollment.",
+    "file": "attendance-overview.png"
+  },
+  {
+    "id": "2026-08-02-a-finance-overview-on-the-home-page",
+    "ok": true,
+    "src": "/changelog/2026-08-02-a-finance-overview-on-the-home-page/finance-home.png",
+    "alt": "Finance home page with charts and quick links",
+    "caption": "See income, balances, and quick links on the finance home page.",
+    "file": "finance-home.png"
+  },
+  {
+    "id": "2026-08-02-open-attachments-on-course-updates",
+    "ok": true,
+    "src": "/changelog/2026-08-02-open-attachments-on-course-updates/course-feed.png",
+    "alt": "Course feed with post attachments",
+    "caption": "Open attachments on course feed posts without leaving the page.",
+    "file": "course-feed.png"
+  },
+  {
+    "id": "2026-07-28-log-in-with-telegram",
+    "ok": true,
+    "src": "/changelog/2026-07-28-log-in-with-telegram/telegram-login.png",
+    "alt": "Sign-in page with Telegram login option",
+    "caption": "Sign in with Telegram when your school enables it.",
+    "file": "telegram-login.png"
+  },
+  {
+    "id": "2026-07-30-clearer-payment-receipts-and-receipt-numbers",
+    "ok": true,
+    "src": "/changelog/2026-07-30-clearer-payment-receipts-and-receipt-numbers/payment-receipts.png",
+    "alt": "Student payments list with receipt details",
+    "caption": "Receipt numbers, payment dates, and clearer receipt previews in the payments list.",
+    "file": "payment-receipts.png"
+  },
+  {
+    "id": "2026-07-29-record-one-payment-across-several-courses",
+    "ok": true,
+    "src": "/changelog/2026-07-29-record-one-payment-across-several-courses/multi-course-upload.png",
+    "alt": "Multi-course payment upload form",
+    "caption": "Record one payment across several courses with per-course month coverage.",
+    "file": "multi-course-upload.png"
+  },
+  {
+    "id": "2026-07-28-assign-substitute-teachers-on-a-course",
+    "ok": true,
+    "src": "/changelog/2026-07-28-assign-substitute-teachers-on-a-course/substitute-teachers.png",
+    "alt": "Course teacher assignment with substitute roles",
+    "caption": "Assign substitute main and assistant teachers on a course.",
+    "file": "substitute-teachers.png"
+  },
+  {
+    "id": "2026-07-30-customize-id-cards-with-templates",
+    "ok": true,
+    "src": "/changelog/2026-07-30-customize-id-cards-with-templates/id-card-templates.png",
+    "alt": "ID card template settings",
+    "caption": "Customize ID card templates with course title and expiry options.",
+    "file": "id-card-templates.png"
+  },
+  {
+    "id": "2026-07-24-check-in-when-a-course-has-ended",
+    "ok": true,
+    "src": "/changelog/2026-07-24-check-in-when-a-course-has-ended/checkin-history.png",
+    "alt": "Course check-in history with session times",
+    "caption": "Check in and review history even when a course has ended.",
+    "file": "checkin-history.png"
+  },
+  {
+    "id": "2026-07-26-overnight-class-sessions",
+    "ok": true,
+    "src": "/changelog/2026-07-26-overnight-class-sessions/create-course.png",
+    "alt": "Create course schedule with session times",
+    "caption": "Schedule overnight sessions that cross midnight.",
+    "file": "create-course.png"
+  },
+  {
+    "id": "2026-07-23-edit-payment-remarks-in-the-payments-table",
+    "ok": true,
+    "src": "/changelog/2026-07-23-edit-payment-remarks-in-the-payments-table/payment-remarks.png",
+    "alt": "Student payments table with remarks column",
+    "caption": "Edit payment remarks directly in the payments table.",
+    "file": "payment-remarks.png"
+  },
+  {
+    "id": "2026-07-10-see-password-rules-as-you-type",
+    "ok": true,
+    "src": "/changelog/2026-07-10-see-password-rules-as-you-type/password-rules.png",
+    "alt": "Password reset with live requirement checklist",
+    "caption": "Password requirements turn green as you meet each rule.",
+    "file": "password-rules.png"
+  }
+]

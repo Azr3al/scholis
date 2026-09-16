@@ -1,0 +1,134 @@
+slice_id: fe-helpers
+repo: schedjuice-reimagined-fe
+path: src/helpers
+skipped: false
+deleted:
+  - path: src/helpers/attendance-include-removed-storage.test.ts
+    test_name: scopes localStorage key per course
+    reason: tautology
+  - path: src/helpers/course-repeat.test.ts
+    test_name: delegates to formatRepeatEverySummary
+    reason: tautology
+  - path: src/helpers/duplicate-cluster-display.test.ts
+    test_name: delegates to isSuspiciousContact
+    reason: tautology
+  - path: src/helpers/academic-hub/status-counts.test.ts
+    test_name: returns planned and ended directly
+    reason: tautology
+  - path: src/helpers/course/roster-table-utils.test.ts
+    test_name: returns assistant badge for ASSISTANT_TEACHER
+    reason: obvious-smoke
+  - path: src/helpers/dvr.test.ts
+    test_name: includes all catalog fields as optional
+    reason: obvious-smoke
+  - path: src/helpers/dvr.test.ts
+    test_name: returns only required
+    reason: tautology
+  - path: src/helpers/payment-receipt.test.ts
+    test_name: formats two contiguous months as a range
+    reason: obvious-smoke
+  - path: src/helpers/payment-receipt.test.ts
+    test_name: builds group filename
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: returns YYYY-MM-01 for a date
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: returns full month name
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: passes through YMD
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: formats attended over total
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: returns aggregate for a month anchor
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: returns matrix and students from a success body
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: uses singular for 1
+    reason: tautology
+  - path: src/helpers/attendance-dashboard.test.ts
+    test_name: uses plural for 0 and many
+    reason: tautology
+  - path: src/helpers/form.test.ts
+    test_name: returns the first native invalid control in DOM order
+    reason: tautology
+  - path: src/helpers/calendar-overlap.test.ts
+    test_name: isDraftEventId detects new-prefixed ids
+    reason: tautology
+  - path: src/helpers/intake-course-titles.test.ts
+    test_name: returns the base title for the first occurrence
+    reason: tautology
+replaced:
+  - path: src/helpers/course-identity/schedule-pattern.test.ts
+    removed_test: returns weekday and time when both exist
+    added_tests:
+      - returns null when weekday and start time are missing
+      - formats weekday with truncated clock range
+      - falls back to time_pattern when end time is missing
+    reason: sole-coverage-nontrivial
+ambiguous:
+  - path: src/helpers/authorization-media.test.ts
+    test_name: recognizes manager as admin credentials
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin hasAdminCredentials success for manager only; no denial cases in file.
+      Unclear whether manager→true is intentional sole coverage of credential helper.
+  - path: src/helpers/announcement-editor-teams.test.ts
+    test_name: returns true when highlight is present
+    reason: may-be-matrix-cell
+    notes: >
+      Multiple true cases (highlight, font size, table/taskList) plus bold-false.
+      May be intentional unsupported-node matrix vs redundant success variants.
+  - path: src/helpers/academic-hub/secondary-toolbar-visible.test.ts
+    test_name: returns true for a specific program when advanced filters apply
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin true alongside program=all and teacher-only false cases; likely contrast
+      anchor for shouldShowSecondaryToolbar.
+  - path: src/helpers/format-absence-list-copy.test.ts
+    test_name: formats yyyy-mm-dd as dd/mm/yyyy
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin format happy path; sibling covers non-ymd passthrough. Format contract
+      may be intentional vs date-fns tautology.
+  - path: src/helpers/user-profile.test.ts
+    test_name: prefers courseTitle
+    reason: may-be-matrix-cell
+    notes: >
+      Priority-chain success cells (courseTitle / course object / plain title) plus
+      defensive object title and fallback. Unclear which success cells are redundant.
+  - path: src/helpers/tiptap-table-commands.test.ts
+    test_name: returns the result of deleteTable when available
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin true/false when can().deleteTable exists; file already covers null, missing,
+      non-function, destroyed, and thrown can(). Likely the positive contrast anchor.
+  - path: src/helpers/course/roster-table-utils.test.ts
+    test_name: returns main badge for MAIN_TEACHER
+    reason: may-be-contrast-anchor
+    notes: >
+      Kept one thin success after deleting ASSISTANT_TEACHER duplicate; OTHER/missing
+      edge remains. Confirm MAIN is the intended contrast anchor vs ASSISTANT.
+files_touched:
+  - src/helpers/attendance-include-removed-storage.test.ts
+  - src/helpers/academic-hub/status-counts.test.ts
+  - src/helpers/attendance-dashboard.test.ts
+  - src/helpers/calendar-overlap.test.ts
+  - src/helpers/course-identity/schedule-pattern.test.ts
+  - src/helpers/course-repeat.test.ts
+  - src/helpers/course/roster-table-utils.test.ts
+  - src/helpers/duplicate-cluster-display.test.ts
+  - src/helpers/dvr.test.ts
+  - src/helpers/form.test.ts
+  - src/helpers/intake-course-titles.test.ts
+  - src/helpers/payment-receipt.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/helpers
+  passed: true
+  test_files: 54
+  tests: 335

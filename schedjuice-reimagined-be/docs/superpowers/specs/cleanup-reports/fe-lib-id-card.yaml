@@ -1,0 +1,102 @@
+slice_id: fe-lib-id-card
+repo: schedjuice-reimagined-fe
+path: src/lib/id-card
+skipped: false
+deleted:
+  - path: src/lib/id-card/svg-data-url.test.ts
+    test_name: encodes an SVG string into a utf8 data URL
+    reason: tautology
+  - path: src/lib/id-card/qr.test.ts
+    test_name: produces a PNG data URL
+    reason: tautology
+  - path: src/lib/id-card/image-proxy.test.ts
+    test_name: allows https URLs on allowlisted hosts
+    reason: tautology
+  - path: src/lib/id-card/image-proxy.test.ts
+    test_name: builds a same-origin proxy query string
+    reason: tautology
+  - path: src/lib/id-card/id-card-layout.test.ts
+    test_name: stacks detail row baselines with gap after role pill
+    reason: tautology
+  - path: src/lib/id-card/id-card-layout.test.ts
+    test_name: keeps QR box and verify text aligned to panel top
+    reason: tautology
+  - path: src/lib/id-card/id-card-layout.test.ts
+    test_name: compresses spacing for dense layouts while staying within bounds
+    reason: obvious-smoke
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: builds a student card with student accent
+    reason: obvious-smoke
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: builds a staff card from row roles
+    reason: obvious-smoke
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: computes initials from the name
+    reason: tautology
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: labels a student-only set as Student
+    reason: tautology
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: labels staff by highest priority
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: src/lib/id-card/verify-url.test.ts
+    test_name: builds an absolute verify URL
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin happy-path URL join; trailing-slash trim and missing-token empty remain.
+      May be intentional contrast for buildVerifyUrl.
+  - path: src/lib/id-card/image-proxy.test.ts
+    test_name: allows S3 and DO Spaces hostnames
+    reason: may-be-allowlist-matrix
+    notes: >
+      Positive allowlist cells; reject-unknown sibling remains. Security host matrix
+      vs tautology of Set.has.
+  - path: src/lib/id-card/image-proxy.test.ts
+    test_name: resolves relative paths against an origin
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin relative→absolute success; absolute pass-through sibling remains.
+  - path: src/lib/id-card/id-card-layout.test.ts
+    test_name: places panel just below email for staff with no detail rows
+    reason: may-encode-layout-contract
+    notes: >
+      Hardcoded emailY/panelTopY for empty staff layout. May guard regression vs
+      mirroring layout constants.
+  - path: src/lib/id-card/id-card-layout.test.ts
+    test_name: moves panel up for student with class only (screenshot case)
+    reason: may-be-regression-guard
+    notes: >
+      Screenshot-named layout case with panelTopY < 636. Sibling overlap/bounds
+      tests remain; unclear if screenshot floor is intentional contract.
+  - path: src/lib/id-card/file-name.test.ts
+    test_name: slugifies the name and appends the extension
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin slugify success; punctuation strip and empty-name fallback remain.
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: labels a teacher as staff with the staff accent
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin staff role/accent success; student-only and priority-pick siblings remain.
+  - path: src/lib/id-card/build-id-card.test.ts
+    test_name: labels a student-only user as student with the student accent
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin student role/accent success; staff labeling and studentId mapping remain.
+  - path: src/lib/id-card/logo-color.test.ts
+    test_name: returns the most frequent opaque color after quantization
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin frequency success; transparent/near-white ignore and null-empty remain.
+files_touched:
+  - src/lib/id-card/svg-data-url.test.ts
+  - src/lib/id-card/qr.test.ts
+  - src/lib/id-card/image-proxy.test.ts
+  - src/lib/id-card/id-card-layout.test.ts
+  - src/lib/id-card/build-id-card.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/id-card
+  passed: true
+  notes: '8 files, 34 tests passed'

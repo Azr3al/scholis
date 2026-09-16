@@ -1,0 +1,41 @@
+slice_id: fe-components-attendance
+repo: schedjuice-reimagined-fe
+path: src/components/attendance
+skipped: false
+deleted:
+  - path: src/components/attendance/attendance-status-config.test.ts
+    test_name: uses /20 fill and semantic ring for present
+    reason: tautology
+  - path: src/components/attendance/attendance-status-config.test.ts
+    test_name: uses /20 fill and semantic ring for late
+    reason: tautology
+  - path: src/components/attendance/attendance-status-config.test.ts
+    test_name: uses /20 fill and semantic ring for absent
+    reason: tautology
+  - path: src/components/attendance/attendance-status-config.test.ts
+    test_name: keeps unregistered neutral (no success/warning/danger ring)
+    reason: tautology
+  - path: src/components/attendance/attendance-row-save-tracking.test.ts
+    test_name: includes status dirty rows
+    reason: tautology
+  - path: src/components/attendance/attendance-row-save-tracking.test.ts
+    test_name: includes note dirty rows
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  - path: src/components/attendance/attendance-status-control.test.tsx
+    test_name: applies confident press scale and reduced-motion reset
+    reason: may-be-visual-contract
+    notes: >
+      CSS class snapshot for press scale / reduced-motion; may guard
+      intentional motion fix.
+files_touched:
+  - src/components/attendance/attendance-status-config.test.ts
+  - src/components/attendance/attendance-row-save-tracking.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-attendance.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/attendance
+  passed: true
+  tests_passed: 26
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

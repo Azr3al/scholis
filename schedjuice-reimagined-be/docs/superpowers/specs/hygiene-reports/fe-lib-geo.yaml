@@ -1,0 +1,27 @@
+slice_id: fe-lib-geo
+repo: schedjuice-reimagined-fe
+path: src/lib/geo
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/geo/get-current-position.ts
+    symbol: GeoPosition
+    reason: return-type-export
+    confidence: ambiguous
+    notes: >-
+      Exported type only used as getCurrentPosition return annotation in this
+      module; zero external imports (campus-checkin-dialog uses inferred
+      .latitude/.longitude). May be intentional public typing — do not un-export
+      without confirm.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-lib-geo.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/geo
+  passed: true
+  skipped: true
+  notes: >-
+    Vitest exit 1: "No test files found" under src/lib/geo — treated as skip.
+    getCurrentPosition is live via campus-checkin-dialog. No FE source edits
+    (scan-only; no obvious dead modules/exports/docs/anti-patterns).

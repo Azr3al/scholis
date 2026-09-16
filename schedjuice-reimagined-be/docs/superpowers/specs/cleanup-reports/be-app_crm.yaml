@@ -1,0 +1,48 @@
+slice_id: be-app_crm
+repo: schedjuice-reimagined-be
+path: app_crm/tests
+skipped: false
+deleted:
+  - path: app_crm/tests/test_models.py
+    test_name: LeadModelTest.test_create_lead_minimal
+    reason: tautology
+  - path: app_crm/tests/test_models.py
+    test_name: LeadModelTest.test_appointment_belongs_to_lead
+    reason: tautology
+  - path: app_crm/tests/test_models.py
+    test_name: LeadModelTest.test_event_and_comment
+    reason: tautology
+  - path: app_crm/tests/test_services.py
+    test_name: SeedDataTest.test_default_sources_seeded
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: app_crm/tests/test_services.py
+    test_name: SeedDataTest.test_default_statuses_seeded
+    reason: may-encode-seed-contract
+    notes: Asserts ordered pipeline names plus APPOINTMENT/CONVERTED behaviors; may guard load-data contract vs mirroring seed list
+  - path: app_crm/tests/test_views.py
+    test_name: LeadViewBaseTest.test_convert_creates_student
+    reason: may-be-redundant-layer
+    notes: Overlaps ConvertServiceTest.test_convert_creates_student_user; API-layer status/state asserts may still be intentional
+  - path: app_crm/tests/test_issue_views.py
+    test_name: IssuePermissionTest.test_teacher_can_view_board_but_cannot_create
+    reason: may-be-contrast-anchor
+    notes: GET 200 paired with POST 403 in the same test; thin allow path for board view
+  - path: app_crm/tests/test_issue_views.py
+    test_name: IssuePermissionTest.test_issue_status_create_requires_configure_permission
+    reason: may-be-contrast-anchor
+    notes: Admin 201 success paired with teacher 403; allowed one success path pending review
+files_touched:
+  - app_crm/tests/test_models.py
+  - app_crm/tests/test_services.py
+  - app_crm/tests/test_issue_views.py
+verification:
+  command: ./scripts/run_backend_tests.sh app_crm.tests
+  passed: true
+  notes: >
+    Verified OK (29 tests) via isolated DATABASE_URL db_crm/test_db_crm to
+    avoid parallel-agent contention on shared test_db; equivalent to script
+    target app_crm.tests. Also removed orphaned NameError timeline block from
+    IssueViewBaseTest.test_mention_candidates_multi_word_search (undefined
+    issue); assignee timeline still covered by test_update_assignee_records_timeline_event.

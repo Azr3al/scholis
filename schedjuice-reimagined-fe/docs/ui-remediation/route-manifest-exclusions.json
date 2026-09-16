@@ -1,0 +1,17 @@
+{
+  "excludedPagePaths": [
+    "src/app/(design)/components/page.tsx",
+    "src/app/(design)/components/color/page.tsx",
+    "src/app/(design)/components/type/page.tsx",
+    "src/app/(design)/components/bilingual/page.tsx"
+  ],
+  "excludedReasons": {
+    "src/app/(design)/components/page.tsx": "Design system sandbox",
+    "src/app/(design)/components/color/page.tsx": "Design system sandbox",
+    "src/app/(design)/components/type/page.tsx": "Design system sandbox",
+    "src/app/(design)/components/bilingual/page.tsx": "Design system sandbox",
+    "src/app/debug": "Legacy debug prefix (tools live under (platform-internal)/internal)",
+    "src/app/artifacts": "Internal artifacts — prefix exclusion",
+    "src/app/api": "API routes — prefix exclusion"
+  }
+}

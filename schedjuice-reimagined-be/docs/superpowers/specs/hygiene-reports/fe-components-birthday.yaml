@@ -1,0 +1,27 @@
+slice_id: fe-components-birthday
+repo: schedjuice-reimagined-fe
+path: src/components/birthday
+skipped: false
+deleted:
+  - path: src/components/birthday/birthday-alert.tsx
+    symbol: axiosClient-useEffect
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Removed unused imports axiosClient (@/lib/api) and useEffect (react);
+      neither referenced in module body. BirthdayAlert itself stays — imported
+      and rendered from src/app/page.tsx (app-router home).
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/components/birthday/birthday-alert.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-birthday.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/birthday
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/birthday (vitest: "No test files
+    found"). Skipped per hygiene playbook. Live chain: src/app/page.tsx →
+    BirthdayAlert.

@@ -1,0 +1,45 @@
+slice_id: fe-components-attendance-god-view
+repo: schedjuice-reimagined-fe
+path: src/components/attendance-god-view
+skipped: false
+deleted:
+  - path: src/components/attendance-god-view/attendance-god-view-summary-cards.tsx
+    symbol: AttendanceGodViewMode
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Re-exported AttendanceGodViewMode from summary-cards but zero importers
+      used that path; all consumers import the type from
+      @/types/attendance-god-view. Removed unused type import +
+      `export type { AttendanceGodViewMode }`.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/attendance-god-view/course-marking-gaps-summary-cards.tsx
+    symbol: CourseMarkingGapsSummaryCards
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Entire module has zero static/dynamic imports under src/. Live
+      /attendances/god-view page wires CourseMarkingGapsTable + detail sheet
+      for course_marking_gaps, but summary strip falls through to
+      AttendanceGodViewSummaryCards mode="risk". Prefer ambiguous for Next.js
+      reachability / possible unfinished wiring — do not delete without confirm.
+  - path: src/components/attendance-god-view/attendance-god-view-filters.tsx
+    symbol: GodViewCategoryOption
+    reason: unused-type-export
+    confidence: ambiguous
+    notes: >-
+      Exported type only referenced inside this file (Props + cast). Page does
+      not import the type. Leave exported as public props API unless demoting
+      to non-export is intentionally requested.
+files_touched:
+  - src/components/attendance-god-view/attendance-god-view-summary-cards.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-attendance-god-view.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/attendance-god-view
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/attendance-god-view (vitest: "No test
+    files found"). Skipped per hygiene playbook.

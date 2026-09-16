@@ -1,0 +1,8 @@
+id: unpaid-students
+description: Seed a demo unpaid cohort with enrolled students.
+seeds:
+  course_title: DEMO-Unpaid-Math-L2
+  student_count: 5
+  notes:
+    - Payment state is intentionally simplified for v1.
+    - Students are enrolled and ready for unpaid-flow demos.

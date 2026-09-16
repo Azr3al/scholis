@@ -1,0 +1,84 @@
+slice_id: be-app_demo
+repo: schedjuice-reimagined-be
+path: app_demo/tests
+skipped: false
+deleted:
+  - path: app_demo/tests/test_organization_is_demo.py
+    test_name: OrganizationIsDemoFieldTests.test_is_demo_defaults_false
+    reason: tautology
+  - path: app_demo/tests/test_demo_artifacts.py
+    test_name: DemoArtifactsSmokeTests.test_tutoring_center_artifacts_load
+    reason: obvious-smoke
+  - path: app_demo/tests/test_catalog.py
+    test_name: CatalogScanTests.test_list_blueprint_ids
+    reason: obvious-smoke
+  - path: app_demo/tests/test_validation.py
+    test_name: ArtifactLoadTests.test_load_blueprint_reads_file
+    reason: tautology
+  - path: app_demo/tests/test_artifact_views.py
+    test_name: DemoArtifactViewsTests.test_blueprint_detail
+    reason: obvious-smoke
+  - path: app_demo/tests/test_provision_jobs.py
+    test_name: DemoProvisionApiTests.test_status_for_sunrise_brief
+    reason: tautology
+  - path: app_demo/tests/test_scenario_packs.py
+    test_name: ScenarioPackArtifactTests.test_metadata_files_validate_for_v1_packs
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: app_demo/tests/test_catalog.py
+    test_name: CatalogPathSafetyTests.test_safe_path_allows_briefs
+    reason: may-be-contrast-anchor
+    notes: Thin allow path; pairs with test_safe_path_rejects_traversal
+  - path: app_demo/tests/test_catalog.py
+    test_name: CatalogScanTests.test_find_brief_by_slug
+    reason: may-encode-slug-lookup-contract
+    notes: Asserts filename mapping for sunrise slug; unclear if intentional catalog contract
+  - path: app_demo/tests/test_catalog.py
+    test_name: SerializerTests.test_resolved_config_to_dict
+    reason: may-encode-serializer-contract
+    notes: Mostly field presence plus stop order=1; may guard resolved payload shape
+  - path: app_demo/tests/test_validation.py
+    test_name: BriefValidationTests.test_valid_brief_passes
+    reason: may-be-contrast-anchor
+    notes: Thin identity-return success; pairs with test_rejects_missing_slug
+  - path: app_demo/tests/test_artifact_views.py
+    test_name: DemoArtifactViewsTests.test_hub_returns_counts
+    reason: may-be-contrast-anchor
+    notes: Status-200 counts smoke; pairs with test_hub_requires_debug_access
+  - path: app_demo/tests/test_artifact_views.py
+    test_name: DemoArtifactViewsTests.test_brief_detail_includes_resolved
+    reason: may-encode-resolved-contract
+    notes: Success path asserting resolved/demo_stops presence; unclear if intentional
+  - path: app_demo/tests/test_artifact_views.py
+    test_name: DemoGuideViewTests.test_guide_allows_demo_tenant_admin
+    reason: may-be-contrast-anchor
+    notes: Allow-own success; pairs with deny tests in the same class
+  - path: app_demo/tests/test_artifact_views.py
+    test_name: DemoGuideViewTests.test_guide_allows_superadmin_bypass
+    reason: may-be-contrast-anchor
+    notes: Thin allow via debug.access; may be intentional RBAC bypass anchor
+  - path: app_demo/tests/test_provision_jobs.py
+    test_name: ProvisionResultSerializationTests.test_maps_accounts_and_scripts
+    reason: may-encode-serialization-contract
+    notes: Maps mock dict through provision_result_to_dict; may guard handoff shape
+files_touched:
+  - app_demo/tests/test_organization_is_demo.py
+  - app_demo/tests/test_demo_artifacts.py
+  - app_demo/tests/test_catalog.py
+  - app_demo/tests/test_validation.py
+  - app_demo/tests/test_artifact_views.py
+  - app_demo/tests/test_provision_jobs.py
+  - app_demo/tests/test_scenario_packs.py
+  - docs/superpowers/specs/cleanup-reports/be-app_demo.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_demo.tests
+  passed: false
+  notes: >
+    Isolated DB run (DATABASE_URL=.../demo_slice_db; script overwrites DATABASE_URL
+    under parallel-agent contention on shared test_db): 42 OK, 2 FAIL.
+    Pre-existing DemoProvisionApiTests.test_post_starts_job and
+    test_job_detail_not_found return 403 (RequiresDemoProvisionAccess /
+    platform-admin tenant path); confirmed same failures on unmodified tree
+    (also test_status_for_sunrise_brief failed before deletion). Cleanup did
+    not introduce failures.

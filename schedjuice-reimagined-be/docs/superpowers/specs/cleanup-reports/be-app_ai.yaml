@@ -1,0 +1,87 @@
+slice_id: be-app_ai
+repo: schedjuice-reimagined-be
+path: app_ai/tests
+skipped: false
+deleted:
+  - path: app_ai/tests/test_guardrails_classifier.py
+    test_name: ClassifierTests.test_classifier_allowed
+    reason: tautology
+  - path: app_ai/tests/test_guardrails_classifier.py
+    test_name: ClassifierTests.test_classifier_rejected
+    reason: tautology
+  - path: app_ai/tests/test_tools_and_pricing.py
+    test_name: GeminiAdapterTests.test_function_declaration_uses_parameters_json_schema
+    reason: tautology
+  - path: app_ai/tests/test_links.py
+    test_name: BuildFrontendUrlTests.test_user_and_course_helpers
+    reason: tautology
+  - path: app_ai/tests/test_adjust_staff_points.py
+    test_name: PointsReadToolTests.test_list_point_types_returns_active
+    reason: obvious-smoke
+  - path: app_ai/tests/test_packs.py
+    test_name: ResolveEnabledPackIdsTests.test_explicit_packs
+    reason: tautology
+replaced:
+  - path: app_ai/tests/test_tool_intent.py
+    removed_test: IntentClassifierTests.test_cancel_reply
+    added_tests:
+      - IntentClassifierTests.test_cancel_reply_accepts_exact_synonyms
+      - IntentClassifierTests.test_cancel_reply_rejects_non_exact
+    reason: sole-coverage-nontrivial
+ambiguous:
+  - path: app_ai/tests/test_count_tools.py
+    test_name: AIToolRbacTests.test_admin_has_user_read_breadth
+    reason: may-be-contrast-anchor
+    notes: Thin assertIsNone success; pairs with teacher_denied_user_read_breadth in the same class
+  - path: app_ai/tests/test_count_tools.py
+    test_name: AIToolRbacTests.test_admin_has_course_read_breadth
+    reason: may-be-contrast-anchor
+    notes: Thin assertIsNone success; pairs with teacher denial coverage in the same class
+  - path: app_ai/tests/test_user_ai_api.py
+    test_name: UserAIApiTests.test_self_get_preferences
+    reason: may-be-contrast-anchor
+    notes: Status-200 defaults path; pairs with other_get_preferences_denied_for_teacher
+  - path: app_ai/tests/test_usage_api.py
+    test_name: AIUsageApiTests.test_superadmin_on_customer_tenant_can_fetch_own_org_usage
+    reason: may-be-contrast-anchor
+    notes: Thin allow-own success; contrasts cannot_fetch_other_org_usage
+  - path: app_ai/tests/test_failures_api.py
+    test_name: AIUsageFailuresApiTests.test_superadmin_can_fetch_org_failures
+    reason: may-be-redundant-smoke
+    notes: Mostly status/items presence; platform + tenant isolation tests may already cover serialization
+  - path: app_ai/tests/test_analytics_api.py
+    test_name: AIUsageAnalyticsApiTests.test_platform_analytics_all_tenants
+    reason: may-encode-tenant-null-contract
+    notes: Thin success asserting tenant_id is None; unclear if intentional vs smoke
+  - path: app_ai/tests/test_capability_gap_judge.py
+    test_name: CapabilityGapJudgeTests.test_no_gap
+    reason: may-be-mock-passthrough
+    notes: Mocks judge False then asserts False/none(); other tests cover coercion and fail-open
+  - path: app_ai/tests/test_tenant_context.py
+    test_name: PlatformPromptTests.test_platform_base_includes_link_formatting_rules
+    reason: may-mirror-prompt-copy
+    notes: assertIn of static prompt fragments; may guard silent prompt regressions
+  - path: app_ai/tests/test_tenant_context.py
+    test_name: PlatformPromptTests.test_platform_base_includes_primary_email_rules
+    reason: may-mirror-prompt-copy
+    notes: 'Same pattern as other platform_base_includes_* prompt-string presence tests'
+  - path: app_ai/tests/test_requests_api.py
+    test_name: AIUsageRequestsApiTests.test_platform_requests_endpoint
+    reason: may-be-redundant-smoke
+    notes: Thinner than org requests test; different URL path so unclear if intentional
+files_touched:
+  - app_ai/tests/test_guardrails_classifier.py
+  - app_ai/tests/test_tools_and_pricing.py
+  - app_ai/tests/test_links.py
+  - app_ai/tests/test_adjust_staff_points.py
+  - app_ai/tests/test_packs.py
+  - app_ai/tests/test_tool_intent.py
+  - docs/superpowers/specs/cleanup-reports/be-app_ai.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_ai.tests
+  passed: false
+  notes: >
+    Touched modules green (55 tests). Full app_ai.tests still fails on pre-existing
+    failures (failures_api/reporting date filtering, client_write_guard mocks,
+    service_request_log SimpleTestCase DB access, alumni search); confirmed same
+    failures with cleanup edits stashed.

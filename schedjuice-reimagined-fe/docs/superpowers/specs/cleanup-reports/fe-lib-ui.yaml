@@ -1,0 +1,80 @@
+slice_id: fe-lib-ui
+repo: schedjuice-reimagined-fe
+path: src/lib/ui
+skipped: false
+deleted:
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: keeps the value on one line and truncates when constrained
+    reason: tautology
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: keeps placeholder muted styling hook
+    reason: tautology
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: uses fixed height and shared chrome for default (non-fullWidth)
+    reason: obvious-smoke
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: uses a rounded ring for focus (not rectangular outline)
+    reason: tautology
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: floors the status cell around 13.5rem
+    reason: tautology
+  - path: src/lib/ui/overlay-layers.test.ts
+    test_name: exposes tailwind utilities
+    reason: tautology
+  - path: src/lib/ui/modal-overlay-context.test.tsx
+    test_name: merges extra positioner classes
+    reason: tautology
+  - path: src/lib/ui/global-overlay-registry.test.tsx
+    test_name: returns true while an overlay is registered
+    reason: obvious-smoke
+  - path: src/lib/ui/__tests__/select-layout.test.ts
+    test_name: accepts ControlSize instead of fullWidth boolean
+    reason: tautology
+  - path: src/lib/ui/__tests__/field-measure.test.ts
+    test_name: returns max-w-xl for default measure
+    reason: tautology
+  - path: src/lib/ui/__tests__/field-measure.test.ts
+    test_name: returns unconstrained width for full measure
+    reason: tautology
+  - path: src/lib/ui/__tests__/field-measure.test.ts
+    test_name: prefers field-level measure over form default
+    reason: tautology
+  - path: src/lib/ui/__tests__/field-measure.test.ts
+    test_name: falls back to form default
+    reason: tautology
+  - path: src/lib/ui/__tests__/control-sizing.test.ts
+    test_name: returns compact height for table cells
+    reason: tautology
+  - path: src/lib/ui/__tests__/control-sizing.test.ts
+    test_name: returns full width mode for full size
+    reason: tautology
+  - path: src/lib/ui/__tests__/control-sizing.test.ts
+    test_name: maps full size to fullWidth trigger classes
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: src/lib/ui/select-layout.test.ts
+    test_name: drops hard min-w-44 and fills width when fullWidth
+    reason: may-be-contrast-anchor
+    notes: >
+      Kept sole thin fullWidth branch after deleting default chrome / size-API
+      duplicate. Unclear if size:"full" should be the intentional API surface instead.
+  - path: src/lib/ui/global-overlay-registry.test.tsx
+    test_name: does not register when isOpen is false
+    reason: may-be-redundant-with-empty
+    notes: >
+      Initial isOpen=false vs empty registry; cleanup already covers true→false
+      unregister. May be intentional never-register edge.
+files_touched:
+  - src/lib/ui/select-layout.test.ts
+  - src/lib/ui/overlay-layers.test.ts
+  - src/lib/ui/modal-overlay-context.test.tsx
+  - src/lib/ui/global-overlay-registry.test.tsx
+  - src/lib/ui/__tests__/select-layout.test.ts
+  - src/lib/ui/__tests__/field-measure.test.ts
+  - src/lib/ui/__tests__/control-sizing.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/ui
+  passed: true
+  test_files: 4
+  tests: 11

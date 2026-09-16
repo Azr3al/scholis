@@ -1,0 +1,30 @@
+slice_id: fe-components-form
+repo: schedjuice-reimagined-fe
+path: src/components/form
+skipped: false
+deleted:
+  - path: src/components/form/combobox-search-header.test.tsx
+    test_name: defaults to Search {label}…
+    reason: tautology
+  - path: src/components/form/combobox-search-header.test.tsx
+    test_name: prefers explicit placeholder
+    reason: tautology
+  - path: src/components/form/combobox-search-header.test.tsx
+    test_name: returns Search {label}
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  - path: src/components/form/combobox-search-header.test.tsx
+    test_name: renders default placeholder, aria-label, and empty-query hint
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin wiring of default copy; sibling tests cover hint hide/show edges.
+files_touched:
+  - src/components/form/combobox-search-header.test.tsx
+  - docs/superpowers/specs/cleanup-reports/fe-components-form.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/form
+  passed: true
+  tests_passed: 14
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

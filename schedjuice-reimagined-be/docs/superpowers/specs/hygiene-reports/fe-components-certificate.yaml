@@ -1,0 +1,51 @@
+slice_id: fe-components-certificate
+repo: schedjuice-reimagined-fe
+path: src/components/certificate
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/certificate/primitives/text.tsx
+    symbol: Text
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Default export; zero static/dynamic imports under src/. Only consumers of
+      react-konva in FE. Live certificate create/generate uses canvas 2D via
+      @/helpers/image-editor + @/helpers/certificate-template, not Konva.
+      Prefer ambiguous for Next.js reachability — do not delete without confirm.
+  - path: src/components/certificate/primitives/rectangle.tsx
+    symbol: Rectangle
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Default export; zero static/dynamic imports under src/ (same Konva editor
+      remnant as Text). Prefer ambiguous for Next.js reachability.
+  - path: src/components/certificate/menu-bars/index.tsx
+    symbol: MenuBar
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Default export; zero external importers. Only used internally by this
+      folder via text-menu-bar. useCertificateStore is otherwise only referenced
+      from this slice (store itself is out of slice). Prefer ambiguous for
+      Next.js reachability / unfinished editor wiring.
+  - path: src/components/certificate/menu-bars/text-menu-bar.tsx
+    symbol: TextMenuBar
+    reason: sibling-only-export
+    confidence: ambiguous
+    notes: >-
+      Only imported by menu-bars/index.tsx (same folder). Entire menu-bars tree
+      has no app-router entry; leave until MenuBar reachability is decided.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/fe-components-certificate.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/certificate
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/certificate (vitest: "No test files
+    found"). Skipped per hygiene playbook. No FE source edits (scan-only).
+    Live certs: app/(internal)/certificates/* → components/certificates +
+    image-editor helpers, not this slice.

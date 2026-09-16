@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/FRONTEND_COURSE_CHAT_PROMPT.md

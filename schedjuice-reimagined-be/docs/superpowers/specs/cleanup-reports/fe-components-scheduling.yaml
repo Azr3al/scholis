@@ -1,0 +1,20 @@
+slice_id: fe-components-scheduling
+repo: schedjuice-reimagined-fe
+path: src/components/scheduling
+skipped: false
+deleted:
+  - path: src/components/scheduling/simple-schedule-picker.test.tsx
+    test_name: renders custom slot
+    reason: obvious-smoke
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/scheduling/simple-schedule-picker.test.tsx
+  - docs/superpowers/specs/cleanup-reports/fe-components-scheduling.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/scheduling
+  passed: true
+  tests_passed: 34
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

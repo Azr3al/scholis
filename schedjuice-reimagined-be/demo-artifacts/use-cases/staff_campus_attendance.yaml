@@ -1,0 +1,11 @@
+id: staff_campus_attendance
+label: Track staff campus attendance
+scenario_packs:
+  - campus-staff-attendance
+demo_stops:
+  - route: /services/campus-checkin
+    role: demo-teacher
+    talk_track: Guides check in and out once per day at the campus.
+  - route: /services/campus-checkins
+    role: demo-admin
+    talk_track: Pick a day in June — see check-in/out times, campus, and verification method per staff member.

@@ -1,0 +1,24 @@
+slice_id: fe-components-date
+repo: schedjuice-reimagined-fe
+path: src/components/date
+skipped: false
+deleted:
+  - path: src/components/date/__tests__/date-picker-consolidation.test.ts
+    test_name: users/date-picker re-exports from canonical module
+    reason: tautology
+  - path: src/components/date/__tests__/date-picker-consolidation.test.ts
+    test_name: public DatePicker forwards refs for both variants
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/date/__tests__/date-picker-consolidation.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-date.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/date
+  passed: true
+  tests_passed: 0
+  note: All tests in slice deleted; no remaining vitest targets.
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

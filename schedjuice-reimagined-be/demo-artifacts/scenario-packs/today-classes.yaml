@@ -1,0 +1,12 @@
+id: today-classes
+description: Seed one demo class with events on the configured demo date.
+seeds:
+  course_title: DEMO-Today-1
+  teacher_email_template: demo-teacher@{domain_url}
+  events:
+    - title: DEMO-Today-1 / Session 1
+      time_from: "09:00"
+      time_to: "10:00"
+    - title: DEMO-Today-1 / Session 2
+      time_from: "13:00"
+      time_to: "14:00"

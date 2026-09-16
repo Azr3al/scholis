@@ -1,0 +1,20 @@
+slice_id: fe-components-edit-kit
+repo: schedjuice-reimagined-fe
+path: src/components/edit-kit
+skipped: false
+deleted:
+  - path: src/components/edit-kit/__tests__/cell-autosave-input.test.tsx
+    test_name: exposes click-to-edit aria label when idle
+    reason: obvious-smoke
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/edit-kit/__tests__/cell-autosave-input.test.tsx
+  - docs/superpowers/specs/cleanup-reports/fe-components-edit-kit.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/edit-kit
+  passed: true
+  tests_passed: 14
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

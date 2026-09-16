@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/USER_ATTENDANCE_FLOW.md

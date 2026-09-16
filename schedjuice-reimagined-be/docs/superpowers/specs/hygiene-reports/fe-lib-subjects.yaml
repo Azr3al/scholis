@@ -1,0 +1,43 @@
+slice_id: fe-lib-subjects
+repo: schedjuice-reimagined-fe
+path: src/lib/subjects
+skipped: false
+deleted:
+  - path: src/lib/subjects/parse-subject-column.ts
+    symbol: ParseOptions
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only opts type for parseSubjectColumn. Zero external imports.
+  - path: src/lib/subjects/parse-subject-column.ts
+    symbol: splitPasteTokens
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only called by parseSubjectColumn. Zero external imports.
+  - path: src/lib/subjects/subject-row-status.ts
+    symbol: StatusSummary
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only return type of summarizeStatuses. Zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/subjects/parse-subject-column.ts
+    symbol: stripSectionSuffix
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by parseSubjectColumn and unit tests; zero other prod imports.
+      Do not demote without confirm (would break direct tests).
+files_touched:
+  - src/lib/subjects/parse-subject-column.ts
+  - src/lib/subjects/subject-row-status.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-subjects.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/subjects
+  passed: true
+  tests_passed: 13
+  notes: >-
+    2 files / 13 tests passed. Live exports kept: parseSubjectColumn,
+    ParsedSubjectRow, normalizeKey (sibling + tests), computeRowStatus,
+    summarizeStatuses, SubjectRowStatus, ExistingSubject via
+    components/program/bulk-add-subjects.tsx.

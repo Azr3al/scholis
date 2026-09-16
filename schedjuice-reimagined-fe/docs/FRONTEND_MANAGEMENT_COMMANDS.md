@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/FRONTEND_MANAGEMENT_COMMANDS.md

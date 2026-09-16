@@ -1,0 +1,21 @@
+slice_id: fe-lib-attachment
+repo: schedjuice-reimagined-fe
+path: src/lib/attachment
+skipped: false
+deleted:
+  - path: src/lib/attachment/attachment-url.test.ts
+    test_name: detects via is_image flag
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: src/lib/attachment/attachment-url.test.ts
+    test_name: returns public_data when set
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin success for public_data precedence; data/file/empty siblings remain.
+files_touched:
+  - src/lib/attachment/attachment-url.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/attachment
+  passed: true
+  tests_passed: 6

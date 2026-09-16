@@ -1,0 +1,65 @@
+slice_id: fe-lib-web-push
+repo: schedjuice-reimagined-fe
+path: src/lib/web-push
+skipped: false
+deleted:
+  - path: src/lib/web-push/register-web-push.ts
+    symbol: isBraveBrowser
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used by getWebPushSubscribeErrorMessage.
+  - path: src/lib/web-push/register-web-push.ts
+    symbol: urlBase64ToUint8Array
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by subscribeToWebPush.
+      Removed unused barrel re-export from index.ts.
+  - path: src/lib/web-push/parse-push-data.ts
+    symbol: parseUtilityNotificationData
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by parsePushNotificationData.
+      Removed unused barrel re-export from index.ts.
+  - path: src/lib/web-push/parse-push-data.ts
+    symbol: parseAnnouncementNotificationData
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by parsePushNotificationData.
+      Removed unused barrel re-export from index.ts.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/web-push/register-web-push.ts
+    symbol: deactivateWebPushSubscription
+    reason: never-wired-logout-helper
+    confidence: ambiguous
+    notes: >
+      Zero static callers. Comments say best-effort on logout, but
+      helpers/auth logout never calls it. Do not delete without confirming
+      logout should not deactivate the backend subscription.
+  - path: src/lib/web-push/register-web-push.ts
+    symbol: unregisterServiceWorker
+    reason: never-wired-logout-helper
+    confidence: ambiguous
+    notes: >
+      Zero static callers. Comment says "used on logout" but logout never
+      calls it. Leave until logout cleanup wiring is decided.
+  - path: src/lib/web-push/index.ts
+    symbol: barrel (@/lib/web-push)
+    reason: unused-barrel-entry
+    confidence: ambiguous
+    notes: >
+      No imports of @/lib/web-push; components deep-import register-web-push
+      / parse-push-data. Barrel may still be intentional public API.
+files_touched:
+  - src/lib/web-push/register-web-push.ts
+  - src/lib/web-push/parse-push-data.ts
+  - src/lib/web-push/index.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-web-push.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/web-push
+  passed: true
+  tests_passed: 5

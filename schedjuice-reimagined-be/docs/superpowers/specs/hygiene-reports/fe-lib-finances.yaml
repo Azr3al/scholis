@@ -1,0 +1,238 @@
+slice_id: fe-lib-finances
+repo: schedjuice-reimagined-fe
+path: src/lib/finances
+skipped: false
+deleted:
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: sumDiscountPreviewInvoicedAmounts
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Entire function unused; zero prod or test refs after prior test cleanup
+      removed the only caller. Deleted (not demoted).
+  - path: src/lib/finances/payment-group-utils.ts
+    symbol: appendPartToFormData
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only called by buildMultiPartPaymentFormData.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: moneyRound
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used inside remaining-amount.ts.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: resolveSelectedDiscountSnapshot
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by resolveSelectedDiscountSnapshots.
+  - path: src/lib/finances/recent-transactions-column-meta.ts
+    symbol: RECENT_TXN_TXN_ID_MIN_WIDTH
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/recent-transactions-column-meta.ts
+    symbol: RECENT_TXN_DESCRIPTION_MIN_WIDTH
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/recent-transactions-column-meta.ts
+    symbol: RECENT_TXN_STUDENT_MIN_WIDTH
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/recent-transactions-column-meta.ts
+    symbol: RecentTxnLayoutOpts
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only opts param for recentTransactionsColumnLayout.
+  - path: src/lib/finances/student-payments-resource-column-meta.ts
+    symbol: STUDENT_PAYMENT_TXN_COL_MIN
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-resource-column-meta.ts
+    symbol: STUDENT_PAYMENT_DESC_COL_MIN
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-resource-column-meta.ts
+    symbol: STUDENT_PAYMENT_STUDENT_COL_MIN
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-resource-column-meta.ts
+    symbol: STUDENT_PAYMENT_STATUS_COL_MIN
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-resource-column-meta.ts
+    symbol: StudentPaymentsResourceLayoutOpts
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only opts param for
+      studentPaymentsResourceColumnLayout.
+  - path: src/lib/finances/apply-column-layout-meta.ts
+    symbol: ColumnLayoutContentRole
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only used inside ColumnLayoutMeta helpers.
+  - path: src/lib/finances/invalidate-user-payments-caches.ts
+    symbol: InvalidateUserPaymentsCachesOptions
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/soft-refetch-student-payments-report.ts
+    symbol: SoftRefetchStudentPaymentsOptions
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-filter-ui.ts
+    symbol: StudentPaymentsMonthSelectorOpts
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-filter-ui.ts
+    symbol: EditablePaymentFieldName
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/student-payments-detail-utils.ts
+    symbol: StudentPaymentsSummary
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; only return type of summarizeStudentPayments.
+  - path: src/lib/finances/payment-group-utils.ts
+    symbol: PaymentPartFormInput
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: RemainingAmountPayment
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: RemainingAmountDiscountSnapshot
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: UploadPartInput
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: PartFieldErrors
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; nested in UploadFieldErrors only.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: ValidateUploadPlanInput
+    reason: dead-export
+    confidence: obvious
+    notes: Demoted to module-private; zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/finances/apply-column-layout-meta.ts
+    symbol: layoutMetaToColumnSizing
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by applyColumnLayoutMeta and unit tests; zero other prod imports.
+      Prefer keep for direct unit coverage of sizing mapping.
+  - path: src/lib/finances/patch-payment-row-cache.ts
+    symbol: applyPaymentRowPatchToCacheData
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by patchPaymentRowInQueryCaches and unit tests; zero other prod
+      imports. Prefer keep for pure-cache-patch coverage.
+  - path: src/lib/finances/payment-group-utils.ts
+    symbol: hasDuplicateTransactionIds
+    reason: test-only-orphan
+    confidence: ambiguous
+    notes: >
+      Zero prod callers; only payment-group-utils tests. Upload path uses
+      findDuplicateTransactionIdPartKeys instead. Do not delete without confirm
+      (may be intentional shared helper for future multi-part UI).
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: sumVerifiedPaymentAmounts
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: Used by computeRemainingAmount and unit tests; zero other prod imports.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: previewTermFeeWithDiscount
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by resolveTermFee / previewTermFeeWithDiscounts and unit tests;
+      zero other prod imports.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: resolveTermFee
+    reason: test-only-orphan
+    confidence: ambiguous
+    notes: >
+      Zero prod callers; only remaining-amount tests. Live upload path uses
+      resolveTermFeeFromDiscounts. May be intentional single-discount public API.
+  - path: src/lib/finances/remaining-amount.ts
+    symbol: previewTermFeeWithDiscounts
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by resolveTermFeeFromDiscounts and unit tests; zero other prod imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: UPLOAD_PART_ERROR_MESSAGES
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: Used inside validators and unit tests; zero other prod imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: findDuplicateTransactionIdPartKeys
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: Used by validateUploadParts and unit tests; zero other prod imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: validateUploadParts
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: Used by validateUploadForm and unit tests; zero other prod imports.
+  - path: src/lib/finances/upload-part-validation.ts
+    symbol: validateUploadPlan
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: Used by validateUploadForm and unit tests; zero other prod imports.
+  - path: src/lib/finances/student-payments-report-shell-layout.test.ts
+    symbol: studentPaymentsReportShellClassName
+    reason: misplaced-cross-slice-test
+    confidence: ambiguous
+    notes: >
+      Test lives under src/lib/finances but imports
+      @/components/finances/student-payments-report-shell-layout. No lib module
+      counterpart. Prefer leave / relocate under components slice — do not
+      delete without confirm.
+  - path: src/lib/finances/apply-column-layout-meta.ts
+    symbol: R12-comment
+    reason: aspirational-forward-note
+    confidence: ambiguous
+    notes: >
+      Comment says R12 may promote helper into data-table/column-layout.
+      Not clearly outdated; do not remove without confirm.
+files_touched:
+  - src/lib/finances/remaining-amount.ts
+  - src/lib/finances/payment-group-utils.ts
+  - src/lib/finances/recent-transactions-column-meta.ts
+  - src/lib/finances/student-payments-resource-column-meta.ts
+  - src/lib/finances/apply-column-layout-meta.ts
+  - src/lib/finances/invalidate-user-payments-caches.ts
+  - src/lib/finances/soft-refetch-student-payments-report.ts
+  - src/lib/finances/student-payments-filter-ui.ts
+  - src/lib/finances/student-payments-detail-utils.ts
+  - src/lib/finances/upload-part-validation.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-finances.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/finances
+  passed: true
+  tests_passed: 74
+  notes: 15 files / 74 tests passed.

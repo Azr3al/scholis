@@ -1,0 +1,42 @@
+slice_id: be-app_rbac_audit
+repo: schedjuice-reimagined-be
+path: app_rbac_audit
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_rbac_audit/models.py
+    symbol: last_seen
+    reason: hit-path-skips-auto-now
+    confidence: ambiguous
+    notes: >-
+      record_denial (app_rbac) bumps hit_count via QuerySet.update on repeat
+      hits, which bypasses Model.save and therefore last_seen auto_now. Field
+      may stay at first-create time. Do not change denial recording without
+      RBAC confirm.
+  - path: app_rbac_audit/models.py
+    symbol: sample
+    reason: written-not-exported
+    confidence: ambiguous
+    notes: >-
+      Written on ShadowDenial create defaults; build_report / shadow-denials
+      export omit it. Schema field — leave unless report consumers should
+      include samples.
+  - path: app_rbac_audit/management/commands/rbac_audit_routes.py
+    symbol: Command
+    reason: management-command-string-discovered
+    confidence: ambiguous
+    notes: >-
+      CLI surface for route inventory (writes var/rbac/route-audit.json); no
+      AGENTS/docs callers found. _walk is used by app_rbac route-coverage
+      tests. Do not delete command wrapper without confirm.
+files_touched:
+  - docs/superpowers/specs/hygiene-reports/be-app_rbac_audit.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_rbac_audit.tests
+  passed: false
+  skipped: true
+  notes: >-
+    No app_rbac_audit.tests package (and no in-slice code edits). Coverage for
+    ShadowDenial / build_report / _walk lives under app_rbac.tests.

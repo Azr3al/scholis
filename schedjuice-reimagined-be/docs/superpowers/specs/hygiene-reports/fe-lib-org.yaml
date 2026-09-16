@@ -1,0 +1,25 @@
+slice_id: fe-lib-org
+repo: schedjuice-reimagined-fe
+path: src/lib/org
+skipped: false
+deleted:
+  - path: src/lib/org/org-section-href.ts
+    symbol: OrgSectionHrefExtras
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used as orgSectionHref extras param type.
+      Zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous: []
+files_touched:
+  - src/lib/org/org-section-href.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-org.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/org
+  passed: true
+  tests_passed: 7
+  notes: >
+    Vitest path prefix also matched src/lib/org-logo-monogram.test.ts (3);
+    all 10 passed. In-slice: org-section-href (6) + build-org-section-payload (1).

@@ -1,0 +1,143 @@
+slice_id: fe-components-course
+repo: schedjuice-reimagined-fe
+path: src/components/course
+skipped: false
+deleted:
+  - path: src/components/course/user-checkin-extra-select.tsx
+    symbol: UserCheckinExtraSelect
+    reason: commented-out-block
+    confidence: obvious
+    notes: >-
+      Entire module was commented out and headed with `// UNUSED`; zero
+      importers / dynamic import(). Deleted file.
+  - path: src/components/course/icon-container.tsx
+    symbol: IconContainer
+    reason: unreferenced-module
+    confidence: obvious
+    notes: >-
+      Incomplete stub (empty icon body), never exported, zero importers.
+      Deleted file.
+  - path: src/components/course/course-program-field-config.tsx
+    symbol: isIntakeBasedProgram
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Exported helper never referenced inside or outside the module; removed
+      function and unused CourseCreationMethod import. buildCourseProgramFieldConfig
+      remains live via courses/[id]/edit.
+  - path: src/components/course/course-section-header.tsx
+    symbol: CourseSectionHeader
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Named export unused; members/schedule pages import CourseTabEditBar only.
+      Removed CourseSectionHeader (+ unused ReactNode import); kept CourseTabEditBar.
+  - path: src/components/course/feed/course-feed-timestamp.tsx
+    symbol: useFeedPostTimestampFormatter
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Hook only used by FeedPostTimestamp in the same file; removed export
+      keyword (kept as private function). FeedPostTimestamp remains exported.
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/course/assignment-card.tsx
+    symbol: unused-imports-and-dead-locals
+    reason: unused-import
+    confidence: obvious
+    notes: >-
+      Stripped unused imports (StatusBadge, AssignmentStatusBadge, editor,
+      mutation/query hooks, toast, auth helpers, etc.) and dead locals
+      (isEditMode/isSubmitMode/isDeleteDialogOpen/useEffect/useEditor/useUser).
+      Kept unused canEditAssignment/refetch on the props type so callers in
+      assignment-list keep compiling; props are no longer destructured.
+ambiguous:
+  - path: src/components/course/assignment-table.tsx
+    symbol: AssignmentTable
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero static/dynamic importers; sibling of live assignment-card. Prefer
+      ambiguous for Next.js reachability — do not delete without confirm.
+  - path: src/components/course/course-end-button.tsx
+    symbol: CourseEndButton
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Full end-course dialog; zero importers. Status ending may now live in
+      course-record-status-actions — prefer ambiguous / confirm before delete.
+  - path: src/components/course/entity-choosing-page.tsx
+    symbol: EntityChoosingPage
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero importers; wraps CourseMemberChooser + CourseStudentManager. Prefer
+      ambiguous for Next.js / create-flow reachability.
+  - path: src/components/course/course-student-manager.tsx
+    symbol: CourseStudentManager
+    reason: transitive-orphan
+    confidence: ambiguous
+    notes: >-
+      Only imported by orphan EntityChoosingPage. Prefer ambiguous with that
+      chain; do not delete without confirming create-flow replacement.
+  - path: src/components/course/chat/chat-loading-hints.tsx
+    symbol: ChatLoadingHints
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero importers in chat area/section/lists. Prefer ambiguous for possible
+      future / dynamic loading UI.
+  - path: src/components/course/overveiw/overview-tab.tsx
+    symbol: OverviewTab
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Typo folder `overveiw`; OverviewTab unused. Sibling course-header.tsx is
+      live via course-record-overview. Prefer ambiguous before deleting tab wrapper.
+  - path: src/components/course/stepper.tsx
+    symbol: Stepper
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero importers (primitives/number-field has unrelated `stepper` classname).
+      Prefer ambiguous for Next.js reachability.
+  - path: src/components/course/members/course-staff-member-card.tsx
+    symbol: CourseStaffMemberCard
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero importers; members page uses CourseOversightTable +
+      CourseTeacherScheduleSheet directly. Prefer ambiguous.
+  - path: src/components/course/members/course-student-member-card.tsx
+    symbol: CourseStudentMemberCard
+    reason: orphan-module-no-importers
+    confidence: ambiguous
+    notes: >-
+      Zero importers; prefer ambiguous pending members UI consolidation.
+  - path: src/components/course/course-info-card.tsx
+    symbol: CourseInfoItem
+    reason: public-type-no-external-importers
+    confidence: ambiguous
+    notes: >-
+      Exported type only used inside CourseInfoCard props; may be intentional
+      public API. Component itself is live via course-data-card.
+  - path: src/components/course/course-program-field-config.tsx
+    symbol: BuildCourseProgramFieldConfigOptions
+    reason: public-type-no-external-importers
+    confidence: ambiguous
+    notes: Options type for buildCourseProgramFieldConfig; keep unless confirmed unused API.
+files_touched:
+  - src/components/course/user-checkin-extra-select.tsx
+  - src/components/course/icon-container.tsx
+  - src/components/course/assignment-card.tsx
+  - src/components/course/course-section-header.tsx
+  - src/components/course/course-program-field-config.tsx
+  - src/components/course/feed/course-feed-timestamp.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-course.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/course
+  passed: true
+  tests_passed: 3
+  notes: >-
+    FE WT /Users/jamesthiha/programming/schedjuice/worktrees/fe-code-hygiene;
+    2 files / 3 tests passed (chat-attachment-renderer, course-section-rail).

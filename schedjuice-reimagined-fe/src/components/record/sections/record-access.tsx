@@ -1,0 +1,50 @@
+"use client";
+
+import { RolesEditor } from "@/components/record/roles-editor";
+import { CourseOversightScopeEditor } from "@/components/record/course-oversight-scope-editor";
+import { MobileDevicesCard } from "@/components/record/mobile-devices-card";
+import {
+  canRevokeMobileDevices,
+  canViewMobileDevices,
+} from "@/helpers/authorization";
+import type { accountType } from "@/types/user";
+
+export function RecordAccess({
+  subject,
+  viewer,
+  recordQueryKey,
+}: {
+  subject: accountType;
+  viewer: accountType;
+  recordQueryKey: unknown[];
+}) {
+  const viewingAnotherUser = viewer.id !== subject.id;
+  const showMobileDevices =
+    viewingAnotherUser && canViewMobileDevices(viewer);
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="sj-root">
+        <RolesEditor
+          subject={subject}
+          viewer={viewer}
+          recordQueryKey={recordQueryKey}
+        />
+      </div>
+
+      <CourseOversightScopeEditor
+        subject={subject}
+        recordQueryKey={recordQueryKey}
+      />
+
+      {showMobileDevices ? (
+        <div className="sj-root">
+          <MobileDevicesCard
+            userId={subject.id}
+            canRevoke={canRevokeMobileDevices(viewer)}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}

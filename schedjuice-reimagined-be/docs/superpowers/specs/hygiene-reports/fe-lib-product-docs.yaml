@@ -1,0 +1,44 @@
+slice_id: fe-lib-product-docs
+repo: schedjuice-reimagined-fe
+path: src/lib/product-docs
+skipped: false
+deleted:
+  - path: src/lib/product-docs/media-markdown.ts
+    symbol: buildVideoSnippet
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Entire function unused; zero prod or test refs. Upload flow uses
+      backend markdown_snippet. Deleted (not demoted).
+  - path: src/lib/product-docs/media-markdown.ts
+    symbol: buildImageSnippet
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Entire function unused; zero prod or test refs. Upload flow uses
+      backend markdown_snippet. Deleted (not demoted).
+  - path: src/lib/product-docs/media-markdown.ts
+    symbol: MAX_VIDEO_BYTES
+    reason: dead-export
+    confidence: obvious
+    notes: >
+      Demoted to module-private; only used by classifyMediaFile.
+      Zero external imports.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/lib/product-docs/media-markdown.ts
+    symbol: MAX_IMAGE_BYTES
+    reason: test-exported-helper
+    confidence: ambiguous
+    notes: >
+      Used by classifyMediaFile and unit tests; zero other prod imports.
+      Prefer keep for direct oversize-image assertion.
+files_touched:
+  - src/lib/product-docs/media-markdown.ts
+  - docs/superpowers/specs/hygiene-reports/fe-lib-product-docs.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/product-docs
+  passed: true
+  tests_passed: 12
+  notes: 4 files / 12 tests passed.

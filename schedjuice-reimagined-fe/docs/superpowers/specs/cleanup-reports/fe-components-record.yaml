@@ -1,0 +1,20 @@
+slice_id: fe-components-record
+repo: schedjuice-reimagined-fe
+path: src/components/record
+skipped: false
+deleted:
+  - path: src/components/record/inline/undo-core.test.ts
+    test_name: builds an entry capturing the previous value + timestamp
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/record/inline/undo-core.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-record.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/record
+  passed: true
+  tests_passed: 12
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

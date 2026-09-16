@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/PAYMENT_VERIFICATION_FLOW.md

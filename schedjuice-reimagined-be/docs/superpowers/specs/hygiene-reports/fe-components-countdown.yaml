@@ -1,0 +1,37 @@
+slice_id: fe-components-countdown
+repo: schedjuice-reimagined-fe
+path: src/components/countdown
+skipped: false
+deleted:
+  - path: src/components/countdown/countdown.tsx
+    symbol: isCountUp
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Optional prop declared and destructured (default false) but never read
+      in the component body. No live callers pass it (only commented JSX in
+      src/app/page.tsx). Removed from CountdownProps and destructure.
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/components/countdown/countdown.tsx
+    symbol: Countdown
+    reason: commented-jsx-app-import
+    confidence: ambiguous
+    notes: >-
+      Default export still statically imported from src/app/page.tsx (app-router
+      home), but the only JSX usage is commented out. Prefer ambiguous for
+      Next.js reachability — do not delete module without confirm. Cleaning the
+      unused import / commented JSX requires out-of-slice edit to
+      src/app/page.tsx (fe-app-root).
+files_touched:
+  - src/components/countdown/countdown.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-countdown.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/countdown
+  passed: false
+  skipped: true
+  notes: >-
+    No test files under src/components/countdown (vitest: "No test files
+    found"). Skipped per hygiene playbook. Import chain: src/app/page.tsx
+    imports Countdown; render is commented out.

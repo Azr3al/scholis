@@ -1,0 +1,3 @@
+path("categories", views.CategoryListView.as_view(), name="category-list"),
+path("categories/<int:obj_id>", views.CategoryDetailsView.as_view(), name="category-details"),
+path("categories/search", views.CategorySearchView.as_view(), name="category-search"),

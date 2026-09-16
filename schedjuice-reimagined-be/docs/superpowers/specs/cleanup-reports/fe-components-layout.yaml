@@ -1,0 +1,38 @@
+slice_id: fe-components-layout
+repo: schedjuice-reimagined-fe
+path: src/components/layout
+skipped: false
+deleted:
+  - path: src/components/layout/__tests__/page-header.test.tsx
+    test_name: renders serif page title at text-3xl scale
+    reason: obvious-smoke
+  - path: src/components/layout/__tests__/page-composition.test.ts
+    test_name: PageContainer accepts density prop
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  - path: src/components/layout/__tests__/page-composition.test.ts
+    test_name: dense density removes extra vertical padding
+    reason: may-be-visual-contract
+    notes: >
+      CSS padding token asserts; may lock density spacing contract.
+  - path: src/components/layout/__tests__/page-composition.test.ts
+    test_name: representative pages do not import TypographyH1 directly
+    reason: architecture-static-gate
+    notes: >
+      Migration smoke via source grep on sample routes.
+  - path: src/components/layout/__tests__/page-composition.test.ts
+    test_name: representative pages use PageContainer
+    reason: architecture-static-gate
+    notes: >
+      Migration smoke via source grep on sample routes.
+files_touched:
+  - src/components/layout/__tests__/page-header.test.tsx
+  - src/components/layout/__tests__/page-composition.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-layout.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/layout
+  passed: true
+  tests_passed: 6
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

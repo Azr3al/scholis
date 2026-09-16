@@ -1,0 +1,61 @@
+slice_id: be-app_rbac
+repo: schedjuice-reimagined-be
+path: app_rbac
+skipped: false
+deleted:
+  - path: app_rbac/signals.py
+    symbol: receiver
+    reason: dead-export
+    confidence: obvious
+    notes: Unused django.dispatch.receiver import; signals use post_save/post_delete.connect
+fixed_docs:
+  - path: app_rbac/apps.py
+    reason: stale-plan-task-comment
+    confidence: obvious
+    notes: Removed obsolete "(registered in Task 4)" plan crumb from signals import noqa
+  - path: app_rbac/catalog.py
+    reason: stale-plan-number-comment
+    confidence: obvious
+    notes: Trimmed "(Plan 5)" from Permission.sentence comment; synthesizer usage remains accurate
+anti_pattern_fixes: []
+ambiguous:
+  - path: app_rbac/catalog.py
+    symbol: DATA_CLASSES
+    reason: unused-catalog-constant
+    confidence: ambiguous
+    notes: >-
+      Tuple never referenced in BE/FE; looks like intentional domain vocabulary for
+      Permission.data_class. Prefer confirm before delete (RBAC catalog surface).
+  - path: app_rbac/catalog.py
+    symbol: BY_CODE
+    reason: public-lookup-thinly-used
+    confidence: ambiguous
+    notes: >-
+      Only builds ALL_CODES today; no external readers. Still a natural public
+      code→Permission lookup for matrix/UI tooling — leave unless confirmed unused API.
+  - path: app_rbac/views.py
+    symbol: legacy_allowed
+    reason: stale-or-orphaned-comment
+    confidence: ambiguous
+    notes: >-
+      record_denial always passes legacy_allowed=True with comment about log_only
+      + "see note" but no note exists; default RBAC_ENFORCE is enforce. Do not change
+      denial logging fields without RBAC audit confirm.
+  - path: app_rbac/realtime.py
+    symbol: tenant_rbac_group_name / user_rbac_group_name
+    reason: broadcast-without-known-subscriber
+    confidence: ambiguous
+    notes: >-
+      Channel group_send helpers are called from signals/api/auth, and FE listens for
+      rbac.updated on chat/notifications WS, but no consumer group_add for rbac_tenant_/
+      rbac_user_ found in this repo. May be incomplete wiring or external consumer —
+      do not delete realtime helpers.
+files_touched:
+  - app_rbac/signals.py
+  - app_rbac/apps.py
+  - app_rbac/catalog.py
+  - docs/superpowers/specs/hygiene-reports/be-app_rbac.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_rbac.tests
+  passed: true
+  notes: 35 tests OK (--keepdb)

@@ -1,0 +1,20 @@
+slice_id: fe-components-home
+repo: schedjuice-reimagined-fe
+path: src/components/home
+skipped: false
+deleted:
+  - path: src/components/home/__tests__/widget-registry.test.ts
+    test_name: each widget declares an id, span and requiredPermissions
+    reason: setup-theater
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/home/__tests__/widget-registry.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-home.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/home
+  passed: true
+  tests_passed: 4
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

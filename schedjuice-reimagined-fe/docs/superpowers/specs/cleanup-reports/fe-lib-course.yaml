@@ -1,0 +1,17 @@
+slice_id: fe-lib-course
+repo: schedjuice-reimagined-fe
+path: src/lib/course
+skipped: false
+deleted: []
+replaced: []
+ambiguous:
+  - path: src/lib/course/bulk-student-email-resolve.test.ts
+    test_name: marks found student as ready when MS not required
+    reason: may-be-contrast-anchor
+    notes: >
+      Thin ready success; needs_ms_link/roster/not_found/duplicate siblings remain.
+files_touched: []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/course
+  passed: true
+  tests_passed: 11

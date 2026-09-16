@@ -1,0 +1,21 @@
+id: child_tuition
+label: Track child tuition
+scenario_packs:
+  - child-tuition-payments
+demo_stops:
+  - route: /shortcuts/unpaid-course-counts
+    role: demo-admin
+    talk_track: See which courses have children who have not paid this month.
+  - route: /finances/student-payments
+    role: demo-finance
+    talk_track: Review MMK payments — pending verification, duplicates, and verified rows.
+    look_for:
+      - "450,000"
+      - "420,000"
+      - Pending Verification
+      - Kpay
+      - Swan Ko Ko
+      - Khay Khay
+  - route: /finances/unpaid-students
+    role: demo-finance
+    talk_track: Confirm paid-through month per child and course.

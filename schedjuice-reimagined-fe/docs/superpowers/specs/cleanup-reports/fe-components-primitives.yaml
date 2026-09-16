@@ -1,0 +1,26 @@
+slice_id: fe-components-primitives
+repo: schedjuice-reimagined-fe
+path: src/components/primitives
+skipped: false
+deleted:
+  - path: src/components/primitives/__tests__/overlay-layers.test.ts
+    test_name: dialog uses modal backdrop and content layers
+    reason: tautology
+  - path: src/components/primitives/__tests__/overlay-layers.test.ts
+    test_name: dropdown positioner helper uses z-dropdown
+    reason: tautology
+  - path: src/components/primitives/__tests__/overlay-layers.test.ts
+    test_name: toast viewport uses z-toast
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/primitives/__tests__/overlay-layers.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-primitives.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/primitives
+  passed: true
+  tests_passed: 4
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

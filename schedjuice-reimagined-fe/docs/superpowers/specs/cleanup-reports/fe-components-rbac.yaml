@@ -1,0 +1,20 @@
+slice_id: fe-components-rbac
+repo: schedjuice-reimagined-fe
+path: src/components/rbac
+skipped: false
+deleted:
+  - path: src/components/rbac/__tests__/matrix-grid.test.ts
+    test_name: formats domain labels for display
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/rbac/__tests__/matrix-grid.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-rbac.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/rbac
+  passed: true
+  tests_passed: 9
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

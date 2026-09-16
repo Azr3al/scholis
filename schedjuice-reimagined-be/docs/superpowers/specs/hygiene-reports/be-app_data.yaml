@@ -1,0 +1,126 @@
+slice_id: be-app_data
+repo: schedjuice-reimagined-be
+path: app_data
+skipped: false
+deleted:
+  - path: app_data/management/commands/load-data.py
+    symbol: OrganizationSerializer-registration-block
+    reason: commented-out-block
+    confidence: obvious
+    notes: >-
+      Removed commented OrganizationSerializer/org_views registration and unused
+      imports (OrganizationSerializer, org_views, call_command, BaseTenantCommand);
+      also removed unused COMMAND_NAME comment and unused counter class attr
+  - path: app_data/management/commands/fix_payroll_hourly_rates.py
+    symbol: timedelta/F
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports left from copy-paste of checkout-time fix command
+  - path: app_data/management/commands/extract_sender_text_ocr.py
+    symbol: PaymentMethod/re/get_public_schema_name/to_be_updated
+    reason: dead-export
+    confidence: obvious
+    notes: Unused imports and unused to_be_updated list; extract/image_to_text_v2 path unchanged
+  - path: app_data/management/commands/extract_sender_metadata.py
+    symbol: PaymentMethod/image_to_text_v2/re/get_public_schema_name/schema_context/extract_metadata_using_regex
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Unused imports; OCR metadata still invoked via async_task string path
+      app_finance.ocr.extract_metadata_using_regex
+  - path: app_data/management/commands/misc.py
+    symbol: UserCourse
+    reason: dead-export
+    confidence: obvious
+    notes: Unused import; command body never references UserCourse
+fixed_docs:
+  - path: app_data/views.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your views here."; left django.shortcuts.render import like other empty apps
+  - path: app_data/models.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your models here."; left django.db.models import
+  - path: app_data/admin.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Register your models here."; left django.contrib.admin import
+  - path: app_data/tests.py
+    reason: stale-scaffold-comment
+    confidence: obvious
+    notes: Removed "# Create your tests here."; left TestCase import (no real tests in module)
+  - path: app_data/management/commands/fix_payroll_hourly_rates.py
+    reason: copy-pasted-wrong-docstring-and-help
+    confidence: obvious
+    notes: >-
+      Module docstring, Command.help, and inline comment described checkout_time+1day
+      fix from fix_userevent_checkout_dry_run; corrected to hourly_rate backfill behavior
+anti_pattern_fixes:
+  - path: app_data/management/commands/set_default_campus.py
+    reason: command-missing-basecommand-inheritance
+    confidence: obvious
+    notes: >-
+      class Command() imported BaseCommand but did not subclass it, so Django would not
+      wire stdout/style; now subclasses BaseCommand (behavior of handle unchanged)
+ambiguous:
+  - path: app_data/management/commands/misc.py
+    symbol: Command
+    reason: one-off-ops-command-past-deadline
+    confidence: ambiguous
+    notes: >-
+      Teacher Su account-deletion mailer hardcodes to-be-deleted.csv and date 7.4.2025
+      (already past). May still be ops reference; do not delete without confirm
+  - path: app_data/management/commands/trsu-migrate.py
+    symbol: Command
+    reason: one-off-migration-gitignored-inputs
+    confidence: ambiguous
+    notes: >-
+      One-shot xteachersu CSV import; inputs under migration_data/ are gitignored (*).
+      Keep until ops confirms retired
+  - path: app_data/management/commands/extract_sender_text_ocr.py
+    symbol: extract_text_ocr
+    reason: hardcoded-tenant-ignores-org-arg
+    confidence: ambiguous
+    notes: >-
+      run_for_all_orgs calls extract_text_ocr(org) but async_task always passes
+      schema "xteachersu". Likely intentional one-tenant ops script or bug; not hygiene-deleted
+  - path: app_data/management/commands/fix_userevent_checkout_dry_run.py
+    symbol: Command
+    reason: filename-implies-dry-run-but-writes
+    confidence: ambiguous
+    notes: >-
+      Filename/help say dry_run framing historically, but handle() saves checkout_time.
+      Rename would be contract/ops confusion; leave for confirm
+  - path: app_data/helpers
+    symbol: run_for_all_orgs
+    reason: missing-module-cross-slice-import
+    confidence: ambiguous
+    notes: >-
+      app_tasks/management/commands/retry_ss_extraction.py imports
+      app_data.helpers.run_for_all_orgs but app_data has no helpers.py
+      (canonical helper lives in app_organization.helpers). Fix belongs to app_tasks
+      or adding helpers; out of exclusive slice ownership to edit app_tasks
+  - path: app_data/views.py
+    symbol: views/models/admin empty scaffolds
+    reason: empty-django-scaffolds-no-urls
+    confidence: ambiguous
+    notes: >-
+      App is management-command + dummydata only (registered in INSTALLED_APPS/SHARED_APPS).
+      Empty views/models/admin match other data apps; unclear if files should be deleted entirely
+files_touched:
+  - app_data/views.py
+  - app_data/models.py
+  - app_data/admin.py
+  - app_data/tests.py
+  - app_data/management/commands/set_default_campus.py
+  - app_data/management/commands/fix_payroll_hourly_rates.py
+  - app_data/management/commands/load-data.py
+  - app_data/management/commands/extract_sender_text_ocr.py
+  - app_data/management/commands/extract_sender_metadata.py
+  - app_data/management/commands/misc.py
+  - docs/superpowers/specs/hygiene-reports/be-app_data.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_data.tests
+  passed: true
+  notes: 0 tests discovered (empty scaffold TestCase module); manage.py test OK (--keepdb)

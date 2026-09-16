@@ -1,0 +1,14 @@
+id: schedule_lookup
+label: Quickly check today's classes
+scenario_packs:
+  - today-classes
+demo_stops:
+  - route: /shortcuts/todays-classes
+    role: demo-admin
+    talk_track: This shortcut gives staff a fast daily view before classes start.
+    look_for:
+      - DEMO-Today-1
+      - Two sessions on demo date
+  - route: /calendar
+    role: demo-teacher
+    talk_track: Teachers can move from shortcut to full calendar context in one click.

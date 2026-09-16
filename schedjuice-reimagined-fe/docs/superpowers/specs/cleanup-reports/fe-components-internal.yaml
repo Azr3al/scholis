@@ -1,0 +1,17 @@
+slice_id: fe-components-internal
+repo: schedjuice-reimagined-fe
+path: src/components/internal
+skipped: false
+deleted:
+  []
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  []
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/internal
+  passed: true
+  tests_passed: 3
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

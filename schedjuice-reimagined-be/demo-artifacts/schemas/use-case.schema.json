@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "label", "scenario_packs", "demo_stops"],
+  "properties": {
+    "id": { "type": "string" },
+    "label": { "type": "string" },
+    "scenario_packs": { "type": "array", "items": { "type": "string" } },
+    "demo_stops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["route", "role", "talk_track"],
+        "properties": {
+          "route": { "type": "string" },
+          "role": { "type": "string" },
+          "talk_track": { "type": "string" },
+          "look_for": { "type": "array", "items": { "type": "string" } },
+          "deep_link": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

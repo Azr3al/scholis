@@ -1,0 +1,41 @@
+slice_id: fe-hooks
+repo: schedjuice-reimagined-fe
+path: src/hooks
+skipped: false
+deleted:
+  - path: src/hooks/useStepper.ts
+    symbol: useStepper
+    reason: unreferenced-module
+    confidence: obvious
+  - path: src/hooks/use-web-push.ts
+    symbol: useWebPush
+    reason: unreferenced-module
+    confidence: obvious
+  - path: src/hooks/use-mobile.tsx
+    symbol: useIsMobile
+    reason: unreferenced-module
+    confidence: obvious
+    notes: Shadowed by use-mobile.ts; live import path @/hooks/use-mobile remains
+  - path: src/hooks/use-quiz-v3-grading-mutations.ts
+    symbol: useQuizV3WaiveEssayAttemptMutation
+    reason: dead-export
+    confidence: obvious
+fixed_docs: []
+anti_pattern_fixes: []
+ambiguous:
+  - path: src/hooks/useRbacLiveRefresh.ts
+    symbol: useRbacLiveRefresh
+    reason: test-only-or-deferred
+    confidence: ambiguous
+  - path: src/hooks/useReactions.ts
+    symbol: mock-todo-stubs
+    reason: open-todos
+    confidence: ambiguous
+files_touched:
+  - src/hooks/useStepper.ts
+  - src/hooks/use-web-push.ts
+  - src/hooks/use-mobile.tsx
+  - src/hooks/use-quiz-v3-grading-mutations.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/hooks
+  passed: true

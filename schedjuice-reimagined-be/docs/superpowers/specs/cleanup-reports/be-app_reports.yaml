@@ -1,0 +1,52 @@
+slice_id: be-app_reports
+repo: schedjuice-reimagined-be
+path: app_reports/tests
+skipped: false
+deleted: []
+replaced: []
+ambiguous:
+  - path: app_reports/tests/test_rbac_reports.py
+    test_name: ReportsRBACTests.test_manager_can_access_analytics_time_series
+    reason: may-be-contrast-anchor
+    notes: Status-200 only; pairs with test_teacher_forbidden_on_analytics_time_series
+  - path: app_reports/tests/test_rbac_reports.py
+    test_name: ReportsRBACTests.test_manager_can_access_user_activity_login_trends
+    reason: may-be-contrast-anchor
+    notes: Status-200 only; pairs with test_teacher_forbidden_on_user_activity_login_trends
+  - path: app_reports/tests/test_staff_data_sheet.py
+    test_name: StaffDataSheetTests.test_lists_active_staff
+    reason: may-be-contrast-anchor
+    notes: Thin unfiltered list success (assertIn code); unlocks accent/phone search cases; no teacher-forbid pair in this file
+  - path: app_reports/tests/test_course_data_sheet.py
+    test_name: CourseDataSheetTests.test_manager_gets_course_row
+    reason: may-be-contrast-anchor
+    notes: Allowed thin success with field asserts; pairs with test_teacher_forbidden
+  - path: app_reports/tests/test_id_photos_export.py
+    test_name: IdPhotosExportTests.test_manager_can_export_student_zip
+    reason: may-be-contrast-anchor
+    notes: Zip member asserts present; unlocks category-filter/staff/pdf/teacher-forbid coverage
+  - path: app_reports/tests/test_id_photos_export.py
+    test_name: IdPhotosExportTests.test_staff_data_sheet_excludes_students
+    reason: soft-field-presence
+    notes: Student exclusion + id_photo_url omission are valuable; blood_type/id_verify_token/has_id_photo are soft presence asserts
+  - path: app_reports/tests/test_student_data_sheet.py
+    test_name: StudentDataSheetTests.test_manager_sees_student_with_active_courses_only
+    reason: may-be-contrast-anchor
+    notes: Happy-path row shape plus active-vs-ended course filter; other tests cover enrollment edges
+files_touched:
+  - docs/superpowers/specs/cleanup-reports/be-app_reports.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_reports.tests
+  passed: false
+  notes: >
+    No test deletions (zero obvious low-value). Isolated DATABASE_URL
+    postgres://user:password@127.0.0.1:55432/reports_slice_db via
+    manage.py test --keepdb: Ran 29, FAILED (failures=7) — pre-existing,
+    unrelated to cleanup (id-photos export 404; id_photo_url present in
+    sheet rows where tests assert NotIn). No test files modified.
+counts:
+  deleted: 0
+  replaced: 0
+  ambiguous: 7
+  tests_before: 29
+  tests_after: 29

@@ -1,0 +1,44 @@
+slice_id: be-app_announcement
+repo: schedjuice-reimagined-be
+path: app_announcement/tests
+skipped: false
+deleted:
+  - path: app_announcement/tests/test_rbac_announcement.py
+    test_name: AnnouncementRBACTests.test_student_can_list_announcements
+    reason: obvious-smoke
+  - path: app_announcement/tests/test_rbac_announcement.py
+    test_name: AnnouncementRBACTests.test_teacher_can_delete_course_announcement
+    reason: obvious-smoke
+replaced:
+  - path: app_announcement/tests/test_rbac_announcement.py
+    removed_test: AnnouncementRBACTests.test_teacher_can_delete_course_announcement
+    added_tests:
+      - AnnouncementRBACTests.test_student_cannot_delete_course_announcement
+      - AnnouncementRBACTests.test_teacher_not_on_course_cannot_delete_announcement
+    reason: sole-coverage-nontrivial
+ambiguous:
+  - path: app_announcement/tests/test_rbac_announcement.py
+    test_name: AnnouncementRBACTests.test_teacher_can_create_course_announcement
+    reason: may-be-contrast-anchor
+    notes: Thin 201 success; pairs with not-on-course/student/org-wide create denials. JWT + teaching-without-manage_content also cover create allow.
+  - path: app_announcement/tests/test_rbac_announcement.py
+    test_name: AnnouncementRBACTests.test_teacher_can_update_course_announcement
+    reason: may-be-contrast-anchor
+    notes: Sole assert is status 200; pairs with clear-course/filters/move-course update denials in the same file.
+  - path: app_announcement/tests/test_rbac_announcement.py
+    test_name: AnnouncementRBACTests.test_admin_can_create_org_wide_announcement
+    reason: may-be-contrast-anchor
+    notes: Thin 201 success contrasting teacher_cannot_create_org_wide_announcement; left as allowed one success path pending review.
+  - path: app_announcement/tests/test_resend_teams.py
+    test_name: AnnouncementResendTeamsViewTests.test_resend_sets_pending_via_scheduler
+    reason: may-be-contrast-anchor
+    notes: Thin 202 + scheduler mock; contrasts test_resend_rejects_when_not_marked_for_teams. Unclear if mock call is intentional contract vs smoke.
+  - path: app_announcement/tests/test_multipart_announcement_update.py
+    test_name: MultipartAnnouncementUpdateTests.test_multipart_put_adds_attachment
+    reason: may-encode-multipart-contract
+    notes: Success-path with html_data and attachment state asserts; may be intentional multipart PUT contract or heavy happy-path smoke.
+files_touched:
+  - app_announcement/tests/test_rbac_announcement.py
+verification:
+  command: ./scripts/run_backend_tests.sh app_announcement.tests
+  passed: true

@@ -1,0 +1,27 @@
+slice_id: fe-components-shell
+repo: schedjuice-reimagined-fe
+path: src/components/shell
+skipped: false
+deleted:
+  - path: src/components/shell/internal-app-shell.test.tsx
+    test_name: provides SidebarProvider so usePageHeader pages can render
+    reason: obvious-smoke
+  - path: src/components/shell/toolbar-segment-group.test.ts
+    test_name: returns active classes when pressed
+    reason: tautology
+  - path: src/components/shell/toolbar-segment-group.test.ts
+    test_name: returns inactive classes when not pressed
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/shell/internal-app-shell.test.tsx
+  - src/components/shell/toolbar-segment-group.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-shell.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/shell
+  passed: true
+  tests_passed: 6
+commit: 264bf355ca9c70ec11a32f4db3cc70bac7ed98fd

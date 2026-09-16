@@ -1,0 +1,36 @@
+slice_id: be-app_userlog
+repo: schedjuice-reimagined-be
+path: app_userlog/tests
+skipped: false
+deleted:
+  - path: app_userlog/tests/test_models.py
+    test_name: ReportTypeModelTest.test_report_type_and_fields_create
+    reason: tautology
+  - path: app_userlog/tests/test_models.py
+    test_name: ReportTypeModelTest.test_log_entry_with_version_and_event
+    reason: tautology
+replaced: []
+ambiguous:
+  - path: app_userlog/tests/test_views.py
+    test_name: ReportTypeViewTest.test_create_report_type_and_replace_fields
+    reason: may-be-sole-api-coverage
+    notes: Thin 201/200 + field-count success; sole API coverage of report-type create/fields replace with no RBAC/unhappy contrast in-file
+  - path: app_userlog/tests/test_views.py
+    test_name: UserLogEntryViewTest.test_create_and_list_entry
+    reason: may-be-contrast-anchor
+    notes: Thin create/list success; pairs with subject 403 and other RBAC denials in the same class
+  - path: app_userlog/tests/test_models.py
+    test_name: CatalogTest.test_userlog_permissions_registered
+    reason: may-encode-catalog-contract
+    notes: Asserts permission codes exist in ALL_CODES; lightweight catalog guard vs tautology
+files_touched:
+  - app_userlog/tests/test_models.py
+verification:
+  command: ./scripts/run_backend_tests.sh app_userlog.tests
+  passed: true
+counts:
+  deleted: 2
+  replaced: 0
+  ambiguous: 3
+  tests_before: 13
+  tests_after: 11

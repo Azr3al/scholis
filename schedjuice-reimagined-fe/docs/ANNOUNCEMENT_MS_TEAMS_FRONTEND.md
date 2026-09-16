@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/ANNOUNCEMENT_MS_TEAMS_FRONTEND.md

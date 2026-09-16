@@ -1,0 +1,1 @@
+../../../schedjuice-reimagined-be/docs/MEETING_RECORDINGS_FLOW.md

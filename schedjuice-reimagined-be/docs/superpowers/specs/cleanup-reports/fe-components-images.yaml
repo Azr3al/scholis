@@ -1,0 +1,23 @@
+slice_id: fe-components-images
+repo: schedjuice-reimagined-fe
+path: src/components/images
+skipped: false
+deleted:
+  - path: src/components/images/image-crop-presets.test.ts
+    test_name: returns 1 for square
+    reason: tautology
+  - path: src/components/images/image-crop-presets.test.ts
+    test_name: returns 2.35 for cover banner
+    reason: tautology
+replaced:
+  []
+ambiguous:
+  []
+files_touched:
+  - src/components/images/image-crop-presets.test.ts
+  - docs/superpowers/specs/cleanup-reports/fe-components-images.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/images
+  passed: true
+  tests_passed: 4
+commit: 78acc905aa0201f616d4b2b49ac71bf63457fad1

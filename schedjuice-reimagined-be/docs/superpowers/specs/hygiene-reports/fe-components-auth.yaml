@@ -1,0 +1,57 @@
+slice_id: fe-components-auth
+repo: schedjuice-reimagined-fe
+path: src/components/auth
+skipped: false
+deleted: []
+fixed_docs: []
+anti_pattern_fixes:
+  - path: src/components/auth/logout-button.tsx
+    symbol: buttonVariants
+    reason: unused-import
+    confidence: obvious
+    notes: Imported from primitives but never referenced (Button/Dialog remain used).
+  - path: src/components/auth/entity-chooser-checkbox.tsx
+    symbol: TooltipProvider
+    reason: unused-import
+    confidence: obvious
+    notes: >-
+      Imported from primitives but unused; module uses Tooltip.Provider
+      namespace API instead.
+  - path: src/components/auth/entity-chooser-checkbox.tsx
+    symbol: empty-p
+    reason: empty-noop-element
+    confidence: obvious
+    notes: Removed trailing empty <p /> after description paragraph (no content/attrs).
+ambiguous:
+  - path: src/components/auth/logout-button.tsx
+    symbol: LogoutButton
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Default export has zero imports under src/. Profile menu / record settings
+      call logout() helper directly. Historical app-shell plan referenced this
+      component; prefer ambiguous for Next.js reachability — do not delete.
+  - path: src/components/auth/login-micrographic.tsx
+    symbol: LoginMicrographic
+    reason: zero-static-imports
+    confidence: ambiguous
+    notes: >-
+      Named export + LoginMicrographicProps have zero imports under src/. Design
+      plan intended wiring into login-form but it is not mounted. Prefer
+      ambiguous for Next.js reachability — do not delete.
+  - path: src/components/auth/password-requirements.tsx
+    symbol: PasswordRequirementsListProps|PasswordRequirementsProps
+    reason: public-type-surface
+    confidence: ambiguous
+    notes: >-
+      Exported prop types only used inside this module (List also used by
+      in-slice test). External callers import PasswordRequirements /
+      PasswordRequirementsList values only. Leave exported unless confirmed.
+files_touched:
+  - src/components/auth/logout-button.tsx
+  - src/components/auth/entity-chooser-checkbox.tsx
+  - docs/superpowers/specs/hygiene-reports/fe-components-auth.yaml
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/components/auth
+  passed: true
+  tests_passed: 2

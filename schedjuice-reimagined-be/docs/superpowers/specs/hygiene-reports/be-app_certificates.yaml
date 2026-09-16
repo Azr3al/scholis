@@ -1,0 +1,37 @@
+slice_id: be-app_certificates
+repo: schedjuice-reimagined-be
+path: app_certificates
+skipped: false
+deleted:
+  - path: app_certificates/views.py
+    symbol: CertificateTemplateCategoryListView.prepare_queryset
+    reason: dead-export
+    confidence: obvious
+    notes: >-
+      Pass-through override that only called super().prepare_queryset and returned
+      unchanged; no select_related/filter. Equivalent to inheriting the base method.
+fixed_docs: []
+anti_pattern_fixes:
+  - path: app_certificates/tests/__init__.py
+    reason: missing-tests-package-init
+    confidence: obvious
+    notes: >-
+      tests/ lacked __init__.py (namespace package); empty __init__.py matches other
+      apps and restores reliable manage.py test discovery for app_certificates.tests.
+ambiguous:
+  - path: app_certificates/views.py
+    symbol: CertificateTemplateDetailsView.put
+    reason: put-always-405-but-permission-declared
+    confidence: ambiguous
+    notes: >-
+      put() always returns 405 method_not_allowed while required_permissions still
+      lists PUT: certificate.manage (DELETE is undeclared → RBAC deny). May be
+      intentional dual-layer deny or leftover; do not change without confirm.
+files_touched:
+  - app_certificates/views.py
+  - app_certificates/tests/__init__.py
+  - docs/superpowers/specs/hygiene-reports/be-app_certificates.yaml
+verification:
+  command: ./scripts/run_backend_tests.sh app_certificates.tests
+  passed: true
+  notes: Ran 1 test, OK (--keepdb)

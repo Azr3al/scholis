@@ -1,0 +1,20 @@
+id: intake_planning
+label: Plan an intake launch
+scenario_packs:
+  - intake-launch
+demo_stops:
+  - route: /intakes
+    role: demo-admin
+    talk_track: Start from intakes to show upcoming launch windows and planned rollout dates.
+    look_for:
+      - DEMO-K12 Intake 2026
+      - Planned intake date range
+  - route: /programs
+    role: demo-admin
+    talk_track: Confirm the K12 program is intake-based before generating class batches.
+  - route: /courses
+    role: demo-admin
+    talk_track: Review the generated course stubs and explain how teams finalize sections.
+    look_for:
+      - DEMO-K12-G7-A-Math
+      - DEMO-K12-G8-A-English

@@ -1,0 +1,25 @@
+slice_id: fe-lib-chat-threads
+repo: schedjuice-reimagined-fe
+path: src/lib/chat-threads
+skipped: false
+deleted:
+  - path: src/lib/chat-threads/course-last-messages-query.test.ts
+    test_name: maps preview fields for a course with activity
+    reason: obvious-smoke
+  - path: src/lib/chat-threads/derive-dm-participant.test.ts
+    test_name: adds other_participant for list rendering
+    reason: obvious-smoke
+replaced: []
+ambiguous:
+  - path: src/lib/chat-threads/course-last-messages-query.test.ts
+    test_name: sorts ids for a stable key
+    reason: may-be-querykey-contract
+    notes: >
+      Stable sorted course-id key for react-query; sorting is the non-trivial bit.
+files_touched:
+  - src/lib/chat-threads/course-last-messages-query.test.ts
+  - src/lib/chat-threads/derive-dm-participant.test.ts
+verification:
+  command: pnpm exec vitest run --config vitest.config.mts src/lib/chat-threads
+  passed: true
+  tests_passed: 6
