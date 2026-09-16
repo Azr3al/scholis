@@ -1,9 +1,0 @@
-id: intake-launch
-description: Seed one K12 intake and a few planned course stubs for launch walkthroughs.
-seeds:
-  intake_name: DEMO-K12 Intake 2026
-  program_name: K12 Core Program
-  stubs:
-    - DEMO-K12-G7-A-Math
-    - DEMO-K12-G7-B-Science
-    - DEMO-K12-G8-A-English

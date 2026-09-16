@@ -1,6 +1,0 @@
-id: enrollment-pipeline
-description: Seed CRM leads and an appointment-focused enrollment funnel.
-seeds:
-  lead_count: 6
-  appointment_slots: 1
-  skip_when_unavailable: "Skip with clear message when CRM tables are not migrated."

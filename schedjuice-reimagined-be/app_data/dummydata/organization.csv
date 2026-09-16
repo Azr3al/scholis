@@ -1,4 +1,0 @@
-id,name,domain_url,schema_name,tagline,is_admin,is_microsoft_on,available_domains
-1,Schedjuice,schedjuice.thiha.net,xschedjuice,"A businessman's dream; an engineer's masterpiece; for educators across the nation.",True,False,{}
-2,Testing Org,mmsp.thiha.net,xschedjuicethihanet,"This is a test",False,False,{}
-3,Teacher Su International School,suconnect.teachersucenter.com,xteachersu,welcome to Teacher Su International School,False,True,{"teachersucenter.com"}

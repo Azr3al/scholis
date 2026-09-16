@@ -1,9 +1,0 @@
-diff a/schedjuice-reimagined-fe/src/components/org/record/org-record-shell.tsx b/schedjuice-reimagined-fe/src/components/org/record/org-record-shell.tsx	(rejected hunks)
-@@ -391,6 +391,7 @@ function OrgRecordShellInner({
-           form={form}
-           objectFormSchema={objectFormSchema}
-           fieldConfig={fieldConfig}
-+          recordContext={orgRecordCtx}
-           showPropagationNote={PROPAGATION_NOTE_SECTIONS.has(sectionId)}
-           childrenBefore={
-             sectionId === "profile" ? (

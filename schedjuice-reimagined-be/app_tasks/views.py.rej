@@ -1,9 +1,0 @@
-diff a/schedjuice-reimagined-be/app_tasks/views.py b/schedjuice-reimagined-be/app_tasks/views.py	(rejected hunks)
-@@ -44,6 +44,7 @@ MS_TEAMS_COMMANDS = frozenset({
-     "backfill-user-codes",
-     "reset-payment-receipt-numbering",
-     "backfill-multi-course-payment-coverage",
-+    "backfill-late-joiner-billing",
-     "backfill_teams_announcements",
- })
- 

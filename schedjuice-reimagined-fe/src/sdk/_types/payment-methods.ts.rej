@@ -1,7 +1,0 @@
-diff a/schedjuice-reimagined-fe/src/sdk/_types/payment-methods.ts b/schedjuice-reimagined-fe/src/sdk/_types/payment-methods.ts	(rejected hunks)
-@@ -8,4 +8,5 @@ export type PaymentMethod = {
-   payment_bank?: string | null;
-   bank_account_number?: string | null;
-   description?: string | null;
-+  is_retired?: boolean | null;
- };
