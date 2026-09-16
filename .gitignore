@@ -56,3 +56,7 @@ IMPLEMENTATION.md
 
 # Local object storage used by the API's filesystem storage provider
 .storage/
+
+# Patch-apply debris from merge resolution (rejected hunks / snapshot patches)
+*.rej
+/*.patch

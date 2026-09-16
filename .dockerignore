@@ -17,3 +17,10 @@ coverage
 .env.*
 playwright-report
 test-results
+
+# Patch-apply debris from merge resolution (rejected hunks / snapshot patches).
+# The builder stage does `COPY . .` — keep these out of the image.
+*.rej
+**/*.rej
+*.patch
+**/*.patch
